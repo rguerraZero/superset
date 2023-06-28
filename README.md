@@ -1,6 +1,6 @@
 ---
-Service Owner: Andrew Mason (@amason09)
-Secondaries: Guillermo Negrete (@zgnegrete)
+Service Owner: Guillermo Negrete (@zgnegrete)
+Secondaries: 
 ---
 
 # superset
