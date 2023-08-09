@@ -1,100 +1,155 @@
-ARG NODE_VERSION=16
-ARG PYTHON_VERSION=3.8
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-FROM python:$PYTHON_VERSION
+######################################################################
+# Node stage to deal with static asset construction
+######################################################################
+ARG PY_VER=3.8.16-slim
+FROM node:16-slim AS superset-node
 
-# Configure environment
-# superset recommended defaults: https://superset.apache.org/docs/installation/configuring-superset#running-on-a-wsgi-http-server
-# gunicorn recommended defaults: https://docs.gunicorn.org/en/0.17.2/configure.html#security
-ARG SUPERSET_VERSION=2.1.0
-ENV FLASK_ENV=testing
-ENV FLASK_APP=superset
-ENV GUNICORN_BIND=0.0.0.0:8088
-ENV GUNICORN_LIMIT_REQUEST_FIELD_SIZE=8190
-ENV GUNICORN_LIMIT_REQUEST_LINE=4094
-ENV GUNICORN_THREADS=20
-ENV GUNICORN_TIMEOUT=300
-ENV GUNICORN_WORKERS=6
-ENV GUNICORN_WORKER_CLASS=gthread
-ENV GUNICORN_CERT=/secrets/server.crt
-ENV GUNICORN_KEY=/secrets/server.key
-ENV GUNICORN_KEEPALIVE=65
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
-ENV PYTHONPATH=/etc/superset:/home/superset:/:$PYTHONPATH
-ENV SUPERSET_REPO=apache/superset
-ENV SUPERSET_HOME=/var/lib/superset
-ENV SUPERSET_VERSION=$SUPERSET_VERSION
-ENV SUPERSET_CONFIG_PATH=/superset_config.py
-ENV GECKODRIVER_VERSION=0.29.0
-ENV GUNICORN_CMD_ARGS="--bind $GUNICORN_BIND --certfile $GUNICORN_CERT --keyfile $GUNICORN_KEY --limit-request-field_size $GUNICORN_LIMIT_REQUEST_FIELD_SIZE --limit-request-line $GUNICORN_LIMIT_REQUEST_LINE --threads $GUNICORN_THREADS --timeout $GUNICORN_TIMEOUT --workers $GUNICORN_WORKERS --worker-class $GUNICORN_WORKER_CLASS --keep-alive $GUNICORN_KEEPALIVE"
+ARG NPM_BUILD_CMD="build"
+ENV BUILD_CMD=${NPM_BUILD_CMD}
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-RUN apt-get -y update && \
-    apt-get -y upgrade && \
-    apt-get -y autoclean && \
-    apt-get -y clean all
+# NPM ci first, as to NOT invalidate previous steps except for when package.json changes
+RUN mkdir -p /app/superset-frontend
 
-# Create superset user & install dependencies
-WORKDIR /home/superset
-COPY requirements*.txt ./
-RUN groupadd supergroup && \
-    useradd -U -G supergroup superset && \
-    chown superset:superset /home/superset && \
-    mkdir -p /etc/superset && \
-    mkdir -p $SUPERSET_HOME && \
-    chown -R superset:superset /etc/superset && \
-    chown -R superset:superset $SUPERSET_HOME && \
-    apt-get update && \
-    apt-get install -y \
-    build-essential \
-    curl \
-    default-libmysqlclient-dev \
-    freetds-bin \
-    freetds-dev \
-    libaio1 \
-    libecpg-dev \
-    libffi-dev \
-    libldap2-dev \
-    libpq-dev \
-    libsasl2-2 \
-    libsasl2-dev \
-    libsasl2-modules-gssapi-mit \
-    libssl-dev && \
-    openssl && \
-    apt-get clean && \
-    pip install apache-superset==$SUPERSET_VERSION && \
-    pip uninstall -y markupsafe && \
-    pip install markupsafe==2.0.1 && \
-    pip uninstall -y Werkzeug && \
-    pip install Werkzeug==2.0.3 && \
-    pip install flask==2.1.3 && \
-    pip install Flask-WTF && \
-    pip install WTForms==2.3.3 && \
-    pip install -r requirements.txt
+COPY ./docker/frontend-mem-nag.sh /
+RUN /frontend-mem-nag.sh
 
-RUN apt-get update && \
-    wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
-    rm -f google-chrome-stable_current_amd64.deb
+WORKDIR /app/superset-frontend/
 
-RUN export CHROMEDRIVER_VERSION=$(curl --silent https://chromedriver.storage.googleapis.com/LATEST_RELEASE_111) && \
-    wget -q https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip && \
-    unzip chromedriver_linux64.zip -d /usr/bin && \
-    chmod 755 /usr/bin/chromedriver && \
-    rm -f chromedriver_linux64.zip
+COPY superset-frontend/package*.json ./
+RUN npm ci
 
-# Configure Filesystem
-COPY bin /usr/local/bin
-COPY config/superset_config.py /superset_config.py
-COPY config/custom_sso_security_manager.py /custom_sso_security_manager.py
-VOLUME /etc/superset
-VOLUME /home/superset
-VOLUME /var/lib/superset
+COPY ./superset-frontend .
 
-RUN chmod a+x /usr/local/bin/superset-init.sh
+# This seems to be the most expensive step
+RUN npm run ${BUILD_CMD}
 
-# Finalize application
-EXPOSE 8088 5555
+######################################################################
+# Final lean image...
+######################################################################
+FROM python:${PY_VER} AS lean
+
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    FLASK_ENV=production \
+    FLASK_APP="superset.app:create_app()" \
+    PYTHONPATH="/app/pythonpath" \
+    SUPERSET_HOME="/app/superset_home" \
+    SUPERSET_PORT=8088
+
+RUN mkdir -p ${PYTHONPATH} \
+        && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
+        && apt-get update -y \
+        && apt-get install -y --no-install-recommends \
+            build-essential \
+            curl \
+            default-libmysqlclient-dev \
+            libsasl2-dev \
+            libsasl2-modules-gssapi-mit \
+            libpq-dev \
+            libecpg-dev \
+        && rm -rf /var/lib/apt/lists/*
+
+COPY ./requirements/*.txt  /app/requirements/
+COPY setup.py MANIFEST.in README.md /app/
+
+# setup.py uses the version information in package.json
+COPY superset-frontend/package.json /app/superset-frontend/
+
+RUN cd /app \
+    && mkdir -p superset/static \
+    && touch superset/static/version_info.json \
+    && pip install --no-cache -r requirements/local.txt
+
+COPY --from=superset-node /app/superset/static/assets /app/superset/static/assets
+
+## Lastly, let's install superset itself
+COPY superset /app/superset
+COPY setup.py MANIFEST.in README.md /app/
+RUN cd /app \
+        && chown -R superset:superset * \
+        && pip install -e . \
+        && flask fab babel-compile --target superset/translations
+
+COPY ./docker/run-server.sh /usr/bin/
+
+RUN chmod a+x /usr/bin/run-server.sh
+
+WORKDIR /app
+
 USER superset
-HEALTHCHECK CMD ["curl", "-f", "http://0.0.0.0:8088/health"]
-CMD ["/usr/local/bin/superset-init.sh"]
+
+HEALTHCHECK CMD curl -f "http://localhost:$SUPERSET_PORT/health"
+
+EXPOSE ${SUPERSET_PORT}
+
+CMD /usr/bin/run-server.sh
+
+######################################################################
+# Dev image...
+######################################################################
+FROM lean AS dev
+ARG GECKODRIVER_VERSION=v0.32.0
+ARG FIREFOX_VERSION=106.0.3
+
+COPY ./requirements/*.txt ./docker/requirements-*.txt/ /app/requirements/
+
+USER root
+
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+          libnss3 \
+          libdbus-glib-1-2 \
+          libgtk-3-0 \
+          libx11-xcb1 \
+          libasound2 \
+          libxtst6 \
+          wget
+
+# Install GeckoDriver WebDriver
+RUN wget https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -O /tmp/geckodriver.tar.gz && \
+    tar xvfz /tmp/geckodriver.tar.gz -C /tmp && \
+    mv /tmp/geckodriver /usr/local/bin/geckodriver && \
+    rm /tmp/geckodriver.tar.gz
+
+# Install Firefox
+RUN wget https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2 -O /opt/firefox.tar.bz2 && \
+    tar xvf /opt/firefox.tar.bz2 -C /opt && \
+    ln -s /opt/firefox/firefox /usr/local/bin/firefox
+
+# Cache everything for dev purposes...
+RUN cd /app \
+    && pip install --no-cache -r requirements/docker.txt \
+    && pip install --no-cache -r requirements/requirements-local.txt || true
+USER superset
+
+
+######################################################################
+# CI image...
+######################################################################
+FROM lean AS ci
+
+COPY --chown=superset ./docker/docker-bootstrap.sh /app/docker/
+COPY --chown=superset ./docker/docker-init.sh /app/docker/
+COPY --chown=superset ./docker/docker-ci.sh /app/docker/
+
+RUN chmod a+x /app/docker/*.sh
+
+CMD /app/docker/docker-ci.sh

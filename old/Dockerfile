@@ -6,21 +6,19 @@ FROM python:$PYTHON_VERSION
 # Configure environment
 # superset recommended defaults: https://superset.apache.org/docs/installation/configuring-superset#running-on-a-wsgi-http-server
 # gunicorn recommended defaults: https://docs.gunicorn.org/en/0.17.2/configure.html#security
-# asdsd
 ARG SUPERSET_VERSION=2.1.0
-# flask env test
-ENV FLASK_ENV=development
+ENV FLASK_ENV=testing
 ENV FLASK_APP=superset
 ENV GUNICORN_BIND=0.0.0.0:8088
 ENV GUNICORN_LIMIT_REQUEST_FIELD_SIZE=8190
 ENV GUNICORN_LIMIT_REQUEST_LINE=4094
 ENV GUNICORN_THREADS=20
-ENV GUNICORN_TIMEOUT=60
-ENV GUNICORN_WORKERS=4
+ENV GUNICORN_TIMEOUT=300
+ENV GUNICORN_WORKERS=6
 ENV GUNICORN_WORKER_CLASS=gthread
 ENV GUNICORN_CERT=/secrets/server.crt
 ENV GUNICORN_KEY=/secrets/server.key
-ENV GUNICORN_KEEPALIVE=2
+ENV GUNICORN_KEEPALIVE=65
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 ENV PYTHONPATH=/etc/superset:/home/superset:/:$PYTHONPATH
@@ -28,8 +26,8 @@ ENV SUPERSET_REPO=apache/superset
 ENV SUPERSET_HOME=/var/lib/superset
 ENV SUPERSET_VERSION=$SUPERSET_VERSION
 ENV SUPERSET_CONFIG_PATH=/superset_config.py
-ENV GUNICORN_CMD_ARGS="--bind $GUNICORN_BIND --limit-request-field_size $GUNICORN_LIMIT_REQUEST_FIELD_SIZE --limit-request-line $GUNICORN_LIMIT_REQUEST_LINE --threads $GUNICORN_THREADS --timeout $GUNICORN_TIMEOUT --workers $GUNICORN_WORKERS --worker-class $GUNICORN_WORKER_CLASS --keep-alive $GUNICORN_KEEPALIVE"
-
+ENV GECKODRIVER_VERSION=0.29.0
+ENV GUNICORN_CMD_ARGS="--bind $GUNICORN_BIND --certfile $GUNICORN_CERT --keyfile $GUNICORN_KEY --limit-request-field_size $GUNICORN_LIMIT_REQUEST_FIELD_SIZE --limit-request-line $GUNICORN_LIMIT_REQUEST_LINE --threads $GUNICORN_THREADS --timeout $GUNICORN_TIMEOUT --workers $GUNICORN_WORKERS --worker-class $GUNICORN_WORKER_CLASS --keep-alive $GUNICORN_KEEPALIVE"
 
 RUN apt-get -y update && \
     apt-get -y upgrade && \
@@ -87,11 +85,8 @@ RUN export CHROMEDRIVER_VERSION=$(curl --silent https://chromedriver.storage.goo
 
 # Configure Filesystem
 COPY bin /usr/local/bin
-COPY config/superset_config_local.py /superset_config.py
-COPY config/custom_bi_security_manager.py /custom_bi_security_manager.py
-COPY config/bi_security_manager /bi_security_manager
-VOLUME /secrets
-COPY dev/secrets/ /secrets/
+COPY config/superset_config.py /superset_config.py
+COPY config/custom_sso_security_manager.py /custom_sso_security_manager.py
 VOLUME /etc/superset
 VOLUME /home/superset
 VOLUME /var/lib/superset
