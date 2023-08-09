@@ -17,7 +17,22 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-# Superset External
+# Welcome to Superset External
+
+This repository  contains a copy of superset repo, to be compiled and used as a dependency for other projects.
+
+
+## Current Superset Version Used: 2.1.1, Updated By Guillermo Negrete
+
+
+## How to update this repo
+
+in case that you need to update this repo, you can do in two ways
+
+1. Updating from the original repo
+2. Updating by a handmade fix
+
+## Information
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/apache/superset?sort=semver)](https://github.com/apache/superset/tree/latest)
