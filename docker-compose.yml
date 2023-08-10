@@ -26,7 +26,11 @@ x-superset-volumes: &superset-volumes
   - ./superset-frontend:/app/superset-frontend
   - superset_home:/app/superset_home
   - ./tests:/app/tests
-
+  - ./config/superset_config_local.py:/app/superset_config.py
+  - ./config/custom_bi_security_manager.py:/app/custom_bi_security_manager.py
+  - ./config/bi_security_manager/:/app/bi_security_manager/
+  - ./dev/secrets/:/secrets/
+  
 version: "3.7"
 services:
   redis:
@@ -113,27 +117,6 @@ services:
     volumes: *superset-volumes
     healthcheck:
       disable: true
-
-  superset-tests-worker:
-    image: superset-local
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: superset_tests_worker
-    command: ["/app/docker/docker-bootstrap.sh", "worker"]
-    env_file: docker/.env
-    environment:
-      DATABASE_HOST: localhost
-      DATABASE_DB: test
-      REDIS_CELERY_DB: 2
-      REDIS_RESULTS_DB: 3
-      REDIS_HOST: localhost
-    network_mode: host
-    depends_on: *superset-depends-on
-    user: *superset-user
-    volumes: *superset-volumes
-    healthcheck:
-      test: ["CMD-SHELL", "celery inspect ping -A superset.tasks.celery_app:app -d celery@$$HOSTNAME"]
 
 volumes:
   superset_home:

@@ -61,13 +61,31 @@ FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_REMOVE_FILTERS": True,
 }
 
+# stuff
+DATABASE_DIALECT = get_env_variable("DATABASE_DIALECT")
+DATABASE_USER = get_env_variable("DATABASE_USER")
+DATABASE_PASSWORD = get_env_variable("DATABASE_PASSWORD")
+DATABASE_HOST = get_env_variable("DATABASE_HOST")
+DATABASE_PORT = get_env_variable("DATABASE_PORT")
+DATABASE_DB = get_env_variable("DATABASE_DB")
+
+# The SQLAlchemy connection string.
+SQLALCHEMY_DATABASE_URI = "%s://%s:%s@%s:%s/%s" % (
+    DATABASE_DIALECT,
+    DATABASE_USER,
+    DATABASE_PASSWORD,
+    DATABASE_HOST,
+    DATABASE_PORT,
+    DATABASE_DB,
+)
+
+
 PREVIOUS_SECRET_KEY = "CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET"
 SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY")
 SUPERSET_WEBSERVER_TIMEOUT = 300
 SUPERSET_WEBSERVER_PROTOCOL = "http"
 
 # The SQLAlchemy connection string.
-SQLALCHEMY_DATABASE_URI = get_env_variable("DATABASE_URL")
 REDIS_HOST = get_env_variable("CELERY_URL")
 REDIS_PORT = get_env_variable("CELERY_PORT")
 REDIS_CELERY_DB = get_env_variable("REDIS_CELERY_DB", "0")

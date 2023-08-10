@@ -55,17 +55,17 @@ ENV LANG=C.UTF-8 \
     SUPERSET_PORT=8088
 
 RUN mkdir -p ${PYTHONPATH} \
-        && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
-        && apt-get update -y \
-        && apt-get install -y --no-install-recommends \
-            build-essential \
-            curl \
-            default-libmysqlclient-dev \
-            libsasl2-dev \
-            libsasl2-modules-gssapi-mit \
-            libpq-dev \
-            libecpg-dev \
-        && rm -rf /var/lib/apt/lists/*
+    && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
+    && apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    default-libmysqlclient-dev \
+    libsasl2-dev \
+    libsasl2-modules-gssapi-mit \
+    libpq-dev \
+    libecpg-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY ./requirements/*.txt  /app/requirements/
 COPY setup.py MANIFEST.in README.md /app/
@@ -84,9 +84,9 @@ COPY --from=superset-node /app/superset/static/assets /app/superset/static/asset
 COPY superset /app/superset
 COPY setup.py MANIFEST.in README.md /app/
 RUN cd /app \
-        && chown -R superset:superset * \
-        && pip install -e . \
-        && flask fab babel-compile --target superset/translations
+    && chown -R superset:superset * \
+    && pip install -e . \
+    && flask fab babel-compile --target superset/translations
 
 COPY ./docker/run-server.sh /usr/bin/
 
@@ -106,7 +106,7 @@ CMD /usr/bin/run-server.sh
 # Dev image...
 ######################################################################
 FROM lean AS dev
-ARG GECKODRIVER_VERSION=v0.32.0
+ARG GECKODRIVER_VERSION=0.29.0
 ARG FIREFOX_VERSION=106.0.3
 
 COPY ./requirements/*.txt ./docker/requirements-*.txt/ /app/requirements/
@@ -115,25 +115,27 @@ USER root
 
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
-          libnss3 \
-          libdbus-glib-1-2 \
-          libgtk-3-0 \
-          libx11-xcb1 \
-          libasound2 \
-          libxtst6 \
-          wget
+    libnss3 \
+    libdbus-glib-1-2 \
+    libgtk-3-0 \
+    libx11-xcb1 \
+    libasound2 \
+    libxtst6 \
+    wget
+
+ENV GECKODRIVER_VERSION=0.29.0
 
 # Install GeckoDriver WebDriver
-RUN wget https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -O /tmp/geckodriver.tar.gz && \
-    tar xvfz /tmp/geckodriver.tar.gz -C /tmp && \
-    mv /tmp/geckodriver /usr/local/bin/geckodriver && \
-    rm /tmp/geckodriver.tar.gz
+RUN apt-get update && \
+    wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
+    rm -f google-chrome-stable_current_amd64.deb
 
-# Install Firefox
-RUN wget https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2 -O /opt/firefox.tar.bz2 && \
-    tar xvf /opt/firefox.tar.bz2 -C /opt && \
-    ln -s /opt/firefox/firefox /usr/local/bin/firefox
-
+RUN export CHROMEDRIVER_VERSION=$(curl --silent https://chromedriver.storage.googleapis.com/LATEST_RELEASE_111) && \
+    wget -q https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip && \
+    unzip chromedriver_linux64.zip -d /usr/bin && \
+    chmod 755 /usr/bin/chromedriver && \
+    rm -f chromedriver_linux64.zip
 # Cache everything for dev purposes...
 RUN cd /app \
     && pip install --no-cache -r requirements/docker.txt \
@@ -149,6 +151,8 @@ FROM lean AS ci
 COPY --chown=superset ./docker/docker-bootstrap.sh /app/docker/
 COPY --chown=superset ./docker/docker-init.sh /app/docker/
 COPY --chown=superset ./docker/docker-ci.sh /app/docker/
+COPY config/superset_config.py /app/superset_config.py
+COPY config/custom_sso_security_manager.py /app/custom_sso_security_manager.py
 
 RUN chmod a+x /app/docker/*.sh
 

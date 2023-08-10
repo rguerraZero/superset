@@ -1,9 +1,8 @@
 from typing import List
-import pandas as pd
+from functools import lru_cache
 
 from bi_security_manager.port.a_sql import ASql
 from bi_security_manager.models.datasource import DataSource
-from bi_security_manager.models.user import User
 from bi_security_manager.sql.queries import DATA_SOURCE_PERMISSIONS_QUERY
 
 
@@ -16,16 +15,26 @@ class DataSourcePermission:
     def __init__(self, sql: ASql):
         self.sql: ASql = sql
 
-    def get_data_sources(self, user: User) -> List[DataSource]:
+    @lru_cache(typed=True)
+    def get_data_sources(self, role_name: str, access_method: str) -> List[DataSource]:
+        """
+        Retrieves list of datasources based on `role_name` and `access_method`
+        """
+        if role_name in [None, ""]:
+            raise ValueError("role_name is required")
+
+        if access_method not in ["internal", "external"]:
+            raise ValueError("access_method is required")
+
         query = DATA_SOURCE_PERMISSIONS_QUERY.format(
-            role_name=user.role_name, access_method=user.access_method
+            role_name=role_name, access_method=access_method
         )
 
         df = self.sql.get_df(query)
 
         if df.empty:
             raise ValueError(
-                f"Datasource not found based on role name = {user.role_name} "
+                f"Datasource not found based on role name = {role_name} and access method = {access_method} "
             )
 
         data_sources = []

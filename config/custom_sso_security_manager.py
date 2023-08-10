@@ -5,7 +5,8 @@ import pandas_gbq
 
 
 class CustomSsoSecurityManager(SupersetSecurityManager):
-    
+    # Custom Auth path
+
     def oauth_user_info(self, provider, response=None):
         logging.debug("Oauth2 provider: {0}.".format(provider))
         if provider == "zfapi":

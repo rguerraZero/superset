@@ -1,5 +1,6 @@
 from typing import List
 import pandas as pd
+from functools import lru_cache
 
 from bi_security_manager.port.a_sql import ASql
 from bi_security_manager.models.superset_role_permission import SupersetRolePermission
@@ -16,7 +17,8 @@ class RoleGatherer:
     def __init__(self, sql: ASql):
         self.sql: ASql = sql
 
-    def get_user_role_name(self, user: User) -> str:
+    @lru_cache()
+    def get_user_role_name(self, email: str, access_method: str) -> str:
         """
         Retrieves user role name based on user_email
 
@@ -25,15 +27,18 @@ class RoleGatherer:
         For internal users, will look in `bi_superset_access.roles_per_job_title`
 
         """
-        if user is None:
+        if email in [None, ""]:
             raise ValueError("user is required")
 
+        if access_method not in ["internal", "external"]:
+            raise ValueError("access_method is required")
+
         # External users default role is view_only
-        if user.access_method == "external":
+        if access_method == "external":
             return "view_only"
 
         # Loads and parse roles_per_job_title
-        query = ROLES_PER_JOB_TITLE.format(email=user.email)
+        query = ROLES_PER_JOB_TITLE.format(email=email)
 
         df = self.sql.get_df(query)
 
@@ -64,22 +69,25 @@ class RoleGatherer:
             permission = SupersetRolePermission.from_permission_name(
                 row["permission_name"]
             )
-            permissions.append(permission.to_superset_permision_dict())
+            permissions.append(permission)
 
         return permissions
 
-    def get_user_role_permission(self, user: User):
+    @lru_cache()
+    def get_user_role_permission(
+        self, role_name: str, access_method: str
+    ) -> List[SupersetRolePermission]:
         """
         Returns a list of SupersetRolePermission from bq
         """
-        if user is None:
-            raise ValueError("user is required")
+        if role_name in [None, ""]:
+            raise ValueError("role_name is required")
 
-        if user.role_name is None:
-            raise ValueError("user.role_name is required")
+        if access_method not in ["internal", "external"]:
+            raise ValueError("access_method is required")
 
         query = ROLE_DEFINITIONS_QUERY.format(
-            role_name=user.role_name, access_method=user.access_method
+            role_name=role_name, access_method=access_method
         )
 
         df = self.sql.get_df(query)

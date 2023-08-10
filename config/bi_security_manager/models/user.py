@@ -36,6 +36,18 @@ class User:
         return self._email
 
     @property
+    def username(self) -> str:
+        return self._username
+
+    @property
+    def first_name(self) -> str:
+        return self._first_name
+
+    @property
+    def last_name(self) -> str:
+        return self._last_name
+
+    @property
     def enterprise_id(self) -> int:
         return self._enterprise_id
 
@@ -48,6 +60,12 @@ class User:
     @property
     def role_name(self) -> str:
         return self._role_name
+
+    @property
+    def superset_role_name(self) -> str:
+        if self.access_method == "external":
+            return "view_only".replace("_", " ").title()
+        return self.role_name.replace("_", " ").title()
 
     @role_name.setter
     def role_name(self, role_name: str):

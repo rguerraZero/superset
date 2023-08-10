@@ -299,3 +299,19 @@ xlsxwriter==3.0.7
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
+# Extra from BI
+cryptography<40,>=39.0.0
+pyopenssl
+psycopg2-binary
+redis
+sqlalchemy-bigquery>=1.5.0
+flower
+authlib==0.15.5
+social-auth-core
+pandas-gbq>=0.18.1
+pandas>=1.5.3, <1.6
+google-cloud-bigquery>=3.4.0
+gevent==21.8.0
+pillow==9.3.0
+selenium==3.141.0
+sqlparse==0.4.3

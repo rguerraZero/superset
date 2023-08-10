@@ -49,8 +49,9 @@ def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
             )
             raise EnvironmentError(error_msg)
 
+
 FEATURE_FLAGS = {
-    'ENABLE_TEMPLATE_PROCESSING': True,
+    "ENABLE_TEMPLATE_PROCESSING": True,
     "ESTIMATE_QUERY_COST": True,
     "ALERT_REPORTS": True,
     "ALLOW_FULL_CSV_EXPORT": True,
@@ -58,11 +59,10 @@ FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_REMOVE_FILTERS": True,
 }
 
-PREVIOUS_SECRET_KEY = 'CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET'
+PREVIOUS_SECRET_KEY = "CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET"
 SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY")
 CURRENT_ENV = os.environ.get("ENV")
 # The SQLAlchemy connection string.
-SQLALCHEMY_DATABASE_URI = get_env_variable("DATABASE_URL")
 SQLALCHEMY_POOL_SIZE = 20
 SQLALCHEMY_MAX_OVERFLOW = 30
 SQLALCHEMY_POOL_TIMEOUT = 180
@@ -73,7 +73,7 @@ REDIS_RESULTS_DB = get_env_variable("REDIS_RESULTS_DB", "1")
 
 CACHE_CONFIG: CacheConfig = {
     "CACHE_TYPE": "redis",
-    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()), 
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()),
     "CACHE_KEY_PREFIX": "superset_cache",
     "CACHE_REDIS_HOST": REDIS_HOST,
     "CACHE_REDIS_PORT": REDIS_PORT,
@@ -82,7 +82,7 @@ CACHE_CONFIG: CacheConfig = {
 
 FILTER_STATE_CACHE_CONFIG: CacheConfig = {
     "CACHE_TYPE": "redis",
-    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()), 
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()),
     "CACHE_KEY_PREFIX": "superset_filter_cache",
     "CACHE_REDIS_HOST": REDIS_HOST,
     "CACHE_REDIS_PORT": REDIS_PORT,
@@ -90,7 +90,7 @@ FILTER_STATE_CACHE_CONFIG: CacheConfig = {
 }
 EXPLORE_FORM_DATA_CACHE_CONFIG: CacheConfig = {
     "CACHE_TYPE": "redis",
-    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()), 
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()),
     "CACHE_KEY_PREFIX": "superset_explore_cache",
     "CACHE_REDIS_HOST": REDIS_HOST,
     "CACHE_REDIS_PORT": REDIS_PORT,
@@ -98,7 +98,7 @@ EXPLORE_FORM_DATA_CACHE_CONFIG: CacheConfig = {
 }
 DATA_CACHE_CONFIG: CacheConfig = {
     "CACHE_TYPE": "redis",
-    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()), 
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=1).total_seconds()),
     "CACHE_KEY_PREFIX": "superset_data_cache",
     "CACHE_REDIS_HOST": REDIS_HOST,
     "CACHE_REDIS_PORT": REDIS_PORT,
@@ -176,6 +176,7 @@ OAUTH_PROVIDERS = [
 
 # CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 
+
 class CeleryConfig:  # pylint: disable=too-few-public-methods
     broker_url = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
     imports = ("superset.sql_lab",)
@@ -206,4 +207,5 @@ class CeleryConfig:  # pylint: disable=too-few-public-methods
         },
     }
 
-CELERY_CONFIG = CeleryConfig   # pylint: disable=invalid-name
+
+CELERY_CONFIG = CeleryConfig  # pylint: disable=invalid-name

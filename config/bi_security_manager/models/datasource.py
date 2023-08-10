@@ -5,6 +5,10 @@ class DataSource:
         self._schema = schema
         self._table = table
 
+    def is_valid(self) -> bool:
+        if self.database in [None, ""]:
+            return False
+
     @property
     def database(self):
         return self._database + "/" + self._project

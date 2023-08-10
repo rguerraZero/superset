@@ -1,3 +1,4 @@
+from functools import lru_cache
 from bi_security_manager.port.a_sql import ASql
 from bi_security_manager.models.user import User
 from bi_security_manager.sql.queries import (
@@ -11,6 +12,7 @@ class UserGatherer:
     def __init__(self, sql: ASql):
         self.sql = sql
 
+    @lru_cache()
     def get_user(self, user_email: str) -> User:
         """
         Returns user from zf api cache
