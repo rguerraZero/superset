@@ -1,6 +1,6 @@
 ---
 Service Owner: Guillermo Negrete (@zgnegrete)
-Secondaries: 
+Secondaries:
 ---
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
@@ -34,6 +34,13 @@ to run it locally take in note that needs atleast 3gb on docker memory to run pr
 1. `make build`: Generates local superset image
 2. `make run`: Runs local superset image
 
+Note: the local build will need you to compile the assets on the host machine:
+
+```
+cd superset-frontend
+npm install
+npm run build
+```
 
 ## How to update this repo
 

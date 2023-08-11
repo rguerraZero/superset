@@ -302,7 +302,7 @@ xlsxwriter==3.0.7
 # Extra from BI
 cryptography<40,>=39.0.0
 pyopenssl
-psycopg2-binary
+psycopg2
 redis
 sqlalchemy-bigquery>=1.5.0
 flower
