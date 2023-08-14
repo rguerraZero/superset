@@ -19,8 +19,19 @@
 #
 HYPHEN_SYMBOL='-'
 
+if [[ -f ${NOMAD_SECRETS_DIR}/server.bundle.pem ]]; then
+    cp ${NOMAD_SECRETS_DIR}/server.bundle.pem /app/server.bundle.pem
+    csplit -f server. -b '%01d.pem' /app/server.bundle.pem '/BEGIN EC PRIVATE KEY/'
+    mv /app/server.0.pem /app/server.crt
+    mv /app/server.1.pem /app/server.key
+else
+    echo 'certificate bundle not present'
+fi
+
 gunicorn \
     --bind "${SUPERSET_BIND_ADDRESS:-0.0.0.0}:${SUPERSET_PORT:-8088}" \
+    --certfile "${SUPERSET_CERTFILE:-$HYPHEN_SYMBOL}" \
+    --keyfile "${SUPERSET_KEYFILE:-$HYPHEN_SYMBOL}" \
     --access-logfile "${ACCESS_LOG_FILE:-$HYPHEN_SYMBOL}" \
     --error-logfile "${ERROR_LOG_FILE:-$HYPHEN_SYMBOL}" \
     --workers ${SERVER_WORKER_AMOUNT:-1} \

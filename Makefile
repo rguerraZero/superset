@@ -1,6 +1,6 @@
 run:
 	echo "Running superset locally with postgres and redis"
-	docker-compose up -d 
+	docker-compose up -d
 
 build:
 	echo "Building superset locally"

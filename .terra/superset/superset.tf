@@ -138,6 +138,8 @@ module "nomad-job" {
   app               = "${var.app}"
   ecr_url           = "${var.ecr_url}"
   git_sha           = "${var.git_sha}"
+  docker_file        = "../../Dockerfile"
+  docker_path       = "../.."
   rendered_template = "${data.template_file.nomad_job_spec.rendered}"
 }
 
@@ -146,18 +148,58 @@ resource "consul_keys" "superset-keys" {
   token      = "${var.consul_token}"
 
   key {
-    path  = "${var.app}/superset/env/celery_url"
+    path  = "${var.app}/superset/env/redis_host"
     value = "${aws_elasticache_cluster.cache.cache_nodes.0.address}"
   }
 
   key {
-    path  = "${var.app}/superset/env/celery_port"
+    path  = "${var.app}/superset/env/redis_port"
     value = "${aws_elasticache_cluster.cache.cache_nodes.0.port}"
   }
 
   key {
     path  = "${var.app}/superset/env/env"
     value = "${var.env}"
+  }
+
+  key {
+    path  = "${var.app}/superset/env/server_limit_request_field_size"
+    value = "8190"
+  }
+
+  key {
+    path  = "${var.app}/superset/env/server_limit_request_line"
+    value = "4094"
+  }
+
+  key {
+    path  = "${var.app}/superset/env/server_limit_request_fields"
+    value = "20"
+  }
+
+  key {
+    path  = "${var.app}/superset/env/gunicorn_timeout"
+    value = "300"
+  }
+
+  key {
+    path  = "${var.app}/superset/env/server_worker_amount"
+    value = "6"
+  }
+
+  key {
+    path  = "${var.app}/superset/env/superset_certfile"
+    value = "/app/server.crt"
+  }
+
+  key {
+    path  = "${var.app}/superset/env/superset_keyfile"
+    value = "/app/server.key"
+  }
+
+  key {
+    path  = "${var.app}/superset/env/gunicorn_keepalive"
+    value = "65"
   }
 }
 
