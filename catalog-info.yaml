@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: superset-external
+  annotations:
+      zerofox.com/pillar: Protection
+spec:
+  lifecycle: production
