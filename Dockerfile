@@ -31,6 +31,10 @@ RUN mkdir -p /app/superset-frontend
 COPY ./docker/frontend-mem-nag.sh /
 RUN /frontend-mem-nag.sh
 
+RUN apt-get update || : && apt-get install -y \
+    python3 \
+    build-essential
+
 WORKDIR /app/superset-frontend/
 
 COPY superset-frontend/package*.json ./
