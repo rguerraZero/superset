@@ -2,6 +2,7 @@ import logging
 from superset.security import SupersetSecurityManager
 import pandas as pd
 import pandas_gbq
+from macros import normalize_idna
 
 
 class CustomSsoSecurityManager(SupersetSecurityManager):
