@@ -109,6 +109,7 @@ USER superset
 
 COPY config/superset_config.py /app/superset_config.py
 COPY config/custom_sso_security_manager.py /app/custom_sso_security_manager.py
+COPY config/macros.py /macros.py
 
 HEALTHCHECK CMD curl -f "http://localhost:$SUPERSET_PORT/health"
 
