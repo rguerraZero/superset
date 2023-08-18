@@ -20,6 +20,8 @@
 # development environments. Also note that superset_config_docker.py is imported
 # as a final step as a means to override "defaults" configured here
 #
+# https://github.com/apache/superset/blob/master/superset/config.py
+
 import logging
 import os
 from typing import Optional
@@ -30,6 +32,8 @@ from custom_sso_security_manager import CustomSsoSecurityManager
 from celery.schedules import crontab
 from cachelib.redis import RedisCache
 from superset.superset_typing import CacheConfig
+from macros import normalize_idna
+
 
 logger = logging.getLogger()
 
@@ -57,33 +61,24 @@ FEATURE_FLAGS = {
     "ALLOW_FULL_CSV_EXPORT": True,
     "DASHBOARD_CROSS_FILTERS": True,
     "ENABLE_TEMPLATE_REMOVE_FILTERS": True,
+    "DASHBOARD_RBAC": False,
 }
+
+JINJA_CONTEXT_ADDONS = {
+    "normalize_idna": normalize_idna,
+}
+
 
 PREVIOUS_SECRET_KEY = "CHANGE_ME_TO_A_COMPLEX_RANDOM_SECRET"
 SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY")
 CURRENT_ENV = os.environ.get("ENV")
-# This comes from docker/.env
-DATABASE_DIALECT = get_env_variable("DATABASE_DIALECT")
-DATABASE_USER = get_env_variable("DATABASE_USER")
-DATABASE_PASSWORD = get_env_variable("DATABASE_PASSWORD")
-DATABASE_HOST = get_env_variable("DATABASE_HOST")
-DATABASE_PORT = get_env_variable("DATABASE_PORT")
-DATABASE_DB = get_env_variable("DATABASE_DB")
-
 # The SQLAlchemy connection string.
-SQLALCHEMY_DATABASE_URI = "%s://%s:%s@%s:%s/%s" % (
-    DATABASE_DIALECT,
-    DATABASE_USER,
-    DATABASE_PASSWORD,
-    DATABASE_HOST,
-    DATABASE_PORT,
-    DATABASE_DB,
-)
+SQLALCHEMY_DATABASE_URI = get_env_variable("DATABASE_URL")
 SQLALCHEMY_POOL_SIZE = 20
 SQLALCHEMY_MAX_OVERFLOW = 30
 SQLALCHEMY_POOL_TIMEOUT = 180
-REDIS_HOST = get_env_variable("CELERY_URL")
-REDIS_PORT = get_env_variable("CELERY_PORT")
+REDIS_HOST = get_env_variable("REDIS_HOST")
+REDIS_PORT = get_env_variable("REDIS_PORT")
 REDIS_CELERY_DB = get_env_variable("REDIS_CELERY_DB", "0")
 REDIS_RESULTS_DB = get_env_variable("REDIS_RESULTS_DB", "1")
 
@@ -128,7 +123,10 @@ RESULTS_BACKEND = RedisCache(
 SUPERSET_WEBSERVER_TIMEOUT = 300
 SUPERSET_WEBSERVER_PROTOCOL = "https"
 
-FILTER_SELECT_ROW_LIMIT = 100000
+# Superset row config variables
+FILTER_SELECT_ROW_LIMIT = (
+    10000  # moving down to 10k, theory behind breaking dynamic filters
+)
 ROW_LIMIT = 500000
 SQL_MAX_ROW = 5000000
 DISPLAY_MAX_ROW = 10000
@@ -143,7 +141,7 @@ SMTP_SSL = False
 SMTP_USER = get_env_variable("SENDGRID_USERNAME")
 SMTP_PORT = get_env_variable("SENDGRID_PORT")
 SMTP_PASSWORD = get_env_variable("SENDGRID_PASSWORD")
-SMTP_MAIL_FROM = "superset@zerofox.com"
+SMTP_MAIL_FROM = "report@zerofox.com"
 CLIENT_ID = get_env_variable("SSO_CLIENT_ID")
 CLIENT_SECRET = get_env_variable("SSO_CLIENT_SECRET")
 API_BASE_URL = get_env_variable("SSO_API_BASE_URL")
@@ -185,12 +183,12 @@ OAUTH_PROVIDERS = [
 ]
 
 # Will allow user self registration, allowing to create Flask users from Authorized User
-# AUTH_USER_REGISTRATION = True
+AUTH_USER_REGISTRATION = True
 
 # # The default user self registration role
 # AUTH_USER_REGISTRATION_ROLE = "Public"
 
-# CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
+CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 
 
 class CeleryConfig:  # pylint: disable=too-few-public-methods

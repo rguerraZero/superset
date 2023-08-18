@@ -19,5 +19,5 @@ steps:
       - apk add -U make openssh-client jq zip
       - mkdir ~/.ssh && echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519 && chmod 0600 ~/.ssh/id_ed25519
       - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-      - make -C .terra/ init
-      - make -C .terra/ validate
+      - make -C .terra/superset init
+      - make -C .terra/superset validate

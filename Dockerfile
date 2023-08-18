@@ -69,7 +69,16 @@ RUN mkdir -p ${PYTHONPATH} \
     libsasl2-modules-gssapi-mit \
     libpq-dev \
     libecpg-dev \
+    chromium \
+    wget \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
+
+RUN export CHROMEDRIVER_VERSION=$(curl --silent https://chromedriver.storage.googleapis.com/LATEST_RELEASE_111) && \
+    wget -q https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip && \
+    unzip chromedriver_linux64.zip -d /usr/bin && \
+    chmod 755 /usr/bin/chromedriver && \
+    rm -f chromedriver_linux64.zip
 
 COPY ./requirements/*.txt  /app/requirements/
 COPY setup.py MANIFEST.in README.md /app/
@@ -87,77 +96,23 @@ COPY --from=superset-node /app/superset/static/assets /app/superset/static/asset
 ## Lastly, let's install superset itself
 COPY superset /app/superset
 COPY setup.py MANIFEST.in README.md /app/
+COPY ./docker/run-server.sh /usr/bin/run-server.sh
+RUN chmod a+x /usr/bin/run-server.sh
+
 RUN cd /app \
-    && chown -R superset:superset * \
+    && chown -R superset:superset /app \
     && pip install -e . \
     && flask fab babel-compile --target superset/translations
 
-COPY ./docker/run-server.sh /usr/bin/
-
-RUN chmod a+x /usr/bin/run-server.sh
-
 WORKDIR /app
-
 USER superset
+
+COPY config/superset_config.py /app/superset_config.py
+COPY config/custom_sso_security_manager.py /app/custom_sso_security_manager.py
+COPY config/macros.py  /app/macros.py
 
 HEALTHCHECK CMD curl -f "http://localhost:$SUPERSET_PORT/health"
 
 EXPOSE ${SUPERSET_PORT}
 
 CMD /usr/bin/run-server.sh
-
-######################################################################
-# Dev image...
-######################################################################
-FROM lean AS dev
-ARG GECKODRIVER_VERSION=0.29.0
-ARG FIREFOX_VERSION=106.0.3
-
-COPY ./requirements/*.txt ./docker/requirements-*.txt/ /app/requirements/
-
-USER root
-
-RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends \
-    libnss3 \
-    libdbus-glib-1-2 \
-    libgtk-3-0 \
-    libx11-xcb1 \
-    libasound2 \
-    libxtst6 \
-    wget
-
-ENV GECKODRIVER_VERSION=0.29.0
-
-# Install GeckoDriver WebDriver
-RUN apt-get update && \
-    wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb && \
-    rm -f google-chrome-stable_current_amd64.deb
-
-RUN export CHROMEDRIVER_VERSION=$(curl --silent https://chromedriver.storage.googleapis.com/LATEST_RELEASE_111) && \
-    wget -q https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip && \
-    unzip chromedriver_linux64.zip -d /usr/bin && \
-    chmod 755 /usr/bin/chromedriver && \
-    rm -f chromedriver_linux64.zip
-# Cache everything for dev purposes...
-RUN cd /app \
-    && pip install --no-cache -r requirements/docker.txt \
-    && pip install --no-cache -r requirements/requirements-local.txt || true
-USER superset
-
-
-######################################################################
-# CI image...
-######################################################################
-FROM lean AS ci
-
-COPY --chown=superset ./docker/docker-bootstrap.sh /app/docker/
-COPY --chown=superset ./docker/docker-init.sh /app/docker/
-COPY --chown=superset ./docker/docker-ci.sh /app/docker/
-COPY config/superset_config.py /app/superset_config.py
-COPY config/custom_sso_security_manager.py /app/custom_sso_security_manager.py
-
-RUN chmod a+x /app/docker/*.sh
-
-CMD /app/docker/docker-ci.sh

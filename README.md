@@ -31,8 +31,9 @@ This repository  contains a copy of superset repo, to be compiled and used as a 
 ## How to run
 to run it locally take in note that needs atleast 3gb on docker memory to run properly
 
-1. `make build`: Generates local superset image
-2. `make run`: Runs local superset image
+1. Duplicate /docker/.env.sample to /docker/.env
+2. `make build`: Generates local superset image
+3. `make run`: Runs local superset image
 
 Note: the local build will need you to compile the assets on the host machine:
 
