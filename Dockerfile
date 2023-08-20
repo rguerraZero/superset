@@ -107,9 +107,13 @@ RUN cd /app \
 WORKDIR /app
 USER superset
 
-COPY config/superset_config.py /app/superset_config.py
-COPY config/custom_sso_security_manager.py /app/custom_sso_security_manager.py
-COPY config/macros.py  /app/macros.py
+# Copy BI Superset
+COPY bi_superset/ /app/bi_superset/ 
+COPY bi_superset/superset_config.py /app/superset_config.py
+
+# Injects bi_cli into superset cli
+COPY bi_superset/bi_cli/bi_cli.py /app/superset/cli/bi_cli.py
+
 
 HEALTHCHECK CMD curl -f "http://localhost:$SUPERSET_PORT/health"
 

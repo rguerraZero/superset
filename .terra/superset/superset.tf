@@ -201,6 +201,11 @@ resource "consul_keys" "superset-keys" {
     path  = "${var.app}/superset/env/gunicorn_keepalive"
     value = "65"
   }
+
+  key {
+    path = "${var.app}/superset/env/superset_access_method"
+    value = "internal"
+  }
 }
 
 

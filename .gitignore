@@ -111,3 +111,6 @@ docker/requirements-local.txt
 
 cache/
 dev
+secrets/
+secrets
+.secrets/

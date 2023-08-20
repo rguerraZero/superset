@@ -26,10 +26,9 @@ x-superset-volumes: &superset-volumes
   - ./superset-frontend:/app/superset-frontend
   - superset_home:/app/superset_home
   - ./tests:/app/tests
-  - ./config/superset_config_local.py:/app/superset_config.py
-  - ./config/custom_bi_security_manager.py:/app/custom_bi_security_manager.py
-  - ./config/bi_security_manager/:/app/bi_security_manager/
-  - ./dev/secrets/:/secrets/
+  - ./bi_superset/:/app/bi_superset/
+  - ./bi_superset/bi_cli/bi_cli.py:/app/superset/cli/bi_cli.py
+  - ./secrets/:/secrets/
   
 version: "3.7"
 services:
