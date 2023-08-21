@@ -305,6 +305,7 @@ pyopenssl
 psycopg2
 redis
 sqlalchemy-bigquery>=1.5.0
+sqlalchemy-redshift==0.8.14
 flower
 authlib==0.15.5
 social-auth-core

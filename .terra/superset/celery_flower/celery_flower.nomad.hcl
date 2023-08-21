@@ -42,6 +42,8 @@ group "celery-flower-group" {
         type     = "script"
         command  = "celery"
         args     = [
+          "-A",
+          "superset.tasks.celery_app:app",
           "inspect",
           "ping"
         ]
