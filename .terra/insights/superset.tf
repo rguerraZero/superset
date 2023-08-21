@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    key    = "superset/terraform.tfstate"
+    key    = "insights/terraform.tfstate"
     region = "us-west-2"
   }
 
@@ -8,7 +8,7 @@ terraform {
 }
 
 variable "app" {
-  default = "superset"
+  default = "insights"
 }
 
 variable "env" {
@@ -21,6 +21,10 @@ variable "aws_region" {
 
 variable "git_sha" {
   default = "master"
+}
+
+data "aws_db_instance" "db" {
+  db_instance_identifier = "insights-superset-${var.env}"
 }
 
 variable "ecr_url" {
@@ -86,6 +90,8 @@ module "celery_worker" {
   git_sha    = "${var.git_sha}"
   aws_region = "${var.aws_region}"
   ecr_url    = "${var.ecr_url}"
+  db_address = "${data.aws_db_instance.db.address}"
+  db_port    = "${data.aws_db_instance.db.port}"
 }
 
 module "celery_beat" {
@@ -96,6 +102,8 @@ module "celery_beat" {
   git_sha    = "${var.git_sha}"
   aws_region = "${var.aws_region}"
   ecr_url    = "${var.ecr_url}"
+  db_address = "${data.aws_db_instance.db.address}"
+  db_port    = "${data.aws_db_instance.db.port}"
 }
 
 module "celery_flower" {
@@ -106,6 +114,8 @@ module "celery_flower" {
   git_sha    = "${var.git_sha}"
   aws_region = "${var.aws_region}"
   ecr_url    = "${var.ecr_url}"
+  db_address = "${data.aws_db_instance.db.address}"
+  db_port    = "${data.aws_db_instance.db.port}"
 }
 
 module "superset" {
@@ -116,6 +126,8 @@ module "superset" {
   git_sha    = "${var.git_sha}"
   aws_region = "${var.aws_region}"
   ecr_url    = "${var.ecr_url}"
+  db_address = "${data.aws_db_instance.db.address}"
+  db_port    = "${data.aws_db_instance.db.port}"
 }
 
 # ------------------------------------------------------------------------
@@ -203,14 +215,13 @@ resource "consul_keys" "superset-keys" {
   }
 
   key {
-    path = "${var.app}/superset/env/superset_access_method"
-    value = "internal"
+    path  = "${var.app}/superset/env/superset_access_method"
+    value = "external"
   }
-
 
   key {
     path  = "${var.app}/superset/env/bq_dataset"
-    value = "csdataanalysis"
+    value = "insights-391416"
   }
 }
 

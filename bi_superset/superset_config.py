@@ -96,6 +96,8 @@ if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
     GUEST_TOKEN_JWT_AUDIENCE: None
     ZF_JWT_PUBLIC_SECRET = get_env_variable("ZF_JWT_PUBLIC_SECRET", None)
 
+BQ_DATASET = os.getenv("BQ_DATASET", None)
+
 FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_PROCESSING": True,
     "ESTIMATE_QUERY_COST": True,

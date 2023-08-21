@@ -5,6 +5,9 @@ from bi_superset.bi_security_manager.sql.queries import DASHBOARD_ROLE_ACCESS_EX
 from bi_superset.bi_security_manager.models.models import (
     DashboardRoleAccessExternal,
 )
+from flask import current_app
+
+BQ_DATASET = current_app.config.get("BQ_DATASET")
 
 
 class DashboardRoleAccessService:
@@ -16,7 +19,7 @@ class DashboardRoleAccessService:
         Get dashboard role access for external users
         """
 
-        query = DASHBOARD_ROLE_ACCESS_EXTERNAL
+        query = DASHBOARD_ROLE_ACCESS_EXTERNAL.format(dataset=BQ_DATASET)
 
         df = self.sql.get_df(query)
 

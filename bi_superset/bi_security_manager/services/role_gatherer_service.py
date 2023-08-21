@@ -7,10 +7,12 @@ from bi_superset.bi_security_manager.models.superset_role_permission import (
     SupersetRolePermission,
 )
 from bi_superset.bi_security_manager.sql.queries import (
-    ROLES_PER_JOB_TITLE,
     ROLE_DEFINITIONS_QUERY,
     ROLES_QUERY,
 )
+from flask import current_app
+
+BQ_DATASET = current_app.config.get("BQ_DATASET")
 
 
 class RoleGathererService:
@@ -26,7 +28,7 @@ class RoleGathererService:
         if not any(method.value == access_method for method in AccessMethod):
             raise ValueError("access_method is required")
 
-        query = ROLES_QUERY.format(access_method=access_method)
+        query = ROLES_QUERY.format(dataset=BQ_DATASET, access_method=access_method)
 
         df = self.sql.get_df(query)
 
@@ -64,7 +66,7 @@ class RoleGathererService:
             raise ValueError("access_method is required")
 
         query = ROLE_DEFINITIONS_QUERY.format(
-            role_name=role_name, access_method=access_method
+            dataset=BQ_DATASET, role_name=role_name, access_method=access_method
         )
 
         df = self.sql.get_df(query)

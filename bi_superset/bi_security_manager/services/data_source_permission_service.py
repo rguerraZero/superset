@@ -4,7 +4,9 @@ from bi_superset.bi_security_manager.port.a_sql import ASql
 from bi_superset.bi_security_manager.models.models import DataSourceAccess
 from bi_superset.bi_security_manager.sql.queries import DATA_SOURCE_PERMISSIONS_QUERY
 from bi_superset.bi_security_manager.models.access_method import AccessMethod
+from flask import current_app
 
+BQ_DATASET = current_app.config.get("BQ_DATASET")
 
 class DataSourcePermissionService:
     """
@@ -28,7 +30,7 @@ class DataSourcePermissionService:
             raise ValueError("access_method is required")
 
         query = DATA_SOURCE_PERMISSIONS_QUERY.format(
-            role_name=role_name, access_method=access_method
+            dataset=BQ_DATASET, role_name=role_name, access_method=access_method
         )
 
         df = self.sql.get_df(query)

@@ -253,6 +253,9 @@ class BICLISecurityManager(SupersetSecurityManager):
                 .one_or_none()
             )
 
+            if dashboard is None:
+                continue
+
             # Assing role to dashboard
             dashboard.roles += [role]
 
