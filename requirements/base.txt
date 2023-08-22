@@ -315,3 +315,4 @@ gevent==21.8.0
 pillow==9.3.0
 selenium==3.141.0
 sqlparse==0.4.3
+sqlalchemy-redshift==0.8.14
