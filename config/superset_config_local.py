@@ -130,17 +130,6 @@ API_BASE_URL = get_env_variable("SSO_API_BASE_URL")
 
 WEBDRIVER_BASEURL = "http://superset:8088"
 WEBDRIVER_BASEURL_USER_FRIENDLY = "http://localhost:8088"
-WEBDRIVER_TYPE = "chrome"
-WEBDRIVER_OPTION_ARGS = [
-    "--force-device-scale-factor=2.0",
-    "--high-dpi-support=2.0",
-    "--headless",
-    "--disable-gpu",
-    "--disable-dev-shm-usage",
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-extensions",
-]
 SCREENSHOT_LOCATE_WAIT = 100
 SCREENSHOT_LOAD_WAIT = 600
 

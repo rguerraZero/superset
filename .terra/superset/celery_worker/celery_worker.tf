@@ -25,7 +25,7 @@ provider "aws" {
 locals {
   container_counts = {
     qa   = 1
-    stag = 1
+    stag = 3
     prod = 3
   }
 }

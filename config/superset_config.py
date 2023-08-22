@@ -146,20 +146,9 @@ CLIENT_ID = get_env_variable("SSO_CLIENT_ID")
 CLIENT_SECRET = get_env_variable("SSO_CLIENT_SECRET")
 API_BASE_URL = get_env_variable("SSO_API_BASE_URL")
 
-THUMBNAIL_SELENIUM_USER = "amason@zerofox.com"
+THUMBNAIL_SELENIUM_USER = "gnegrete@zerofox.com"
 WEBDRIVER_BASEURL = f"https://superset-{CURRENT_ENV}.zerofox.com"
 WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
-WEBDRIVER_TYPE = "chrome"
-WEBDRIVER_OPTION_ARGS = [
-    "--force-device-scale-factor=2.0",
-    "--high-dpi-support=2.0",
-    "--headless",
-    "--disable-gpu",
-    "--disable-dev-shm-usage",
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-extensions",
-]
 SCREENSHOT_LOCATE_WAIT = 100
 SCREENSHOT_LOAD_WAIT = 600
 

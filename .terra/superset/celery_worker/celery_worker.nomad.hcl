@@ -39,11 +39,13 @@ group "celery-worker-group" {
         type     = "script"
         command = "celery"
         args    = [
+          "-A",
+          "superset.tasks.celery_app:app",
           "inspect",
           "ping"
         ]
-        interval = "10s"
-        timeout  = "2s"
+        interval = "30s"
+        timeout  = "10s"
       }
     }
   template {
