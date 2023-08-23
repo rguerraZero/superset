@@ -1,6 +1,6 @@
 # vim: filetype=hcl
 job "superset" {
-  datacenters = ["aws-us-west-2-customer"]
+  datacenters = ["aws-us-west-2-static-ip"]
   type        = "service"
 
   meta {
