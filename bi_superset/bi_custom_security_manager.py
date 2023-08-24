@@ -104,19 +104,24 @@ class BICustomSecurityManager(SupersetSecurityManager):
             return None
 
         if zf_user.is_internal_user:
-            from bi_superset.bi_security_manager.models.models import RolesPerJobTitle
+            if self._access_method == AccessMethod.EXTERNAL.value:
+                role = self.find_role("Admin")
+            else:
+                from bi_superset.bi_security_manager.models.models import (
+                    RolesPerJobTitle,
+                )
 
-            query = (
-                self.get_session()
-                .query(RolesPerJobTitle)
-                .filter(RolesPerJobTitle.username == zf_user.email)
-            )
+                query = (
+                    self.get_session()
+                    .query(RolesPerJobTitle)
+                    .filter(RolesPerJobTitle.username == zf_user.email)
+                )
 
-            user_role_job_title = query.one_or_none()
+                user_role_job_title = query.one_or_none()
 
-            # comment due that is not viable to use yet
-            # role = self.find_role(user_role_job_title.role_name)
-            role = self.find_role("zerofox_internal")
+                # comment due that is not viable to use yet
+                # role = self.find_role(user_role_job_title.role_name)
+                role = self.find_role("zerofox_internal")
             user.roles += [role]
 
         else:
