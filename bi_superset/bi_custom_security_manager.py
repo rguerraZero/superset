@@ -107,6 +107,7 @@ class BICustomSecurityManager(SupersetSecurityManager):
             if self._access_method == AccessMethod.EXTERNAL.value:
                 role = self.find_role("Admin")
             else:
+                # pylint: disable=import-outside-toplevel
                 from bi_superset.bi_security_manager.models.models import (
                     RolesPerJobTitle,
                 )
@@ -162,7 +163,10 @@ class BICustomSecurityManager(SupersetSecurityManager):
         :param roles: The roles that have access to the row level security filter
         :param tables: The tables that the row level security filter applies to
         """
-        from superset.connectors.sqla.models import RowLevelSecurityFilter
+        # pylint: disable=import-outside-toplevel
+        from superset.connectors.sqla.models import (
+            RowLevelSecurityFilter,
+        )
 
         rls = RowLevelSecurityFilter(
             name=f"{AccessMethod.EXTERNAL.value} {enterprise_id}"
@@ -182,6 +186,7 @@ class BICustomSecurityManager(SupersetSecurityManager):
         :param name: The name of the row level security filter
         :returns: The row level security filter if found, None otherwise
         """
+        # pylint: disable=import-outside-toplevel
         from superset.connectors.sqla.models import RowLevelSecurityFilter
 
         query = (
