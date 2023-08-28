@@ -64,10 +64,36 @@ SUPERSET_ACCESS_METHOD = os.getenv("SUPERSET_ACCESS_METHOD", None)
 if not any(method.value == SUPERSET_ACCESS_METHOD for method in AccessMethod):
     raise Exception("ENV SUPERSET_ACCESS_METHOD is not set")
 
-DASHBOARD_RBAC = (
-    True if SUPERSET_ACCESS_METHOD == AccessMethod.EXTERNAL.value else False
-)
+# Default Flags for internal env
+DASHBOARD_RBAC = False
+EMBEDDED_SUPERSET = False
 
+if SUPERSET_ACCESS_METHOD == AccessMethod.External.value:
+    # Update Flags values
+    EMBEDDED_SUPERSET = True
+    DASHBOARD_RBAC = True
+    # Enable embedded Configuration
+    PUBLIC_ROLE_LIKE_GAMMA = True
+    PUBLIC_ROLE_LIKE = "Gamma"
+    ENABLE_PROXY_FIX = True
+    DEFAULT_HTTP_HEADERS={'X-Frame-Options': 'ALLOWALL'}
+    OVERRIDE_HTTP_HEADERS={'X-Frame-Options': 'ALLOWALL'}
+    ENABLE_CORS = True
+    CORS_OPTIONS = {
+        'supports_credentials': True,
+        'allow_headers': ['*'],
+        'resources':['*'],
+        'origins': ['<http://localhost:8088>']
+    }
+    WTF_CSRF_ENABLED = False
+
+    # Guest token config options
+    GUEST_ROLE_NAME = "Public"
+    GUEST_TOKEN_JWT_SECRET = get_env_variable("GUEST_TOKEN_JWT_SECRET", None)
+    GUEST_TOKEN_JWT_ALGO = "RS512"
+    GUEST_TOKEN_HEADER_NAME = "X-GuestToken"
+    GUEST_TOKEN_JWT_EXP_SECONDS = 60*60  # 1 hour
+    GUEST_TOKEN_JWT_AUDIENCE: None
 
 FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_PROCESSING": True,
@@ -77,6 +103,7 @@ FEATURE_FLAGS = {
     "DASHBOARD_CROSS_FILTERS": True,
     "ENABLE_TEMPLATE_REMOVE_FILTERS": True,
     "DASHBOARD_RBAC": DASHBOARD_RBAC,
+    "EMBEDDED_SUPERSET": EMBEDDED_SUPERSET,
 }
 
 JINJA_CONTEXT_ADDONS = {
