@@ -1,6 +1,7 @@
 """Zerofox API User"""
 
 from bi_superset.bi_security_manager.models.access_method import AccessMethod
+from bi_superset.bi_security_manager.models.access_origin import AccessOrigin
 
 
 class User:
@@ -67,9 +68,8 @@ class User:
     def role_name(self) -> str:
         return self._role_name
 
-    @property
-    def superset_role_name(self) -> str:
-        if self.access_method == AccessMethod.EXTERNAL.value:
+    def superset_role_name(self, access_origin) -> str:
+        if AccessOrigin.is_from_zf_dashboard(access_origin):
             return f"view_only_{self.enterprise_id}"
         return self.role_name
 
