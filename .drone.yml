@@ -21,3 +21,5 @@ steps:
       - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
       - make -C .terra/superset init
       - make -C .terra/superset validate
+      - make -C .terra/insights init
+      - make -C .terra/insights validate

@@ -58,14 +58,31 @@ in case that you need to update this repo:
       appbuilder.add_api(ZFIntegrationRestApi)
    ```
 3. Confirm that the folders address on the docker compose are still valid, to transfer our custom code into the superset project.
+in case that you need to update this repo, you can do in two ways
 
-## Missing Things
+## Deploy
 
-1. Configure docker image  + nomad hcl definition
-2. Create Tables of user access
-3. finish RLS and Table generation
+This repo deploys two instances of superset, each one with a different `.terra` configuration:
 
+### Superset internal (aka Superset Big)
 
+Used for internal ZeroFox employees only. It has more internal data and it is only accesible from the VPN.
+
+Links:
+
+- QA: https://build.zerofox.com/job/superset-qa-deploy/
+- Stag: https://build.zerofox.com/job/superset-stag-deploy/
+- Prod: https://build.zerofox.com/job/superset-prod-deploy/
+
+### Insights (aka Superset external or Superset Small)
+
+Used for external users. It has less data and it is accesible from cloud.zerofox.com through ZF-Dashboard. Only ZeroFox employees can access the UI through the VPN.
+
+Links:
+
+- QA: https://build.zerofox.com/job/insights-qa-deploy/
+- Stag: https://build.zerofox.com/job/insights-stag-deploy/
+- Prod: https://build.zerofox.com/job/insights-prod-deploy/
 
 ## Information
 

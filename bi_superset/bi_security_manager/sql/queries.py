@@ -4,7 +4,7 @@
 ROLE_DEFINITIONS_QUERY = """
 SELECT
     human_readable as permission_name,
-FROM csdataanalysis.bi_superset_access.role_definitions_{access_method}
+FROM {dataset}.bi_superset_access.role_definitions_{access_method}
 WHERE {role_name} = true
 """
 
@@ -17,7 +17,7 @@ SELECT
     table_catalog,
     table_schema,
     table_name
-FROM csdataanalysis.bi_superset_access.datasource_access_{access_method}
+FROM {dataset}.bi_superset_access.datasource_access_{access_method}
 WHERE {role_name} = true
 """
 
@@ -28,7 +28,7 @@ ROLES_PER_JOB_TITLE = """
 SELECT
     employee,
     role_name
-FROM csdataanalysis.bi_superset_access.roles_per_job_title
+FROM {dataset}.bi_superset_access.roles_per_job_title
 """
 
 
@@ -38,7 +38,7 @@ FROM csdataanalysis.bi_superset_access.roles_per_job_title
 
 ROLES_QUERY = """
 SELECT name
-FROM csdataanalysis.bi_superset_access.roles
+FROM {dataset}.bi_superset_access.roles
 WHERE type = '{access_method}'
 """
 
@@ -50,5 +50,5 @@ DASHBOARD_ROLE_ACCESS_EXTERNAL = """
 SELECT
     dashboard_id,
     role_name
-FROM csdataanalysis.bi_superset_access.dashboard_role_access_exterrnal
+FROM {dataset}.bi_superset_access.dashboard_role_access_exterrnal
 """

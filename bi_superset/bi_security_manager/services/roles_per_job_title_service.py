@@ -3,8 +3,9 @@ import pandas as pd
 from bi_superset.bi_security_manager.port.a_sql import ASql
 from bi_superset.bi_security_manager.sql.queries import ROLES_PER_JOB_TITLE
 from bi_superset.bi_security_manager.models.models import RolesPerJobTitle
+from flask import current_app
 
-
+BQ_DATASET = current_app.config.get("BQ_DATASET")
 class RolePerJobTitleService:
     def __init__(self, sql: ASql):
         self.sql: ASql = sql
@@ -19,7 +20,7 @@ class RolePerJobTitleService:
 
         """
 
-        query = ROLES_PER_JOB_TITLE
+        query = ROLES_PER_JOB_TITLE.format(dataset=BQ_DATASET)
 
         df = self.sql.get_df(query)
 

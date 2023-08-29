@@ -65,6 +65,7 @@ DASHBOARD_RBAC = (
     True if SUPERSET_ACCESS_METHOD == AccessMethod.EXTERNAL.value else False
 )
 
+BQ_DATASET = os.getenv("BQ_DATASET", None)
 
 FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_PROCESSING": True,
