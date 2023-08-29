@@ -98,6 +98,7 @@ SUPERSET_SECRET_KEY="{{ .Data.SUPERSET_SECRET_KEY }}"
 {{ end }}
 
 {{ with secret "secret/superset/guest_token_jwt_secret" }}GUEST_TOKEN_JWT_SECRET="{{ .Data.value }}"{{ end }}
+{{ with secret "secret/intel_api/jwt_public_key" }}ZF_JWT_PUBLIC_SECRET="{{ .Data.value }}"{{ end }}
 
 {{ with secret "secret/smtp" }}
 SENDGRID_HOST="{{ .Data.host }}"

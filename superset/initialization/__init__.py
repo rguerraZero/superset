@@ -189,6 +189,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         )
         from superset.views.tags import TagView
         from superset.views.users.api import CurrentUserRestApi
+        from superset.zf_integration.api import ZFIntegrationRestApi
 
         #
         # Setup API views
@@ -222,6 +223,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(ReportExecutionLogRestApi)
         appbuilder.add_api(SavedQueryRestApi)
         appbuilder.add_api(SqlLabRestApi)
+        appbuilder.add_api(ZFIntegrationRestApi)
         #
         # Setup regular views
         #

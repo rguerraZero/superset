@@ -45,11 +45,19 @@ npm run build
 
 ## How to update this repo
 
-in case that you need to update this repo, you can do in two ways
-
-1. Updating from the original repo
-2. Updating by a handmade fix
-
+in case that you need to update this repo:
+1. Start updating the superset code in one of two ways:
+    1. Updating from the original repo
+    2. Updating by a handmade fix
+2. Manually regenerate API changes:
+    - At superset/initialization/__init__.py
+   ```
+   from superset.zf_integration.api import ZFIntegrationRestApi
+   ...
+   ...
+      appbuilder.add_api(ZFIntegrationRestApi)
+   ```
+3. Confirm that the folders address on the docker compose are still valid, to transfer our custom code into the superset project.
 
 ## Missing Things
 

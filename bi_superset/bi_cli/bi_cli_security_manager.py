@@ -122,7 +122,7 @@ class BICLISecurityManager(SupersetSecurityManager):
         Generates `roles_per_job_title` table that contains `internal zf`
         role assignation per job title
         """
-        if self._access_method != AccessMethod.INTERNAL.value:
+        if not AccessMethod.is_internal(self._access_method):
             logging.info("This method only works with internal access method")
             return
 
@@ -161,7 +161,7 @@ class BICLISecurityManager(SupersetSecurityManager):
         Generates `dashboard_role_access_external` table that contains `external zf`
         role assignation per dashboard
         """
-        if self._access_method != AccessMethod.EXTERNAL.value:
+        if not AccessMethod.is_external(self._access_method):
             logging.info("This method only works with external access method")
             return
 
@@ -204,7 +204,7 @@ class BICLISecurityManager(SupersetSecurityManager):
         `bi_dashboard_role_access_external` table
         """
 
-        if self._access_method != AccessMethod.EXTERNAL.value:
+        if not AccessMethod.is_external(self._access_method):
             logging.info("This method only works with external access method")
             return
 

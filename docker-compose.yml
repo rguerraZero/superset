@@ -29,6 +29,8 @@ x-superset-volumes: &superset-volumes
   - ./bi_superset/:/app/bi_superset/
   - ./bi_superset/bi_cli/bi_cli.py:/app/superset/cli/bi_cli.py
   - ./secrets/:/secrets/
+  - ./zf_integration:/app/superset/zf_integration
+  - ./zf_utils/jwt.py:/app/superset/utils/jwt.py
   
 version: "3.7"
 services:

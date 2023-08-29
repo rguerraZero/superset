@@ -68,7 +68,7 @@ if not any(method.value == SUPERSET_ACCESS_METHOD for method in AccessMethod):
 DASHBOARD_RBAC = False
 EMBEDDED_SUPERSET = False
 
-if SUPERSET_ACCESS_METHOD == AccessMethod.External.value:
+if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
     # Update Flags values
     EMBEDDED_SUPERSET = True
     DASHBOARD_RBAC = True
@@ -94,6 +94,7 @@ if SUPERSET_ACCESS_METHOD == AccessMethod.External.value:
     GUEST_TOKEN_HEADER_NAME = "X-GuestToken"
     GUEST_TOKEN_JWT_EXP_SECONDS = 60*60  # 1 hour
     GUEST_TOKEN_JWT_AUDIENCE: None
+    ZF_JWT_PUBLIC_SECRET = get_env_variable("ZF_JWT_PUBLIC_SECRET", None)
 
 FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_PROCESSING": True,
