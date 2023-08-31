@@ -153,14 +153,13 @@ test('Should render default props', () => {
     screen.getByRole('menuitem', { name: 'Download' }),
   ).toBeInTheDocument();
   expect(screen.getByRole('menuitem', { name: 'Share' })).toBeInTheDocument();
-
   expect(
     screen.getByRole('button', { name: 'More Options' }),
   ).toBeInTheDocument();
   expect(screen.getByTestId('NoAnimationDropdown')).toBeInTheDocument();
 });
 
-test('Should "export to CSV"', async () => {
+test('Should "export to .CSV"', async () => {
   const props = createProps();
   renderWrapper(props);
   expect(props.exportCSV).toBeCalledTimes(0);
