@@ -66,6 +66,7 @@ DASHBOARD_RBAC = (
 )
 
 BQ_DATASET = os.getenv("BQ_DATASET", None)
+ZF_API_HOST = os.getenv("ZF_API_HOST", "https://api-qa.zerofox.com")
 
 FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_PROCESSING": True,

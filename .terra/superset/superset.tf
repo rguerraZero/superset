@@ -31,6 +31,15 @@ variable "consul_token" {
   default = ""
 }
 
+variable "zf_api_host" {
+  type = "map"
+
+  default = {
+    qa   = "https://api.zerofox.com"
+    stag = "https://api.zerofox.com"
+    prod = "https://api.zerofox.com"
+  }
+}
 
 # ----------------------------------------
 # Providers
@@ -211,6 +220,11 @@ resource "consul_keys" "superset-keys" {
   key {
     path  = "${var.app}/superset/env/bq_dataset"
     value = "csdataanalysis"
+  }
+
+  key {
+    path  = "${var.app}/superset/env/zf_api_host"
+    value = "${lookup(var.zf_api_host, var.env)}"
   }
 }
 

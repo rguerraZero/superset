@@ -9,6 +9,7 @@ from bi_superset.bi_security_manager.models.user import User as ZFUser
 from bi_superset.bi_security_manager.models.access_method import AccessMethod
 from bi_superset.bi_security_manager.models.access_origin import AccessOrigin
 from bi_superset.bi_security_manager.services.user_service import UserService
+from flask import current_app
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +26,12 @@ class BICustomSecurityManager(SupersetSecurityManager):
             raise Exception("CONFIGURATION SUPERSET_ACCESS_METHOD is not set")
 
     def oauth_user_info(self, provider, response=None):
+        zf_api_host = current_app.config.get("ZF_API_HOST")
         logger.debug("Oauth2 provider: {0}.".format(provider))
         if provider == "zfapi":
             me = (
                 self.appbuilder.sm.oauth_remotes[provider]
-                .get("https://api.zerofox.com/1.0/users/me/")
+                .get(f"{zf_api_host}/1.0/users/me/")
                 .json()
             )
             details = {
