@@ -90,10 +90,9 @@ if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
     # Guest token config options
     GUEST_ROLE_NAME = "Public"
     GUEST_TOKEN_JWT_SECRET = get_env_variable("GUEST_TOKEN_JWT_SECRET", None)
-    GUEST_TOKEN_JWT_ALGO = "RS512"
+    GUEST_TOKEN_JWT_ALGO = "HS256"
     GUEST_TOKEN_HEADER_NAME = "X-GuestToken"
     GUEST_TOKEN_JWT_EXP_SECONDS = 60*60  # 1 hour
-    GUEST_TOKEN_JWT_AUDIENCE: None
     ZF_JWT_PUBLIC_SECRET = get_env_variable("ZF_JWT_PUBLIC_SECRET", None)
 
 BQ_DATASET = os.getenv("BQ_DATASET", None)
