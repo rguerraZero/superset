@@ -672,6 +672,9 @@ class Header extends React.PureComponent {
               userCanSave={userCanSaveAs}
               userCanCurate={userCanCurate}
               isLoading={isLoading}
+              // The guest token don't include user ID,
+              // and this value is used only  to disable some options.
+              isEmbedded={!user?.userId}
               showPropertiesModal={this.showPropertiesModal}
               manageEmbedded={this.showEmbedModal}
               refreshLimit={refreshLimit}

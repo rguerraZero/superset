@@ -265,36 +265,35 @@ const SliceHeader: FC<SliceHeaderProps> = ({
             {!uiConfig.hideChartControls && (
               <FiltersBadge chartId={slice.slice_id} />
             )}
-            {!uiConfig.hideChartControls && (
-              <SliceHeaderControls
-                slice={slice}
-                isCached={isCached}
-                isExpanded={isExpanded}
-                cachedDttm={cachedDttm}
-                updatedDttm={updatedDttm}
-                toggleExpandSlice={toggleExpandSlice}
-                forceRefresh={forceRefresh}
-                logExploreChart={logExploreChart}
-                logEvent={logEvent}
-                exportCSV={exportCSV}
-                exportFullCSV={exportFullCSV}
-                supersetCanExplore={supersetCanExplore}
-                supersetCanShare={supersetCanShare}
-                supersetCanCSV={supersetCanCSV}
-                sliceCanEdit={sliceCanEdit}
-                componentId={componentId}
-                dashboardId={dashboardId}
-                addSuccessToast={addSuccessToast}
-                addDangerToast={addDangerToast}
-                handleToggleFullSize={handleToggleFullSize}
-                isFullSize={isFullSize}
-                isDescriptionExpanded={isExpanded}
-                chartStatus={chartStatus}
-                formData={formData}
-                exploreUrl={exploreUrl}
-                crossFiltersEnabled={isCrossFiltersEnabled}
-              />
-            )}
+            <SliceHeaderControls
+              slice={slice}
+              isCached={isCached}
+              isExpanded={isExpanded}
+              cachedDttm={cachedDttm}
+              updatedDttm={updatedDttm}
+              toggleExpandSlice={toggleExpandSlice}
+              forceRefresh={forceRefresh}
+              logExploreChart={logExploreChart}
+              logEvent={logEvent}
+              exportCSV={exportCSV}
+              exportFullCSV={exportFullCSV}
+              supersetCanExplore={supersetCanExplore}
+              supersetCanShare={supersetCanShare}
+              supersetCanCSV={supersetCanCSV}
+              sliceCanEdit={sliceCanEdit}
+              componentId={componentId}
+              dashboardId={dashboardId}
+              addSuccessToast={addSuccessToast}
+              addDangerToast={addDangerToast}
+              handleToggleFullSize={handleToggleFullSize}
+              isFullSize={isFullSize}
+              isDescriptionExpanded={isExpanded}
+              chartStatus={chartStatus}
+              formData={formData}
+              exploreUrl={exploreUrl}
+              crossFiltersEnabled={isCrossFiltersEnabled}
+              isEmbedded={uiConfig.hideChartControls}
+            />
           </>
         )}
       </div>

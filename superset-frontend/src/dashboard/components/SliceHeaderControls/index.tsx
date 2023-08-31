@@ -152,6 +152,8 @@ export interface SliceHeaderControlsProps {
   sliceCanEdit?: boolean;
 
   crossFiltersEnabled?: boolean;
+
+  isEmbedded?: boolean;
 }
 type SliceHeaderControlsPropsWithRouter = SliceHeaderControlsProps &
   RouteComponentProps;
@@ -347,6 +349,7 @@ class SliceHeaderControls extends React.PureComponent<
       supersetCanShare = false,
       isCached = [],
       crossFiltersEnabled,
+      isEmbedded,
     } = this.props;
     const crossFilterItems = getChartMetadataRegistry().items;
     const isTable = slice.viz_type === 'table';
@@ -383,7 +386,7 @@ class SliceHeaderControls extends React.PureComponent<
       ? t('Exit fullscreen')
       : t('Enter fullscreen');
 
-    const menu = (
+    const menu = !isEmbedded ? (
       <Menu
         onClick={this.handleMenuClick}
         selectable={false}
@@ -534,8 +537,38 @@ class SliceHeaderControls extends React.PureComponent<
             </Menu.SubMenu>
           )}
       </Menu>
+    ) : (
+      <Menu
+        onClick={this.handleMenuClick}
+        selectable={false}
+        data-test={`slice_${slice.slice_id}-menu`}
+      >
+        {this.props.slice.viz_type !== 'filter_box' && (
+          <Menu.Item
+            key={MENU_KEYS.EXPORT_CSV}
+            icon={<Icons.FileOutlined css={dropdownIconsStyles} />}
+          >
+            {t('Export to .CSV')}
+          </Menu.Item>
+        )}
+        {this.props.slice.viz_type !== 'filter_box' &&
+          isFeatureEnabled(FeatureFlag.ALLOW_FULL_CSV_EXPORT) &&
+          isTable && (
+            <Menu.Item
+              key={MENU_KEYS.EXPORT_FULL_CSV}
+              icon={<Icons.FileOutlined css={dropdownIconsStyles} />}
+            >
+              {t('Export to full .CSV')}
+            </Menu.Item>
+          )}
+        <Menu.Item
+          key={MENU_KEYS.DOWNLOAD_AS_IMAGE}
+          icon={<Icons.FileImageOutlined css={dropdownIconsStyles} />}
+        >
+          {t('Download as image')}
+        </Menu.Item>
+      </Menu>
     );
-
     return (
       <>
         <CrossFilterScopingModal

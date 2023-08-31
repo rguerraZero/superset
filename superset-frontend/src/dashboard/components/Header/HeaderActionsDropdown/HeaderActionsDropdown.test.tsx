@@ -67,6 +67,8 @@ const createProps = () => ({
   userCanCurate: false,
   lastModifiedTime: 0,
   isDropdownVisible: true,
+  isEmbedded: false,
+  manageEmbedded: jest.fn(),
   dataMask: {},
   logEvent: jest.fn(),
 });
@@ -154,6 +156,23 @@ test('should render the "Refresh dashboard" menu item as disabled when loading',
   expect(screen.getByText('Refresh dashboard')).toHaveClass(
     'ant-menu-item-disabled',
   );
+});
+
+test('should only render refresh and download as image when the dashboards is embedded', async () => {
+  const mockedProps = createProps();
+  const loadingProps = {
+    ...mockedProps,
+    isEmbedded: true,
+  };
+  setup(loadingProps);
+  expect(screen.queryByText('Refresh dashboard')).toBeInTheDocument();
+  expect(screen.queryByText('Download as image')).toBeInTheDocument();
+  expect(screen.queryByText('Save as')).not.toBeInTheDocument();
+  expect(screen.queryByText('Set up an email report')).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Seta auto-refresh interval'),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByText('Enter fullscreen')).not.toBeInTheDocument();
 });
 
 test('should NOT render the "Refresh dashboard" menu item as disabled', async () => {
