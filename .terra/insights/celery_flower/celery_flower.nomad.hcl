@@ -86,6 +86,11 @@ SSO_CLIENT_SECRET="{{ .Data.SSO_CLIENT_SECRET }}"
 SUPERSET_SECRET_KEY="{{ .Data.SUPERSET_SECRET_KEY }}"
 {{ end }}
 
+
+# TODO: delete when values are set in vault
+GUEST_TOKEN_JWT_SECRET="SAMPLE"
+ZF_JWT_PUBLIC_SECRET="SAMPLE_2"
+
 {{ with secret "secret/smtp" }}
 SENDGRID_HOST="{{ .Data.host }}"
 SENDGRID_PORT="{{ .Data.port }}"
