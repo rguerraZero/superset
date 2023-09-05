@@ -24,7 +24,7 @@ steps:
       - make -C .terra/insights init
       - make -C .terra/insights validate
 
-  - name: test
+  - name: unit-test
     pull: if-not-exists
     image: python:3.9
     environment:
@@ -41,3 +41,26 @@ steps:
       - cp zf_utils/jwt.py superset/utils/jwt.py
       - pip install coverage
       - pytest ./tests/unit_tests/
+  
+
+---
+kind: pipeline
+type: docker
+name: frontend
+
+steps:
+  - name: integration-test
+    pull: if-not-exists
+    image: node:14
+    environment:
+      SUPERSET_SECRET_KEY: asd123
+    commands:
+      - mkdir ~/.ssh && echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519 && chmod 0600 ~/.ssh/id_ed25519
+      - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - cp -R bi_superset/ superset/bi_superset/ 
+      - cp bi_superset/superset_config.py superset/superset_config.py
+      - cp bi_superset/bi_cli/bi_cli.py superset/cli/bi_cli.py
+      - cp -R zf_integration/ superset/zf_integration/
+      - cp zf_utils/jwt.py superset/utils/jwt.py
+      - cd superset-frontend && npm ci
+      - npm run test
