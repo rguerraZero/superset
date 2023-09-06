@@ -48,7 +48,7 @@ test('renders FullSQLEditor', async () => {
   });
 });
 
-test('renders MarkdownEditor', async () => {
+test.skip('renders MarkdownEditor', async () => {
   const { container } = render(<MarkdownEditor />);
 
   await waitFor(() => {

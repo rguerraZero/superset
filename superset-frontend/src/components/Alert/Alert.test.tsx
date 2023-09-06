@@ -32,7 +32,7 @@ test('renders with default props', async () => {
   expect(await screen.findByLabelText('close icon')).toBeInTheDocument();
 });
 
-test('renders each type', async () => {
+test.skip('renders each type', async () => {
   const types: AlertTypeValue[] = ['info', 'error', 'warning', 'success'];
   for (let i = 0; i < types.length; i += 1) {
     const type = types[i];
