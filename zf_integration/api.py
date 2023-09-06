@@ -200,7 +200,7 @@ class ZFIntegrationRestApi(BaseSupersetApi):
                 Dashboard.published.is_(True),
                 Role.id.in_(roles),
             ),
-        ).all().distinct()
+        ).distinct().all()
         data = {
             'uuids': [str(d.uuid) for d in dashboards],
             'dashboards': [{'id': d.id, 'name': d.dashboard_title, 'uuid': d.uuid} for d in dashboards]
