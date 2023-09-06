@@ -18,7 +18,7 @@ import logging
 
 from typing import Any, Dict
 
-from flask import request, Response
+from flask import request, Response, jsonify, make_response
 from flask_appbuilder import expose
 from marshmallow import ValidationError
 from superset.utils.jwt import JWTParser
@@ -93,8 +93,8 @@ class ZFIntegrationRestApi(BaseSupersetApi):
                 'guest_token':  guest_token,
                 'default_dashboards': default_dashboards['dashboards'],
                 'custom_dashboards': custom_dashboards['dashboards'],
-            }
-            return self.response(200, data=respond)
+             }
+            return make_response(jsonify(respond), 200)
         except ValidationError as error:
             return self.response_400(message=error.messages)
 
@@ -200,7 +200,7 @@ class ZFIntegrationRestApi(BaseSupersetApi):
                 Dashboard.published.is_(True),
                 Role.id.in_(roles),
             ),
-        ).all()
+        ).distinct().all()
         data = {
             'uuids': [str(d.uuid) for d in dashboards],
             'dashboards': [{'id': d.id, 'name': d.dashboard_title, 'uuid': d.uuid} for d in dashboards]
