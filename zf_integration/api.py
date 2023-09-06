@@ -94,7 +94,7 @@ class ZFIntegrationRestApi(BaseSupersetApi):
                 'default_dashboards': default_dashboards['dashboards'],
                 'custom_dashboards': custom_dashboards['dashboards'],
             }
-            return self.response(200, data=respond)
+            return self.response(200, respond)
         except ValidationError as error:
             return self.response_400(message=error.messages)
 
