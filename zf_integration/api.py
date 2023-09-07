@@ -16,8 +16,8 @@
 # under the License.
 import logging
 
+from jwt import ExpiredSignatureError
 from typing import Any, Dict
-
 from flask import request, Response, jsonify, make_response
 from flask_appbuilder import expose
 from marshmallow import ValidationError
@@ -95,6 +95,8 @@ class ZFIntegrationRestApi(BaseSupersetApi):
                 'custom_dashboards': custom_dashboards['dashboards'],
              }
             return make_response(jsonify(respond), 200)
+        except ExpiredSignatureError:
+            return self.response_401()
         except ValidationError as error:
             return self.response_400(message=error.messages)
 
