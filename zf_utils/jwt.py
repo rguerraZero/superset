@@ -1,5 +1,7 @@
 import logging
 import jwt
+from jwt import ExpiredSignatureError
+
 
 from flask import current_app, Request
 from typing import Any, Dict
@@ -17,6 +19,8 @@ class JWTParser:
             raise Exception("Token not present")
         try:
             return jwt.decode(token, _jwt_secret, algorithms=["RS512"])
+        except ExpiredSignatureError as ex:
+            raise ex
         except Exception as ex:
             logger.warning("Parse jwt failed", exc_info=True)
             raise Exception("Failed to parse token") from ex
