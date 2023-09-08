@@ -26,6 +26,9 @@ import { LOG_EVENT } from '../logger/actions';
 import { LOG_EVENT_TYPE_TIMING } from '../logger/LogUtils';
 import DebouncedMessageQueue from '../utils/DebouncedMessageQueue';
 
+// It is used for logging. Either it breaks the embedded or regular flow.
+// Will just leave this comment as it might be fixed when we move to CDN
+// const LOG_ENDPOINT = '/spa_bff/superset/superset/log/?explode=events';
 const LOG_ENDPOINT = '/superset/log/?explode=events';
 const sendBeacon = events => {
   if (events.length <= 0) {

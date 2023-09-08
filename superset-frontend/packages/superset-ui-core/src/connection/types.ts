@@ -144,6 +144,7 @@ export interface ClientConfig {
   mode?: Mode;
   timeout?: ClientTimeout;
   unauthorizedHandler?: () => void;
+  embedded?: boolean;
 }
 
 export interface SupersetClientInterface

@@ -22,6 +22,7 @@ ARG PY_VER=3.8.16-slim
 FROM node:16-slim AS superset-node
 
 ARG NPM_BUILD_CMD="build"
+ARG ASSET_BASE_URL
 ENV BUILD_CMD=${NPM_BUILD_CMD}
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
@@ -43,7 +44,7 @@ RUN npm ci
 COPY ./superset-frontend .
 
 # This seems to be the most expensive step
-RUN npm run ${BUILD_CMD}
+RUN ASSET_BASE_URL=${ASSET_BASE_URL} npm run ${BUILD_CMD}
 
 ######################################################################
 # Final lean image...
@@ -108,7 +109,7 @@ WORKDIR /app
 USER superset
 
 # Copy BI Superset
-COPY bi_superset/ /app/bi_superset/ 
+COPY bi_superset/ /app/bi_superset/
 COPY bi_superset/superset_config.py /app/superset_config.py
 
 # Injects bi_cli into superset cli

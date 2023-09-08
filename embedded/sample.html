@@ -1,0 +1,89 @@
+<script src="https://unpkg.com/@superset-ui/embedded-sdk"></script>
+
+<div id="my-superset-container"></div>
+
+<style>
+  iframe { width: 100%; height: 700px; border: 0; overflow: hidden; }
+</style>
+
+<script>
+  supersetEmbeddedSdk.embedDashboard({
+    // replace with your local id
+    id: "9842845b-15da-4b0f-a1a5-0006e2c91e47",
+    // supersetDomain: "http://localhost:8088",
+    supersetDomain: "http://localhost:8000/spa_bff/superset",
+    mountPoint: document.getElementById("my-superset-container"),
+    fetchGuestToken: fetchGuestToken,
+    dashboardUiConfig: {
+        hideTitle: true,
+        filters: {
+            expanded: true,
+        }
+    },
+  });
+
+  async function fetchAccessToken() {
+  try {
+    const body = {
+      username: "admin",
+      password: "admin",
+      provider: "db",
+      refresh: true,
+    }
+
+    const response = await fetch(
+      "http://localhost:8088/api/v1/security/login",
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+
+    const jsonResponse = await response.json()
+    return jsonResponse?.access_token
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+async function fetchGuestToken() {
+  const accessToken = await fetchAccessToken()
+  try {
+    const body = {
+      resources: [
+        {
+          type: "dashboard",
+          // replace with your local id
+          id: "9842845b-15da-4b0f-a1a5-0006e2c91e47",
+        },
+      ],
+      rls: [],
+      user: {
+        username: "admin",
+        first_name: "admin",
+        last_name: "admin",
+      },
+    }
+    const response = await fetch(
+      "http://localhost:8088/api/v1/security/guest_token/",
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+    const jsonResponse = await response.json()
+    return jsonResponse?.token
+  } catch (error) {
+    console.error(error)
+  }
+}
+</script>
+
+
