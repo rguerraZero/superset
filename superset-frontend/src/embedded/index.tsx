@@ -64,6 +64,11 @@ const EmbeddedApp = () => (
     {/* todo (embedded) remove this line after uuids are deployed */}
     <Route path="/dashboard/:idOrSlug/embedded/" component={EmbeddedRoute} />
     <Route path="/embedded/:uuid/" component={EmbeddedRoute} />
+    <Route
+      path="/spa_bff/superset/dashboard/:idOrSlug/embedded/"
+      component={EmbeddedRoute}
+    />
+    <Route path="/spa_bff/superset/embedded/:uuid/" component={EmbeddedRoute} />
   </Router>
 );
 
@@ -152,6 +157,7 @@ function setupGuestClient(guestToken: string) {
     guestToken,
     guestTokenHeaderName: bootstrapData.config?.GUEST_TOKEN_HEADER_NAME,
     unauthorizedHandler: guestUnauthorizedHandler,
+    embedded: true,
   });
 }
 

@@ -121,6 +121,11 @@ const ActionButton = styled(Button)`
 const getImage = (image: string | ReactNode) =>
   typeof image === 'string' ? `/static/assets/images/${image}` : image;
 
+const getImageSpaBff = (image: string | ReactNode) =>
+  typeof image === 'string'
+    ? `/spa_bff/superset/static/assets/images/${image}`
+    : image;
+
 const getImageHeight = (size: EmptyStateSize) => {
   switch (size) {
     case EmptyStateSize.Small:
@@ -139,6 +144,11 @@ const ImageContainer = ({ image, size }: ImageContainerProps) => (
     description={false}
     image={getImage(image)}
     imageStyle={getImageHeight(size)}
+    // @ts-ignore
+    onError={(e: any) => {
+      e.currentTarget.onerror = null;
+      e.target.src = getImageSpaBff(image);
+    }}
   />
 );
 

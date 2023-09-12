@@ -88,12 +88,15 @@ if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
     WTF_CSRF_ENABLED = False
 
     # Guest token config options
+    # To run with `embedded/sample.html` you need to have the Gamma roles on the Guest token
+    # GUEST_ROLE_NAME = "Gamma"
     GUEST_ROLE_NAME = "Public"
     GUEST_TOKEN_JWT_SECRET = get_env_variable("GUEST_TOKEN_JWT_SECRET", None)
     GUEST_TOKEN_JWT_ALGO = "HS256"
     GUEST_TOKEN_HEADER_NAME = "X-GuestToken"
     GUEST_TOKEN_JWT_EXP_SECONDS = 60*60  # 1 hour
     ZF_JWT_PUBLIC_SECRET = get_env_variable("ZF_JWT_PUBLIC_SECRET", None)
+    STATIC_ASSETS_PREFIX = f'{os.environ.get("ZF_DASHBOARD_HOST")}/spa_bff/superset'
 
 BQ_DATASET = os.getenv("BQ_DATASET", None)
 ZF_API_HOST = os.getenv("ZF_API_HOST", "https://api-qa.zerofox.com")

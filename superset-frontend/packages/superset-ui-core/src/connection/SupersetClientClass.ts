@@ -66,6 +66,8 @@ export default class SupersetClientClass {
 
   handleUnauthorized: () => void;
 
+  embedded: boolean;
+
   constructor({
     baseUrl = DEFAULT_BASE_URL,
     host,
@@ -79,6 +81,7 @@ export default class SupersetClientClass {
     guestToken = undefined,
     guestTokenHeaderName = 'X-GuestToken',
     unauthorizedHandler = defaultUnauthorizedHandler,
+    embedded = false,
   }: ClientConfig = {}) {
     const url = new URL(
       host || protocol
@@ -109,6 +112,7 @@ export default class SupersetClientClass {
     if (guestToken) {
       this.headers[guestTokenHeaderName] = guestToken;
     }
+    this.embedded = embedded;
     this.handleUnauthorized = unauthorizedHandler;
   }
 
@@ -199,11 +203,13 @@ export default class SupersetClientClass {
     ...rest
   }: RequestConfig & { parseMethod?: T }) {
     await this.ensureAuth();
+    const { proxiedUrl, proxiedEndpoint } = this.proxyUrls(endpoint, url);
+
     return callApiAndParseWithTimeout({
       ...rest,
       credentials: credentials ?? this.credentials,
       mode: mode ?? this.mode,
-      url: this.getUrl({ endpoint, host, url }),
+      url: this.getUrl({ endpoint: proxiedEndpoint, host, url: proxiedUrl }),
       headers: { ...this.headers, ...headers },
       timeout: timeout ?? this.timeout,
       fetchRetryOptions: fetchRetryOptions ?? this.fetchRetryOptions,
@@ -213,6 +219,39 @@ export default class SupersetClientClass {
       }
       return Promise.reject(res);
     });
+  }
+
+  proxyUrls(
+    endpoint?: string,
+    url?: string,
+  ): { proxiedUrl?: string; proxiedEndpoint?: string } {
+    let proxiedEndpoint = endpoint;
+    let proxiedUrl = url;
+    if (!this.embedded) {
+      return { proxiedUrl: url, proxiedEndpoint: endpoint };
+    }
+
+    if (proxiedEndpoint) {
+      if (proxiedEndpoint.substring(0, 1) !== '/') {
+        proxiedEndpoint = `/${proxiedEndpoint}`;
+      }
+      if (!proxiedEndpoint?.includes('/spa_bff/superset')) {
+        proxiedEndpoint = `/spa_bff/superset${proxiedEndpoint}`;
+      }
+    }
+
+    if (proxiedUrl && !proxiedUrl?.includes('/spa_bff/superset')) {
+      const pos = this.getPosition(proxiedUrl, '/', 3);
+      proxiedUrl = `${proxiedUrl.slice(
+        0,
+        pos,
+      )}/spa_bff/superset${proxiedUrl.slice(pos)}`;
+    }
+    return { proxiedUrl, proxiedEndpoint };
+  }
+
+  getPosition(string: string, subString: string, index: number) {
+    return string.split(subString, index).join(subString).length;
   }
 
   async ensureAuth(): CsrfPromise {
