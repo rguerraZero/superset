@@ -1,0 +1,29 @@
+<html>
+    <script>
+        function download() {
+            function httpPost(theUrl) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", theUrl, false);
+                // false for synchronous request
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify({
+                    image_urls: [],
+                    report_name: 'report name',
+                }));
+                return xhr.responseText;
+            }
+
+            let resp = JSON.parse(httpPost('http://localhost:8088/api/v1/download/download/'))
+            console.log(resp.result)
+
+            const link = document.createElement('a');
+            link.download = `a.pdf`;
+            link.href = resp.result
+            link.click();
+        }
+    </script>
+    <body>
+        asdf
+        <button onclick="download()">download</button>
+    </body>
+</html>

@@ -174,6 +174,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             ExcelToDatabaseView,
         )
         from superset.views.datasource.views import DatasetEditor, Datasource
+        from superset.download.api import DownloadRestApi
         from superset.views.dynamic_plugins import DynamicPluginsView
         from superset.views.explore import ExplorePermalinkView, ExploreView
         from superset.views.key_value import KV
@@ -212,6 +213,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(DatasetColumnsRestApi)
         appbuilder.add_api(DatasetMetricRestApi)
         appbuilder.add_api(DatasourceRestApi)
+        appbuilder.add_api(DownloadRestApi)
         appbuilder.add_api(EmbeddedDashboardRestApi)
         appbuilder.add_api(ExploreRestApi)
         appbuilder.add_api(ExploreFormDataRestApi)
