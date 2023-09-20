@@ -15,10 +15,11 @@
     mountPoint: document.getElementById("my-superset-container"),
     fetchGuestToken: fetchGuestToken,
     dashboardUiConfig: {
-        hideTitle: true,
+        hideTitle: false,
         filters: {
             expanded: true,
-        }
+        },
+        hideChartControls:true,
     },
   });
 
