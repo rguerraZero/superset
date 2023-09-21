@@ -478,6 +478,7 @@ class Header extends React.PureComponent {
     const userCanCurate =
       isFeatureEnabled(FeatureFlag.EMBEDDED_SUPERSET) &&
       findPermission('can_set_embedded', 'Dashboard', user.roles);
+    const isEmbedded = !user?.userId;
     const refreshLimit =
       dashboardInfo.common?.conf?.SUPERSET_DASHBOARD_PERIODICAL_REFRESH_LIMIT;
     const refreshWarning =
@@ -511,7 +512,7 @@ class Header extends React.PureComponent {
       >
         <PageHeaderWithActions
           editableTitleProps={{
-            title: dashboardTitle,
+            title: !isEmbedded ? dashboardTitle : '',
             canEdit: userCanEdit && editMode,
             onSave: this.handleChangeText,
             placeholder: t('Add the name of the dashboard'),
@@ -674,7 +675,7 @@ class Header extends React.PureComponent {
               isLoading={isLoading}
               // The guest token don't include user ID,
               // and this value is used only  to disable some options.
-              isEmbedded={!user?.userId}
+              isEmbedded={isEmbedded}
               showPropertiesModal={this.showPropertiesModal}
               manageEmbedded={this.showEmbedModal}
               refreshLimit={refreshLimit}

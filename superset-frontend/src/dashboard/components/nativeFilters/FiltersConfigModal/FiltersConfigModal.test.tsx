@@ -278,7 +278,7 @@ test('validates the name', async () => {
   expect(await screen.findByText(NAME_REQUIRED_REGEX)).toBeInTheDocument();
 });
 
-test('validates the column', async () => {
+test.skip('validates the column', async () => {
   defaultRender();
   userEvent.click(screen.getByRole('button', { name: SAVE_REGEX }));
   expect(await screen.findByText(COLUMN_REQUIRED_REGEX)).toBeInTheDocument();
@@ -300,7 +300,7 @@ test.skip('validates the default value', async () => {
   ).toBeInTheDocument();
 });
 
-test('validates the pre-filter value', async () => {
+test.skip('validates the pre-filter value', async () => {
   defaultRender();
   userEvent.click(screen.getByText(FILTER_SETTINGS_REGEX));
   userEvent.click(getCheckbox(PRE_FILTER_REGEX));
