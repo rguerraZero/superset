@@ -106,7 +106,7 @@ module "celery_worker" {
 
   app        = "${var.app}"
   env        = "${var.env}"
-  git_sha    = "${var.git_sha}"
+  git_sha    = "${var.git_sha}-${var.env}"
   aws_region = "${var.aws_region}"
   ecr_url    = "${var.ecr_url}"
   db_address = "${data.aws_db_instance.db.address}"
@@ -118,7 +118,7 @@ module "celery_beat" {
 
   app        = "${var.app}"
   env        = "${var.env}"
-  git_sha    = "${var.git_sha}"
+  git_sha    = "${var.git_sha}-${var.env}"
   aws_region = "${var.aws_region}"
   ecr_url    = "${var.ecr_url}"
   db_address = "${data.aws_db_instance.db.address}"
@@ -130,7 +130,7 @@ module "celery_flower" {
 
   app        = "${var.app}"
   env        = "${var.env}"
-  git_sha    = "${var.git_sha}"
+  git_sha    = "${var.git_sha}-${var.env}"
   aws_region = "${var.aws_region}"
   ecr_url    = "${var.ecr_url}"
   db_address = "${data.aws_db_instance.db.address}"
@@ -142,7 +142,7 @@ module "superset" {
 
   app        = "${var.app}"
   env        = "${var.env}"
-  git_sha    = "${var.git_sha}"
+  git_sha    = "${var.git_sha}-${var.env}"
   aws_region = "${var.aws_region}"
   ecr_url    = "${var.ecr_url}"
   db_address = "${data.aws_db_instance.db.address}"
@@ -168,7 +168,7 @@ module "nomad-job" {
 
   app               = "${var.app}"
   ecr_url           = "${var.ecr_url}"
-  git_sha           = "${var.git_sha}"
+  git_sha           = "${var.git_sha}-${var.env}"
   docker_file        = "../../Dockerfile"
   docker_path       = "../.."
   docker_build_args = ["ASSET_BASE_URL=${lookup(var.zf_dashboard_host, var.env)}/spa_bff/superset"]
