@@ -248,6 +248,11 @@ resource "consul_keys" "superset-keys" {
     path  = "${var.app}/superset/env/zf_api_host"
     value = "${lookup(var.zf_api_host, var.env)}"
   }
+
+  key {
+    path  = "${var.app}/superset/env/zf_dashboard_host"
+    value = "${lookup(var.zf_dashboard_host, var.env)}"
+  }
 }
 
 
