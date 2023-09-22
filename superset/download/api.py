@@ -17,10 +17,10 @@ logger = logging.getLogger(__name__)
 env = os.environ.get('ENV')
 app = os.environ.get('SUPERSET_ACCESS_METHOD')
 
+
 class DownloadRestApi(BaseSupersetApi):
     resource_name = "download"
     openapi_spec_tag = "Download"
-    csrf_exempt = True
 
     @expose("/download/", methods=["POST", "GET"])
     def post(self) -> Response:
@@ -29,7 +29,7 @@ class DownloadRestApi(BaseSupersetApi):
         ---
         post:
           description: >-
-            Returns the dashboard's embedded configuration
+            Returns the images supplied in a formatted PDF file
           parameters:
           - in: body
             schema:
@@ -69,191 +69,221 @@ class DownloadRestApi(BaseSupersetApi):
 
         image_urls = request.json.get('image_urls', [])
         report_name = request.json.get('report_name', '')
-        width = request.json.get('width', 612)
-        height = request.json.get('height', 590)
-        date = request.json.get('date', datetime.date.today().strftime('%d.%m.%Y'))
+        date = request.json.get(
+            'date', datetime.date.today().strftime('%d.%m.%Y'))
 
         def get_file_data_url(filename):
-          with open(f'{pathlib.Path(__file__).parent.absolute()}/{filename}', 'rb') as file:
-            return base64.b64encode(file.read()).decode('UTF-8')
+            with open(f'{pathlib.Path(__file__).parent.absolute()}/{filename}', 'rb') as file:
+                return base64.b64encode(file.read()).decode('UTF-8')
 
-        zerofox_logo_text_url = get_file_data_url('zerofox-logo-white.png')
-        foxy_url = get_file_data_url('foxy.png')
-
-        def get_report_html():
-          image_article_string = '\n'.join([f'''
-            <article>
-              <div class='header'>
-                <img src="data:application/pdf;base64,{zerofox_logo_text_url}"></img>
-                <hr />
-                {report_name}
-              </div>
-              <div class='body'>
-                <img src="data:application/pdf;base64,{x}"></img>
-              </div>
-              <div class='footer'>
-                <img src="data:application/pdf;base64,{foxy_url}"></img>
-                <br /><br />
-                © ZeroFox 2023
-              </div>
-              <div class='page-count'>Page {i + 1}</div>
-            </article>
-          ''' for i, x in enumerate(image_urls)])
-          return f'''
-            <html>
-              <article id="cover">
-                <span>
-                  <img src="data:application/pdf;base64,{zerofox_logo_text_url}"></img>
-                  <hr />
-                  {report_name}
-                  <br />
-                  {date}
-                </span>
-              </article>
-
-              {image_article_string}
-            </html>
-          '''
-        
-        def get_report_css():
-          return f'''
-            body {{
-              margin: 0;
-              padding: 0;
-              font-family: Open Sans;
-              font-size: 14px;
-              font-weight: 600;
-              line-height: 19px;
-              letter-spacing: 0em;
-              text-align: left;
-            }}
-
-            @page {{
-              margin: 0;
-              padding: 0;
-              width: {width}px;
-              height: {height + 202}px;
-            }}
-
-            @page :first {{
-              background-size: cover;
-              background-image: linear-gradient(140deg, #253B4A, #367583);
-            }}
-
-            article {{
-              display: block;
-              page-break-after: always;
-            }}
-
-            #cover {{
-              text-align: center;
-              color: #FFFFFF;
-            }}
-
-            #cover span {{
-              display: inline-block;
-              vertical-align: middle;
-              position: absolute;
-              top: 50%;
-              margin-top: -40px;
-              width: 100%;
-            }}
-
-            #cover img {{
-              width: 33%;
-              object-fit: contain;
-            }}
-
-            #cover hr {{
-              width: 33%;
-            }}
-
-            .header {{
-              background-image: linear-gradient(140deg, #253B4A, #367583);
-              text-align: center;
-              color: #FFFFFF;
-              height: 105px;
-              font-family: Open Sans;
-              font-size: 14px;
-              font-weight: 600;
-              line-height: 19px;
-              letter-spacing: 0em;
-            }}
-
-            .header img {{
-              padding-top: 17px;
-              padding-bottom: 0px;
-              width: 200px;
-              object-fit: contain;
-            }}
-
-            .header hr {{
-              width: 33%;
-            }}
-
-            .body {{
-              height: {height}px;
-              background: #FFFFFF;
-            }}
-
-            .body img {{
-              width: {width}px;
-              object-fit: contain;
-            }}
-
-            .footer {{
-              background: #253B4A;
-              text-align: center;
-              color: #FFFFFF;
-              height: 97px;
-              position: absolute;
-              bottom: 0;
-              width: 100%;
-              font-family: Open Sans;
-              font-size: 12px;
-              font-weight: 400;
-              line-height: 16px;
-              letter-spacing: 0em;         
-            }}
-
-            .footer img {{
-              padding-top: 19px;
-              padding-bottom: 0px;
-              width: 36px;
-              object-fit: contain;
-            }}
-
-            .page-count {{
-              padding: 8px;
-              border-radius: 8px;
-              position: absolute;
-              bottom: 24px;
-              right: 24px;
-              background: #4B626E;
-              font-family: Open Sans;
-              font-size: 14px;
-              font-weight: 600;
-              line-height: 19px;
-              letter-spacing: 0em;
-              text-align: left;
-              color: #FFFFFF;
-            }}
-          '''
-
-        HTML(string=get_report_html()).write_pdf('/tmp/temp.pdf', stylesheets=[CSS(string=get_report_css())])
-
+        self.zerofox_logo_text_url = get_file_data_url(
+            'zerofox-logo-white.png')
+        self.foxy_url = get_file_data_url('foxy.png')
+        pdf_pages = self.get_pdf_pages(report_name, date, image_urls)
         pdf_id = str(uuid.uuid4())
         file_name = f'{pdf_id}.pdf'
-        bucket_name = f'superset-{app}-pdfs-{env}'
+        self.write_pdf(pdf_pages, file_name)
+        pdf_url = ''
+        try:
+            pdf_url = self.upload_to_s3(file_name)
+        except:
+            with open(f'/tmp/{file_name}', 'rb') as pdf_file:
+                pdf_url = f'''data:application/pdf;base64,{base64.b64encode(pdf_file.read()).decode('UTF-8')}'''
+        return self.response(200, result=pdf_url)
 
+    def get_pdf_pages(self, report_name, date, image_urls):
+        pdf_pages = []
+        pdf_pages.append(HTML(string=self.get_report_page(report_name, date)).render(
+            stylesheets=[CSS(string=self.get_report_css(995, 1728, 'linear-gradient(140deg, #253B4A, #367583)'))]))
+        for i, x in enumerate(image_urls):
+            width, height = self.get_page_dimension(image_urls[x])
+            pdf_pages.append(HTML(string=self.get_tab_html(report_name, image_urls[x], page=i)).render(
+                stylesheets=[CSS(string=self.get_report_css(width, height, '#f7f7f7'))]))
+        return pdf_pages
+
+    def get_report_page(self, report_name, date):
+        return f'''
+        <html>
+          <article id="cover">
+            <span>
+              <img src="data:application/pdf;base64,{self.zerofox_logo_text_url}"></img>
+              <hr />
+              {report_name}
+              <br />
+              {date}
+            </span>
+          </article>
+        </html>
+      '''
+
+    def get_tab_html(self, report_name, image, page):
+        return f'''
+        <html>
+          <article >
+            <div class='header'>
+              <img src="data:application/pdf;base64,{self.zerofox_logo_text_url}"></img>
+              <hr />
+              {report_name}
+            </div>
+            <div>
+              <img src="{image['dataUrl']}"></img>
+            </div>
+            <div class='footer'>
+              <img src="data:application/pdf;base64,{self.foxy_url}"></img>
+              <br /><br />
+              © ZeroFox 2023
+            </div>
+            <div class='page-count'>Page {page + 1}</div>
+          </article>
+        </html
+        '''
+
+    def write_pdf(self, pdf_pages, file_name):
+        document = pdf_pages[0]
+        pages = []
+        for doc in pdf_pages:
+            for page in doc.pages:
+                pages.append(page)
+        pdf_file = document.copy(pages).write_pdf(f'/tmp/{file_name}')
+
+    def upload_to_s3(self, file_name):
+        bucket_name = f'superset-{app}-pdfs-{env}'
         s3 = boto3.client('s3')
-        with open('/tmp/temp.pdf', 'rb') as f:
-          s3.upload_fileobj(f, bucket_name, file_name)
-        
-        bucket_location = s3_client.get_bucket_location(Bucket=bucket_name)
+        with open(f'/tmp/{file_name}', 'rb') as f:
+            s3.upload_fileobj(f, bucket_name, file_name)
+        bucket_location = s3.get_bucket_location(Bucket=bucket_name)
         pdf_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(
             bucket_location['LocationConstraint'],
             bucket_name,
             file_name)
 
-        return self.response(200, result=pdf_url)
+    def get_page_dimension(self, page_configuration):
+        width = 995 if page_configuration['width'] < 995 else page_configuration['width']
+        height = 1728 if page_configuration['height'] < 1728 else page_configuration['height']
+        return width, height
+
+    def get_report_css(self, width, height, background):
+        return f'''
+        body {{
+          margin: 0;
+          padding: 0;
+          font-family: Open Sans;
+          font-size: 14px;
+          font-weight: 600;
+          line-height: 19px;
+          letter-spacing: 0em;
+          text-align: left;
+        }}
+
+        @page {{
+          margin: 0;
+          padding: 0;
+          width: {width}px;
+          height: {height + 202}px;
+        }}
+
+        @page :first {{
+          background-size: cover;
+          background-image: {background};
+          background-color: #f7f7f7;
+        }}
+
+        article {{
+          display: block;
+          page-break-after: always;
+        }}
+
+        #cover {{
+          text-align: center;
+          color: #FFFFFF;
+        }}
+
+        #cover span {{
+          display: inline-block;
+          vertical-align: middle;
+          position: absolute;
+          top: 50%;
+          margin-top: -40px;
+          width: 100%;
+        }}
+
+        #cover img {{
+          width: 33%;
+          object-fit: contain;
+        }}
+
+        #cover hr {{
+          width: 33%;
+        }}
+
+        .header {{
+          background-image: linear-gradient(140deg, #253B4A, #367583);
+          text-align: center;
+          color: #FFFFFF;
+          height: 105px;
+          font-family: Open Sans;
+          font-size: 14px;
+          font-weight: 600;
+          line-height: 19px;
+          letter-spacing: 0em;
+        }}
+
+        .header img {{
+          padding-top: 17px;
+          padding-bottom: 0px;
+          width: 200px;
+          object-fit: contain;
+        }}
+
+        .header hr {{
+          width: 33%;
+        }}
+
+        .body {{
+          height: {height}px;
+          background: #f7f7f7;
+        }}
+
+        .body img {{
+          width: {width}px;
+          object-fit: contain;
+        }}
+
+        .footer {{
+          background: #253B4A;
+          text-align: center;
+          color: #FFFFFF;
+          height: 97px;
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+          font-family: Open Sans;
+          font-size: 12px;
+          font-weight: 400;
+          line-height: 16px;
+          letter-spacing: 0em;         
+        }}
+
+        .footer img {{
+          padding-top: 19px;
+          padding-bottom: 0px;
+          width: 36px;
+          object-fit: contain;
+        }}
+
+        .page-count {{
+          padding: 8px;
+          border-radius: 8px;
+          position: absolute;
+          bottom: 24px;
+          right: 24px;
+          background: #4B626E;
+          font-family: Open Sans;
+          font-size: 14px;
+          font-weight: 600;
+          line-height: 19px;
+          letter-spacing: 0em;
+          text-align: left;
+          color: #FFFFFF;
+        }}
+      '''
