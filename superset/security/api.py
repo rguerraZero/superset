@@ -72,6 +72,7 @@ class GuestTokenCreateSchema(PermissiveSchema):
     user = fields.Nested(UserSchema)
     resources = fields.List(fields.Nested(ResourceSchema), required=True)
     rls = fields.List(fields.Nested(RlsRuleSchema), required=True)
+    roles = fields.List(fields.String, required=True)
 
 
 guest_token_create_schema = GuestTokenCreateSchema()
@@ -156,7 +157,7 @@ class SecurityRestApi(BaseSupersetApi):
             # make sure username doesn't reference an existing user
             # check rls rules for validity?
             token = self.appbuilder.sm.create_guest_access_token(
-                body["user"], body["resources"], body["rls"]
+                body["user"], body["resources"], body["rls"], body["roles"]
             )
             return self.response(200, token=token)
         except EmbeddedDashboardNotFoundError as error:

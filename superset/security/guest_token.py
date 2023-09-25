@@ -50,6 +50,7 @@ class GuestToken(TypedDict):
     user: GuestTokenUser
     resources: GuestTokenResources
     rls_rules: List[GuestTokenRlsRule]
+    roles: List[str]
 
 
 class GuestUser(AnonymousUserMixin):

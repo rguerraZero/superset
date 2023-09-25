@@ -1902,6 +1902,8 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         if not user:
             user = g.user
         if user.is_anonymous:
+            if user.roles != []:
+                return user.roles
             public_role = current_app.config.get("AUTH_ROLE_PUBLIC")
             return [self.get_public_role()] if public_role else []
         return user.roles
@@ -2120,6 +2122,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         user: GuestTokenUser,
         resources: GuestTokenResources,
         rls: List[GuestTokenRlsRule],
+        roles: List[str]
     ) -> bytes:
         secret = current_app.config["GUEST_TOKEN_JWT_SECRET"]
         algo = current_app.config["GUEST_TOKEN_JWT_ALGO"]
@@ -2132,6 +2135,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             "user": user,
             "resources": resources,
             "rls_rules": rls,
+            "roles": roles,
             # standard jwt claims:
             "iat": now,  # issued at
             "exp": exp,  # expiration time
@@ -2175,9 +2179,12 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             return self.get_guest_user_from_token(cast(GuestToken, token))
 
     def get_guest_user_from_token(self, token: GuestToken) -> GuestUser:
+        roles = [self.find_role(current_app.config["GUEST_ROLE_NAME"])]
+        if token.get("roles") is not None:
+            roles.extend([self.find_role(role) for role in token.get("roles")])
         return self.guest_user_cls(
             token=token,
-            roles=[self.find_role(current_app.config["GUEST_ROLE_NAME"])],
+            roles=roles,
         )
 
     def parse_jwt_guest_token(self, raw_token: str) -> Dict[str, Any]:

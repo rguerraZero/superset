@@ -73,8 +73,6 @@ if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
     EMBEDDED_SUPERSET = True
     DASHBOARD_RBAC = True
     # Enable embedded Configuration
-    PUBLIC_ROLE_LIKE_GAMMA = True
-    PUBLIC_ROLE_LIKE = "Gamma"
     ENABLE_PROXY_FIX = True
     DEFAULT_HTTP_HEADERS={'X-Frame-Options': 'ALLOWALL'}
     OVERRIDE_HTTP_HEADERS={'X-Frame-Options': 'ALLOWALL'}

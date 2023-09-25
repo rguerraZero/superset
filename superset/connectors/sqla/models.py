@@ -2094,6 +2094,11 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
         )
 
     @classmethod
+    def get_datasources_include_views(cls, session: Session) -> List[SqlaTable]:
+        qry = session.query(cls)
+        return qry.all()
+
+    @classmethod
     def get_all_datasources(cls, session: Session) -> List[SqlaTable]:
         qry = session.query(cls)
         qry = cls.default_query(qry)

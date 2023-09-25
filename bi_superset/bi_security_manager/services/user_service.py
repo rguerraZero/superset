@@ -115,7 +115,7 @@ class UserService:
         from superset.connectors.sqla.models import SqlaTable
 
         session = self.session
-        all_datasources = SqlaTable.get_all_datasources(session)
+        all_datasources = SqlaTable.get_datasources_include_views(session)
         return all_datasources
 
     def add_rls(self, enterprise_id, roles, tables):

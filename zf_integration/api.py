@@ -88,7 +88,8 @@ class ZFIntegrationRestApi(BaseSupersetApi):
                 [role.id for role in superset_user.roles if BASE_ROLE_ENTERPRISE in role.name]
             )
             guest_token = self.get_guest_token(
-                token_user, default_dashboards['uuids'], custom_dashboards['uuids'])
+                token_user, default_dashboards['uuids'], custom_dashboards['uuids'],
+                [role.name for role in superset_user.roles])
             respond = {
                 'guest_token':  guest_token,
                 'default_dashboards': default_dashboards['dashboards'],
@@ -154,7 +155,7 @@ class ZFIntegrationRestApi(BaseSupersetApi):
         }
         return user_info
 
-    def get_guest_token(self, user, default_ds, custom_ds) -> Any:
+    def get_guest_token(self, user, default_ds, custom_ds, roles) -> Any:
         '''
         Returns a valid guest token generated, based on the given user and dashboards.
         '''
@@ -163,7 +164,8 @@ class ZFIntegrationRestApi(BaseSupersetApi):
             [{
                 'type': GuestTokenResourceType.DASHBOARD.value,
                 'id': uuid} for uuid in default_ds+custom_ds],
-            []
+            [],
+            roles
         )
         return token
 
