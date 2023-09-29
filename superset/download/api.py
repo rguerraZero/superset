@@ -8,7 +8,14 @@ from flask_appbuilder import expose
 from weasyprint import HTML, CSS
 from superset.views.base_api import BaseSupersetApi, statsd_metrics
 
+import boto3
+import uuid
+import os
+
 logger = logging.getLogger(__name__)
+
+env = os.environ.get('ENV')
+app = os.environ.get('SUPERSET_ACCESS_METHOD')
 
 class DownloadRestApi(BaseSupersetApi):
     resource_name = "download"
@@ -56,6 +63,8 @@ class DownloadRestApi(BaseSupersetApi):
                 application/json:
                   schema:
                     type: string
+            500:
+              $ref: '#/components/responses/500'
         """
 
         image_urls = request.json.get('image_urls', [])
@@ -233,7 +242,18 @@ class DownloadRestApi(BaseSupersetApi):
 
         HTML(string=get_report_html()).write_pdf('/tmp/temp.pdf', stylesheets=[CSS(string=get_report_css())])
 
-        pdf_url = ''
-        with open('/tmp/temp.pdf', 'rb') as pdf_file:
-            pdf_url = f'''data:application/pdf;base64,{base64.b64encode(pdf_file.read()).decode('UTF-8')}'''
+        pdf_id = str(uuid.uuid4())
+        file_name = f'{pdf_id}.pdf'
+        bucket_name = f'superset-{app}-pdfs-{env}'
+
+        s3 = boto3.client('s3')
+        with open('/tmp/temp.pdf', 'rb') as f:
+          s3.upload_fileobj(f, bucket_name, file_name)
+        
+        bucket_location = s3_client.get_bucket_location(Bucket=bucket_name)
+        pdf_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(
+            bucket_location['LocationConstraint'],
+            bucket_name,
+            file_name)
+
         return self.response(200, result=pdf_url)

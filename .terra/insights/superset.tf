@@ -255,4 +255,66 @@ resource "consul_keys" "superset-keys" {
   }
 }
 
+resource "aws_s3_bucket" "bucket" {
+  bucket = "superset-external-pdfs-${var.env}"
 
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  tags {
+    Application = "${var.app}"
+    Environment = "${var.env}"
+  }
+
+  lifecycle_rule {
+    id = "superset-external-pdfs_s3_bucket_lifecycle_rule"
+    enabled = "true"
+
+    expiration {
+      days = 1
+    }
+  }
+}
+
+# https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html
+# https://aws.amazon.com/blogs/security/iam-policies-and-bucket-policies-and-acls-oh-my-controlling-access-to-s3-resources/
+resource "aws_s3_bucket_policy" "public" {
+  count = 1
+
+  bucket = "${aws_s3_bucket.bucket.id}"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AddPerm",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "${aws_s3_bucket.bucket.arn}/*"
+    },
+    {
+      "Sid": "AllowSSLRequestsOnly",
+      "Action": "s3:*",
+      "Effect": "Deny",
+      "Resource": [
+        "${aws_s3_bucket.bucket.arn}",
+        "${aws_s3_bucket.bucket.arn}/*"
+      ],
+      "Condition": {
+        "Bool": {
+          "aws:SecureTransport": "false"
+        }
+      },
+      "Principal": "*"
+    }
+  ]
+}
+POLICY
+}
