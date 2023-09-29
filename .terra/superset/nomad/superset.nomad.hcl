@@ -111,6 +111,13 @@ SENDGRID_PASSWORD="{{ .Data.password }}"{{ end }}
 {{ range ls "${app}/superset/env" }}
 {{ .Key|toUpper }}="{{ .Value }}"
 {{ end }}
+
+{{ with secret "aws/sts/${app}" "ttl=24h"}}
+AWS_REGION="${aws_region}"
+AWS_ACCESS_KEY_ID="{{ .Data.access_key }}"
+AWS_SECRET_ACCESS_KEY="{{ .Data.secret_key }}"
+AWS_SESSION_TOKEN="{{ .Data.security_token }}"{{ end }}
+
 EOH
         destination = "secrets/env"
         env = true

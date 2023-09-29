@@ -23,7 +23,7 @@ variable "ecr_url" {
 }
 
 variable "container_count" {
-  type = "map"
+  type = map(string)
 
   default = {
     qa   = 1
@@ -36,19 +36,20 @@ variable "container_count" {
 # Nomad
 # ------------------------------------------------------------------------
 data "template_file" "nomad_group" {
-  template = "${file("./nomad/superset.nomad.hcl")}"
+  template = file("./nomad/superset.nomad.hcl")
 
-  vars {
-    app        = "${var.app}"
-    cmd        = "${var.cmd}"
-    count      = "${lookup(var.container_count, var.env)}"
-    git_sha    = "${var.git_sha}"
-    env        = "${var.env}"
-    aws_region = "${var.aws_region}"
-    ecr_url    = "${var.ecr_url}"
+  vars = {
+    app        = var.app
+    cmd        = var.cmd
+    count      = var.container_count[var.env]
+    git_sha    = var.git_sha
+    env        = var.env
+    aws_region = var.aws_region
+    ecr_url    = var.ecr_url
   }
 }
 
 output "nomad_group" {
-  value = "${data.template_file.nomad_group.rendered}"
+  value = data.template_file.nomad_group.rendered
 }
+
