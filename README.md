@@ -43,6 +43,11 @@ npm install
 npm run build
 ```
 
+### Run debuger
+
+1. Add `breakpoint()` to the point you want to debug
+2. After having the service runing, in a new terminal run `docker attach $(docker ps -f name=superset_app --format '{{.ID}}')`
+
 ## How to update this repo
 
 in case that you need to update this repo:

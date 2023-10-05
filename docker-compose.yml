@@ -32,7 +32,7 @@ x-superset-volumes: &superset-volumes
   - ./zf_integration:/app/superset/zf_integration
   - ./zf_utils/jwt.py:/app/superset/utils/jwt.py
   - ~/.aws:/root/.aws:ro
-  
+
 version: "3.7"
 services:
   redis:
@@ -65,6 +65,7 @@ services:
     restart: unless-stopped
     ports:
       - 8088:8088
+    stdin_open: true
     user: *superset-user
     depends_on: *superset-depends-on
     volumes: *superset-volumes
