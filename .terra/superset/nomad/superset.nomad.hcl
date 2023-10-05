@@ -111,7 +111,6 @@ SENDGRID_PASSWORD="{{ .Data.password }}"{{ end }}
 {{ range ls "${app}/superset/env" }}
 {{ .Key|toUpper }}="{{ .Value }}"
 {{ end }}
-
 EOH
         destination = "secrets/env"
         env = true
