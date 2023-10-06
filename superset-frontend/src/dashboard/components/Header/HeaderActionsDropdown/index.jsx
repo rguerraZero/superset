@@ -202,14 +202,18 @@ class HeaderActionsDropdown extends React.PureComponent {
           '.ant-dropdown:not(.ant-dropdown-hidden)',
         );
         menu.style.visibility = 'hidden';
-        this.loadingIcon.style.visibility = 'visible';
+        if (this.loadingIcon) {
+          this.loadingIcon.style.visibility = 'visible';
+        }
         downloadAsPDF(
           PDF_NODE_BASE_SELECTOR,
           this.props.dashboardTitle,
           SCREENSHOT_NODE_SELECTOR,
         )(domEvent).then(() => {
           menu.style.visibility = 'visible';
-          this.loadingIcon.style.visibility = 'hidden';
+          if (this.loadingIcon) {
+            this.loadingIcon.style.visibility = 'hidden';
+          }
         });
         this.props.logEvent?.(LOG_ACTIONS_DASHBOARD_DOWNLOAD_AS_PDF);
         break;

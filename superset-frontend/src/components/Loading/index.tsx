@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,7 +19,7 @@
  */
 
 import React from 'react';
-import { styled, css } from '@superset-ui/core';
+import { styled } from '@superset-ui/core';
 import cls from 'classnames';
 import Loader from 'src/assets/images/loading.gif';
 
@@ -35,44 +36,43 @@ export interface Props {
 }
 
 const LoaderImg = styled.img`
-  ${({ theme }) => css`
-    z-index: 99;
-    width: 50px;
-    height: unset;
-    position: relative;
-    margin: 10px;
-    &.inline {
-      margin: 0px;
-      width: 30px;
-    }
-    &.inline-centered {
-      margin: 0 auto;
-      width: 30px;
-      display: block;
-    }
-    &.floating {
-      padding: 0;
-      margin: 0;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
-    &.download-pdf {
-      display: block !important;
-      top: 35vh;
-      background: ${theme.colors.grayscale.light4};
-      padding-top: 40vh;
-      padding-bottom: 40vh;
-      padding-left: 40vw;
-      padding-right: 40vw;
-      margin: 15vh 0px 0px 0px;
-      width: 100%;
-      visibility: hidden;
-      height: 100vh;
-    }
-  `}
+  z-index: 99;
+  width: 50px;
+  height: unset;
+  position: relative;
+  margin: 10px;
+  &.inline {
+    margin: 0px;
+    width: 30px;
+  }
+  &.inline-centered {
+    margin: 0 auto;
+    width: 30px;
+    display: block;
+  }
+  &.floating {
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  &.download-pdf {
+    display: block !important;
+    top: 35vh;
+    background: #f7f7f7;
+    padding-top: 48vh;
+    padding-bottom: 48vh;
+    padding-left: 48vw;
+    padding-right: 48vw;
+    margin: 15vh 0px 0px 0px;
+    width: 100%;
+    visibility: hidden;
+    height: 100vh;
+  }
 `;
+
 export default function Loading({
   position = 'floating',
   image,

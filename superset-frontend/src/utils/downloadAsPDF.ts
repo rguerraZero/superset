@@ -151,6 +151,9 @@ export default function downloadAsPDF(
           link.click();
         });
       })
+      .then(() => {
+        setTimeout(() => {}, 1000);
+      })
       .catch(e => {
         console.error('Creating image failed', e);
       });
