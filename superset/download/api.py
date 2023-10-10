@@ -83,12 +83,13 @@ class DownloadRestApi(BaseSupersetApi):
         pdf_id = str(uuid.uuid4())
         file_name = f'{pdf_id}.pdf'
         self.write_pdf(pdf_pages, file_name)
-        pdf_url = ''
         try:
-          pdf_url = self.upload_to_s3(file_name)
+          self.upload_to_s3(file_name)
         except:
-            with open(f'/tmp/{file_name}', 'rb') as pdf_file:
-                pdf_url = f'''data:application/pdf;base64,{base64.b64encode(pdf_file.read()).decode('UTF-8')}'''
+            logger.error("Error at trying to upload report file to S3.")
+        pdf_url = ''
+        with open(f'/tmp/{file_name}', 'rb') as pdf_file:
+              pdf_url = f'''data:application/pdf;base64,{base64.b64encode(pdf_file.read()).decode('UTF-8')}'''
         return self.response(200, result=pdf_url)
 
     def get_pdf_pages(self, report_name, date, image_urls):
@@ -144,18 +145,13 @@ class DownloadRestApi(BaseSupersetApi):
         for doc in pdf_pages:
             for page in doc.pages:
                 pages.append(page)
-        pdf_file = document.copy(pages).write_pdf(f'/tmp/{file_name}')
+        document.copy(pages).write_pdf(f'/tmp/{file_name}')
 
     def upload_to_s3(self, file_name):
         bucket_name = f'superset-{app}-pdfs-{env}'
         s3 = boto3.client('s3')
         with open(f'/tmp/{file_name}', 'rb') as f:
-            s3.upload_fileobj(f, bucket_name, file_name, ExtraArgs={'ACL': 'public-read'})
-        bucket_location = s3.get_bucket_location(Bucket=bucket_name)
-        return 'https://s3-{0}.amazonaws.com/{1}/{2}'.format(
-            bucket_location['LocationConstraint'],
-            bucket_name,
-            file_name)
+            s3.upload_fileobj(f, bucket_name, file_name)
 
     def get_page_dimension(self, page_configuration):
         width = max([995, page_configuration['width']])
