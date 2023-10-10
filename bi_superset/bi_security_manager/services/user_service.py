@@ -4,11 +4,11 @@ import logging
 from bi_superset.bi_security_manager.models.user import User as ZFUser
 from bi_superset.bi_security_manager.models.access_method import AccessMethod
 from bi_superset.bi_security_manager.models.access_origin import AccessOrigin
+
 logger = logging.getLogger(__name__)
 
 
 class UserService:
-
     def __init__(self, access_method, access_origin, sm):
         self._access_method = access_method
         self._access_origin = access_origin
@@ -42,7 +42,8 @@ class UserService:
             if rls is None:
                 # Only applied to enteprise role of the current user
                 enterprise_role = self.sm.find_role(
-                    zf_user.superset_role_name(self._access_origin))
+                    zf_user.superset_role_name(self._access_origin)
+                )
                 self.add_rls(
                     enterprise_id=zf_user.enterprise_id,
                     roles=[enterprise_role],
@@ -63,10 +64,14 @@ class UserService:
         Checks current user info against user_info from oauth_user_info
         this will update user role
         """
-        if user.roles == "Admin" and AccessOrigin.is_from_superset_ui(self._access_origin):
+        if user.roles == "Admin" and AccessOrigin.is_from_superset_ui(
+            self._access_origin
+        ):
             return user
 
-        if zf_user.is_internal_user and AccessOrigin.is_from_superset_ui(self._access_origin):
+        if zf_user.is_internal_user and AccessOrigin.is_from_superset_ui(
+            self._access_origin
+        ):
             if AccessMethod.is_external(self._access_method):
                 role = self.sm.find_role("Admin")
             else:
@@ -82,23 +87,27 @@ class UserService:
                 )
 
                 user_role_job_title = query.one_or_none()
-
                 # comment due that is not viable to use yet
-                # role = self.find_role(user_role_job_title.role_name)
-                role = self.sm.find_role("zerofox_internal")
-            user.roles += [role]
+                logger.info(f"Role: {user_role_job_title.role_name} assigned")
+                search_role_name = user_role_job_title.role_name
+                if "admin" == search_role_name.lower():
+                    search_role_name = search_role_name.capitalize()
+                role = self.sm.find_role(search_role_name)
+                if role is None:
+                    logger.info("Role Not found")
+                # role = self.sm.find_role("zerofox_internal")
+            user.roles = [role]
 
         else:
             # Check if role exists, `view_only enterprise_id``
             default_role = self.sm.find_role("view_only")
-            role = self.sm.find_role(
-                zf_user.superset_role_name(self._access_origin))
+            role = self.sm.find_role(zf_user.superset_role_name(self._access_origin))
             if role is None:
                 # If not copy from default role permissions
                 # Creates new roles
                 role = self.sm.add_role(
-                    zf_user.superset_role_name(
-                        self._access_origin), default_role.permissions
+                    zf_user.superset_role_name(self._access_origin),
+                    default_role.permissions,
                 )
             # Assign it to current user
             user.roles = [default_role, role]

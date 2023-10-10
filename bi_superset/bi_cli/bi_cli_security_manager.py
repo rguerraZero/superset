@@ -116,6 +116,45 @@ class BICLISecurityManager(SupersetSecurityManager):
                 index=True,
                 index_label="id",
             )
+        # TODO: COMMENTING OUT TILL WE HAVE DECIDE ON HOW TO HANDLE INTERNAL ACCESS
+        # if access method is internal
+        # if AccessMethod.is_internal(self._access_method):
+        #     from superset.connectors.sqla.models import SqlaTable
+
+        #     permission_name = "datasource_access"
+        #     session = self.get_session()
+        #     # iterate over res_df
+        #     for row in res_df.to_dict(orient="records"):
+        #         # role
+        #         role_to_find = row["role_name"]
+        #         if "admin" == role_to_find:
+        #             continue
+
+        #         role = self.find_role(row["role_name"])
+        #         if role is None:
+        #             logging.warning(f"Role {role_to_find} does not exist.")
+        #             continue
+        #         table_name = row["table_name"]
+        #         table_schema = row["table_schema"]
+        #         logging.info(f"Getting Table {table_schema} {table_name}")
+        #         dataset = (
+        #             session.query(SqlaTable)
+        #             .filter(
+        #                 SqlaTable.table_name == table_name,
+        #                 SqlaTable.schema == table_schema,
+        #             )
+        #             .one_or_none()
+        #         )
+        #         if dataset is None:
+        #             logging.warning(
+        #                 f"Dataset {table_schema}.{table_name} does not exist."
+        #             )
+        #             continue
+        #         dataset_permission_view = self.find_permission_view_menu(
+        #             permission_name, dataset.get_perm()
+        #         )
+        #         self.add_permission_role(role, dataset_permission_view)
+        #         session.commit()
 
     def loads_roles_per_job_title(self):
         """

@@ -53,7 +53,8 @@ class BICustomSecurityManager(SupersetSecurityManager):
 
         if not zf_user.is_active:
             return None
-        if (AccessMethod.is_internal(self._access_method)
+        if (
+            AccessMethod.is_internal(self._access_method)
             and zf_user.is_internal_user is False
         ):
             return None
@@ -61,4 +62,3 @@ class BICustomSecurityManager(SupersetSecurityManager):
         userService = UserService(self._access_method, self._access_origin, self)
         user = userService.update_roles_rls(user, zf_user)
         return user
-
