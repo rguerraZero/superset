@@ -6,7 +6,7 @@ name: terra
 steps:
   - name: plan
     pull: if-not-exists
-    image: hashicorp/terraform:0.12.31
+    image: hashicorp/terraform:0.13.7
     environment:
       AWS_REGION: us-west-2
       AWS_ACCESS_KEY_ID:
@@ -33,15 +33,15 @@ steps:
       - mkdir ~/.ssh && echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519 && chmod 0600 ~/.ssh/id_ed25519
       - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
       - apt-get update && apt-get install libsasl2-dev
-      - pip install -r requirements/testing.txt  
-      - cp -R bi_superset/ superset/bi_superset/ 
+      - pip install -r requirements/testing.txt
+      - cp -R bi_superset/ superset/bi_superset/
       - cp bi_superset/superset_config.py superset/superset_config.py
       - cp bi_superset/bi_cli/bi_cli.py superset/cli/bi_cli.py
       - cp -R zf_integration/ superset/zf_integration/
       - cp zf_utils/jwt.py superset/utils/jwt.py
       - pip install coverage
       - pytest ./tests/unit_tests/
-  
+
 
 ---
 kind: pipeline
@@ -57,7 +57,7 @@ steps:
     commands:
       - mkdir ~/.ssh && echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519 && chmod 0600 ~/.ssh/id_ed25519
       - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-      - cp -R bi_superset/ superset/bi_superset/ 
+      - cp -R bi_superset/ superset/bi_superset/
       - cp bi_superset/superset_config.py superset/superset_config.py
       - cp bi_superset/bi_cli/bi_cli.py superset/cli/bi_cli.py
       - cp -R zf_integration/ superset/zf_integration/
