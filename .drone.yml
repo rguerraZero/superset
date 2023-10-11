@@ -4,7 +4,7 @@ type: docker
 name: terra
 
 steps:
-  - name: plan
+  - name: plan-insights
     pull: if-not-exists
     image: hashicorp/terraform:0.14.10
     environment:
@@ -19,10 +19,26 @@ steps:
       - apk add -U make openssh-client jq zip
       - mkdir ~/.ssh && echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519 && chmod 0600 ~/.ssh/id_ed25519
       - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-      - make -C .terra/superset init
-      - make -C .terra/superset validate
       - make -C .terra/insights init
       - make -C .terra/insights validate
+
+  - name: plan-superset
+    pull: if-not-exists
+    image: hashicorp/terraform:0.12.31
+    environment:
+      AWS_REGION: us-west-2
+      AWS_ACCESS_KEY_ID:
+        from_secret: AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: AWS_SECRET_ACCESS_KEY
+      SSH_PRIVATE_KEY:
+        from_secret: SSH_PRIVATE_KEY
+    commands:
+      - apk add -U make openssh-client jq zip
+      - mkdir ~/.ssh && echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519 && chmod 0600 ~/.ssh/id_ed25519
+      - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - make -C .terra/superset init
+      - make -C .terra/superset validate
 
   - name: unit-test
     pull: if-not-exists
