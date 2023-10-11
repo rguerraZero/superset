@@ -6,7 +6,7 @@ name: terra
 steps:
   - name: plan
     pull: if-not-exists
-    image: hashicorp/terraform:0.13.7
+    image: hashicorp/terraform:0.14.10
     environment:
       AWS_REGION: us-west-2
       AWS_ACCESS_KEY_ID:
