@@ -94,11 +94,10 @@ if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
     GUEST_TOKEN_HEADER_NAME = "X-GuestToken"
     GUEST_TOKEN_JWT_EXP_SECONDS = 60*60  # 1 hour
     ZF_JWT_PUBLIC_SECRET = get_env_variable("ZF_JWT_PUBLIC_SECRET", None)
+    STATIC_ASSETS_PREFIX = f'{os.environ.get("ZF_DASHBOARD_HOST")}/spa_bff/superset'
 
-STATIC_ASSETS_PREFIX = f'{os.environ.get("ZF_DASHBOARD_HOST")}/spa_bff/superset'
-BQ_DATASET = os.getenv("BQ_DATASET", None)
 ZF_API_HOST = os.getenv("ZF_API_HOST", "https://api-qa.zerofox.com")
-
+BQ_DATASET = os.getenv("BQ_DATASET", None)
 FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_PROCESSING": True,
     "ESTIMATE_QUERY_COST": True,
