@@ -225,10 +225,6 @@ resource "consul_keys" "superset-keys" {
     value = var.zf_api_host[var.env]
   }
 
-  key {
-    path  = "${var.app}/superset/env/zf_dashboard_host"
-    value = var.zf_dashboard_host[var.env]
-  }
 }
 
 module "pdfs_bucket" {
