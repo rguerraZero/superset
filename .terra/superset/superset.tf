@@ -32,16 +32,6 @@ variable "zf_api_host" {
   }
 }
 
-variable "zf_dashboard_host" {
-  type = map(string)
-
-  default = {
-    qa   = "https://cloud-qa.zerofox.com"
-    stag = "https://cloud-stag.zerofox.com"
-    prod = "https://cloud.zerofox.com"
-  }
-}
-
 # ----------------------------------------
 # Providers
 # ----------------------------------------
@@ -158,7 +148,6 @@ module "nomad-job" {
   git_sha           = var.git_sha
   docker_file       = "../../Dockerfile"
   docker_path       = "../.."
-  docker_build_args = ["ASSET_BASE_URL=${var.zf_dashboard_host[var.env]}/spa_bff/superset"]
   rendered_template = data.template_file.nomad_job_spec.rendered
 }
 
