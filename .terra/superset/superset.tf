@@ -158,7 +158,6 @@ module "nomad-job" {
   git_sha           = var.git_sha
   docker_file       = "../../Dockerfile"
   docker_path       = "../.."
-  docker_build_args = ["ASSET_BASE_URL=${var.zf_dashboard_host[var.env]}/spa_bff/superset"]
   rendered_template = data.template_file.nomad_job_spec.rendered
 }
 
