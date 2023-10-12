@@ -22,12 +22,14 @@ variable "ecr_url" {
   default = "012321959326.dkr.ecr.us-west-2.amazonaws.com"
 }
 
-variable "db_address" {}
+variable "db_address" {
+}
 
-variable "db_port" {}
+variable "db_port" {
+}
 
 variable "container_count" {
-  type = "map"
+  type = map(string)
 
   default = {
     qa   = 1
@@ -37,7 +39,7 @@ variable "container_count" {
 }
 
 variable "hostname" {
-  type = "map"
+  type = map(string)
 
   default = {
     qa   = "insights-qa"
@@ -50,22 +52,23 @@ variable "hostname" {
 # Nomad
 # ------------------------------------------------------------------------
 data "template_file" "nomad_group" {
-  template = "${file("./nomad/superset.nomad.hcl")}"
+  template = file("./nomad/superset.nomad.hcl")
 
-  vars {
-    app        = "${var.app}"
-    cmd        = "${var.cmd}"
-    count      = "${lookup(var.container_count, var.env)}"
-    git_sha    = "${var.git_sha}"
-    env        = "${var.env}"
-    aws_region = "${var.aws_region}"
-    ecr_url    = "${var.ecr_url}"
-    db_address = "${var.db_address}"
-    db_port    = "${var.db_port}"
-    hostname   = "${lookup(var.hostname, var.env)}"
+  vars = {
+    app        = var.app
+    cmd        = var.cmd
+    count      = var.container_count[var.env]
+    git_sha    = var.git_sha
+    env        = var.env
+    aws_region = var.aws_region
+    ecr_url    = var.ecr_url
+    db_address = var.db_address
+    db_port    = var.db_port
+    hostname   = var.hostname[var.env]
   }
 }
 
 output "nomad_group" {
-  value = "${data.template_file.nomad_group.rendered}"
+  value = data.template_file.nomad_group.rendered
 }
+

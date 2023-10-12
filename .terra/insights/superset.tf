@@ -1,12 +1,3 @@
-terraform {
-  backend "s3" {
-    key    = "insights/terraform.tfstate"
-    region = "us-west-2"
-  }
-
-  required_version = "0.11.15"
-}
-
 variable "app" {
   default = "insights"
 }
@@ -36,7 +27,7 @@ variable "consul_token" {
 }
 
 variable "zf_api_host" {
-  type = "map"
+  type = map(string)
 
   default = {
     qa   = "https://api-qa.zerofox.com"
@@ -46,7 +37,7 @@ variable "zf_api_host" {
 }
 
 variable "zf_dashboard_host" {
-  type = "map"
+  type = map(string)
 
   default = {
     qa   = "https://cloud-qa.zerofox.com"
@@ -91,107 +82,115 @@ resource "aws_elasticache_cluster" "cache" {
   parameter_group_name = "default.redis5.0"
   subnet_group_name    = "west-redis"
 
+  # TF-UPGRADE-TODO: In Terraform v0.10 and earlier, it was sometimes necessary to
+  # force an interpolation expression to be interpreted as a list by wrapping it
+  # in an extra set of list brackets. That form was supported for compatibility in
+  # v0.11, but is no longer supported in Terraform v0.12.
+  #
+  # If the expression in the following list itself returns a list, remove the
+  # brackets to avoid interpretation as a list of lists. If the expression
+  # returns a single list item then leave it as-is and remove this TODO comment.
   security_group_ids = [
-    "${data.terraform_remote_state.global.corporate_sg_ids[var.aws_region]}",
+    data.terraform_remote_state.global.outputs.corporate_sg_ids[var.aws_region],
   ]
 
-  tags {
-    Application = "${var.app}"
-    Environment = "${var.env}"
+  tags = {
+    Application = var.app
+    Environment = var.env
   }
 }
 
 module "celery_worker" {
   source = "./celery_worker"
 
-  app        = "${var.app}"
-  env        = "${var.env}"
+  app        = var.app
+  env        = var.env
   git_sha    = "${var.git_sha}-${var.env}"
-  aws_region = "${var.aws_region}"
-  ecr_url    = "${var.ecr_url}"
-  db_address = "${data.aws_db_instance.db.address}"
-  db_port    = "${data.aws_db_instance.db.port}"
+  aws_region = var.aws_region
+  ecr_url    = var.ecr_url
+  db_address = data.aws_db_instance.db.address
+  db_port    = data.aws_db_instance.db.port
 }
 
 module "celery_beat" {
   source = "./celery_beat"
 
-  app        = "${var.app}"
-  env        = "${var.env}"
+  app        = var.app
+  env        = var.env
   git_sha    = "${var.git_sha}-${var.env}"
-  aws_region = "${var.aws_region}"
-  ecr_url    = "${var.ecr_url}"
-  db_address = "${data.aws_db_instance.db.address}"
-  db_port    = "${data.aws_db_instance.db.port}"
+  aws_region = var.aws_region
+  ecr_url    = var.ecr_url
+  db_address = data.aws_db_instance.db.address
+  db_port    = data.aws_db_instance.db.port
 }
 
 module "celery_flower" {
   source = "./celery_flower"
 
-  app        = "${var.app}"
-  env        = "${var.env}"
+  app        = var.app
+  env        = var.env
   git_sha    = "${var.git_sha}-${var.env}"
-  aws_region = "${var.aws_region}"
-  ecr_url    = "${var.ecr_url}"
-  db_address = "${data.aws_db_instance.db.address}"
-  db_port    = "${data.aws_db_instance.db.port}"
+  aws_region = var.aws_region
+  ecr_url    = var.ecr_url
+  db_address = data.aws_db_instance.db.address
+  db_port    = data.aws_db_instance.db.port
 }
 
 module "superset" {
   source = "./nomad"
 
-  app        = "${var.app}"
-  env        = "${var.env}"
+  app        = var.app
+  env        = var.env
   git_sha    = "${var.git_sha}-${var.env}"
-  aws_region = "${var.aws_region}"
-  ecr_url    = "${var.ecr_url}"
-  db_address = "${data.aws_db_instance.db.address}"
-  db_port    = "${data.aws_db_instance.db.port}"
+  aws_region = var.aws_region
+  ecr_url    = var.ecr_url
+  db_address = data.aws_db_instance.db.address
+  db_port    = data.aws_db_instance.db.port
 }
 
 # ------------------------------------------------------------------------
 # Nomad
 # ------------------------------------------------------------------------
 data "template_file" "nomad_job_spec" {
-  template = "${file("superset.nomad.hcl")}"
+  template = file("superset.nomad.hcl")
 
-  vars {
-    celery_worker_group   = "${module.celery_worker.nomad_group}"
-    celery_beat_group     = "${module.celery_beat.nomad_group}"
-    celery_flower_group   = "${module.celery_flower.nomad_group}"
-    superset              = "${module.superset.nomad_group}"
+  vars = {
+    celery_worker_group = module.celery_worker.nomad_group
+    celery_beat_group   = module.celery_beat.nomad_group
+    celery_flower_group = module.celery_flower.nomad_group
+    superset            = module.superset.nomad_group
   }
 }
 
 module "nomad-job" {
-  source = "git::ssh://git@github.com/riskive/devops-terraform-modules.git?ref=master//components/nomad-build-run"
+  source = "git::ssh://git@github.com/riskive/devops-terraform-modules.git//nomad-build-run?ref=master"
 
-  app               = "${var.app}"
-  ecr_url           = "${var.ecr_url}"
+  app               = var.app
+  ecr_url           = var.ecr_url
   git_sha           = "${var.git_sha}-${var.env}"
-  docker_file        = "../../Dockerfile"
+  docker_file       = "../../Dockerfile"
   docker_path       = "../.."
-  docker_build_args = ["ASSET_BASE_URL=${lookup(var.zf_dashboard_host, var.env)}/spa_bff/superset"]
-  rendered_template = "${data.template_file.nomad_job_spec.rendered}"
+  docker_build_args = ["ASSET_BASE_URL=${var.zf_dashboard_host[var.env]}/spa_bff/superset"]
+  rendered_template = data.template_file.nomad_job_spec.rendered
 }
 
 resource "consul_keys" "superset-keys" {
   datacenter = "aws-${var.aws_region}"
-  token      = "${var.consul_token}"
+  token      = var.consul_token
 
   key {
     path  = "${var.app}/superset/env/redis_host"
-    value = "${aws_elasticache_cluster.cache.cache_nodes.0.address}"
+    value = aws_elasticache_cluster.cache.cache_nodes[0].address
   }
 
   key {
     path  = "${var.app}/superset/env/redis_port"
-    value = "${aws_elasticache_cluster.cache.cache_nodes.0.port}"
+    value = aws_elasticache_cluster.cache.cache_nodes[0].port
   }
 
   key {
     path  = "${var.app}/superset/env/env"
-    value = "${var.env}"
+    value = var.env
   }
 
   key {
@@ -246,11 +245,32 @@ resource "consul_keys" "superset-keys" {
 
   key {
     path  = "${var.app}/superset/env/zf_api_host"
-    value = "${lookup(var.zf_api_host, var.env)}"
+    value = var.zf_api_host[var.env]
   }
 
   key {
     path  = "${var.app}/superset/env/zf_dashboard_host"
-    value = "${lookup(var.zf_dashboard_host, var.env)}"
+    value = var.zf_dashboard_host[var.env]
+  }
+}
+
+module "pdfs_bucket" {
+  source = "git::ssh://git@github.com/riskive/devops-terraform-modules.git//s3-bucket?ref=fix-s3-bucket"
+
+  name   = "superset-external-pdfs-${var.env}"
+  app    = var.app
+  env    = var.env
+  public = false
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
+  count  = var.env == "prod" ? 1 : 0
+  bucket = module.pdfs_bucket.bucket_name
+  rule {
+    id = "bucket-dr"
+    expiration {
+      days = 1
+    }
+    status = "Enabled"
   }
 }

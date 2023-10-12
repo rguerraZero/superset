@@ -23,13 +23,13 @@ validate: ${tf_files}
 	$(TERRAFORM) validate
 
 plan: .terraform/terraform.tfstate ${tf_files}
-	$(TERRAFORM) plan \
+	TF_LOG=TRACE && $(TERRAFORM) plan \
 		-var "env=$(ENVIRONMENT)" \
 		-var "git_sha=$(GIT_SHA)" \
 		-out terra.plan
 
 apply: plan
-	$(TERRAFORM) apply terra.plan
+	TF_LOG=TRACE && $(TERRAFORM) apply terra.plan
 
 clean:
 	rm -f *.backup *.plan

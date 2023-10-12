@@ -17,14 +17,14 @@ logger = logging.getLogger(__name__)
 env = os.environ.get('ENV')
 app = os.environ.get('SUPERSET_ACCESS_METHOD')
 
-
 class DownloadRestApi(BaseSupersetApi):
-    resource_name = "download"
-    openapi_spec_tag = "Download"
+    resource_name = 'download'
+    openapi_spec_tag = 'Download'
+    csrf_exempt = True
 
-    @expose("/download/", methods=["POST", "GET"])
+    @expose('/download/', methods=['POST', 'GET'])
     def post(self) -> Response:
-        """Response
+        '''Response
         Returns the images supplied in a formatted PDF file
         ---
         post:
@@ -65,7 +65,7 @@ class DownloadRestApi(BaseSupersetApi):
                     type: string
             500:
               $ref: '#/components/responses/500'
-        """
+        '''
 
         image_urls = request.json.get('image_urls', [])
         report_name = request.json.get('report_name', '')
@@ -74,7 +74,7 @@ class DownloadRestApi(BaseSupersetApi):
 
         def get_file_data_url(filename):
             with open(f'{pathlib.Path(__file__).parent.absolute()}/{filename}', 'rb') as file:
-                return base64.b64encode(file.read()).decode('UTF-8')
+                return f'''data:application/pdf;base64,{base64.b64encode(file.read()).decode('UTF-8')}'''
 
         self.zerofox_logo_text_url = get_file_data_url(
             'zerofox-logo-white.png')
@@ -83,12 +83,13 @@ class DownloadRestApi(BaseSupersetApi):
         pdf_id = str(uuid.uuid4())
         file_name = f'{pdf_id}.pdf'
         self.write_pdf(pdf_pages, file_name)
-        pdf_url = ''
         try:
-            pdf_url = self.upload_to_s3(file_name)
+          self.upload_to_s3(file_name)
         except:
-            with open(f'/tmp/{file_name}', 'rb') as pdf_file:
-                pdf_url = f'''data:application/pdf;base64,{base64.b64encode(pdf_file.read()).decode('UTF-8')}'''
+            logger.error("Error at trying to upload report file to S3.")
+        pdf_url = ''
+        with open(f'/tmp/{file_name}', 'rb') as pdf_file:
+              pdf_url = f'''data:application/pdf;base64,{base64.b64encode(pdf_file.read()).decode('UTF-8')}'''
         return self.response(200, result=pdf_url)
 
     def get_pdf_pages(self, report_name, date, image_urls):
@@ -104,9 +105,9 @@ class DownloadRestApi(BaseSupersetApi):
     def get_report_page(self, report_name, date):
         return f'''
         <html>
-          <article id="cover">
+          <article id='cover'>
             <span>
-              <img src="data:application/pdf;base64,{self.zerofox_logo_text_url}"></img>
+              <img src='{self.zerofox_logo_text_url}'></img>
               <hr />
               {report_name}
               <br />
@@ -121,15 +122,15 @@ class DownloadRestApi(BaseSupersetApi):
         <html>
           <article >
             <div class='header'>
-              <img src="data:application/pdf;base64,{self.zerofox_logo_text_url}"></img>
+              <img src='{self.zerofox_logo_text_url}'></img>
               <hr />
               {report_name}
             </div>
             <div>
-              <img src="{image['dataUrl']}"></img>
+              <img src='{image['dataUrl']}'></img>
             </div>
             <div class='footer'>
-              <img src="data:application/pdf;base64,{self.foxy_url}"></img>
+              <img src='{self.foxy_url}'></img>
               <br /><br />
               © ZeroFox 2023
             </div>
@@ -144,22 +145,17 @@ class DownloadRestApi(BaseSupersetApi):
         for doc in pdf_pages:
             for page in doc.pages:
                 pages.append(page)
-        pdf_file = document.copy(pages).write_pdf(f'/tmp/{file_name}')
+        document.copy(pages).write_pdf(f'/tmp/{file_name}')
 
     def upload_to_s3(self, file_name):
         bucket_name = f'superset-{app}-pdfs-{env}'
         s3 = boto3.client('s3')
         with open(f'/tmp/{file_name}', 'rb') as f:
             s3.upload_fileobj(f, bucket_name, file_name)
-        bucket_location = s3.get_bucket_location(Bucket=bucket_name)
-        pdf_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(
-            bucket_location['LocationConstraint'],
-            bucket_name,
-            file_name)
 
     def get_page_dimension(self, page_configuration):
-        width = 995 if page_configuration['width'] < 995 else page_configuration['width']
-        height = 1728 if page_configuration['height'] < 1728 else page_configuration['height']
+        width = max([995, page_configuration['width']])
+        height = max([1728, page_configuration['height']])
         return width, height
 
     def get_report_css(self, width, height, background):
