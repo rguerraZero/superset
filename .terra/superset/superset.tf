@@ -32,16 +32,6 @@ variable "zf_api_host" {
   }
 }
 
-variable "zf_dashboard_host" {
-  type = map(string)
-
-  default = {
-    qa   = "https://cloud-qa.zerofox.com"
-    stag = "https://cloud-stag.zerofox.com"
-    prod = "https://cloud.zerofox.com"
-  }
-}
-
 # ----------------------------------------
 # Providers
 # ----------------------------------------
