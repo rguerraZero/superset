@@ -74,14 +74,14 @@ if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
     DASHBOARD_RBAC = True
     # Enable embedded Configuration
     ENABLE_PROXY_FIX = True
-    DEFAULT_HTTP_HEADERS={'X-Frame-Options': 'ALLOWALL'}
-    OVERRIDE_HTTP_HEADERS={'X-Frame-Options': 'ALLOWALL'}
+    DEFAULT_HTTP_HEADERS = {"X-Frame-Options": "ALLOWALL"}
+    OVERRIDE_HTTP_HEADERS = {"X-Frame-Options": "ALLOWALL"}
     ENABLE_CORS = True
     CORS_OPTIONS = {
-        'supports_credentials': True,
-        'allow_headers': ['*'],
-        'resources':['*'],
-        'origins': ['<http://localhost:8088>']
+        "supports_credentials": True,
+        "allow_headers": ["*"],
+        "resources": ["*"],
+        "origins": ["<http://localhost:8088>"],
     }
     WTF_CSRF_ENABLED = False
 
@@ -92,9 +92,10 @@ if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
     GUEST_TOKEN_JWT_SECRET = get_env_variable("GUEST_TOKEN_JWT_SECRET", None)
     GUEST_TOKEN_JWT_ALGO = "HS256"
     GUEST_TOKEN_HEADER_NAME = "X-GuestToken"
-    GUEST_TOKEN_JWT_EXP_SECONDS = 60*60  # 1 hour
+    GUEST_TOKEN_JWT_EXP_SECONDS = 60 * 60  # 1 hour
     ZF_JWT_PUBLIC_SECRET = get_env_variable("ZF_JWT_PUBLIC_SECRET", None)
     STATIC_ASSETS_PREFIX = f'{os.environ.get("ZF_DASHBOARD_HOST")}/spa_bff/superset'
+
 
 ZF_API_HOST = os.getenv("ZF_API_HOST", "https://api-qa.zerofox.com")
 BQ_DATASET = os.getenv("BQ_DATASET", None)
