@@ -7,6 +7,7 @@ from flask import request, Response, jsonify, make_response
 from flask_appbuilder import expose
 from weasyprint import HTML, CSS
 from superset.views.base_api import BaseSupersetApi, statsd_metrics
+from superset.zf_integration.prometheus import PDF_SUCCESS_COUNTER, PDF_FAILURE_COUNTER
 
 import boto3
 import uuid
@@ -66,31 +67,36 @@ class DownloadRestApi(BaseSupersetApi):
             500:
               $ref: '#/components/responses/500'
         '''
-
-        image_urls = request.json.get('image_urls', [])
-        report_name = request.json.get('report_name', '')
-        date = request.json.get(
-            'date', datetime.date.today().strftime('%d.%m.%Y'))
-
-        def get_file_data_url(filename):
-            with open(f'{pathlib.Path(__file__).parent.absolute()}/{filename}', 'rb') as file:
-                return f'''data:application/pdf;base64,{base64.b64encode(file.read()).decode('UTF-8')}'''
-
-        self.zerofox_logo_text_url = get_file_data_url(
-            'zerofox-logo-white.png')
-        self.foxy_url = get_file_data_url('foxy.png')
-        pdf_pages = self.get_pdf_pages(report_name, date, image_urls)
-        pdf_id = str(uuid.uuid4())
-        file_name = f'{pdf_id}.pdf'
-        self.write_pdf(pdf_pages, file_name)
         try:
-          self.upload_to_s3(file_name)
-        except:
-            logger.error("Error at trying to upload report file to S3.")
-        pdf_url = ''
-        with open(f'/tmp/{file_name}', 'rb') as pdf_file:
-              pdf_url = f'''data:application/pdf;base64,{base64.b64encode(pdf_file.read()).decode('UTF-8')}'''
-        return self.response(200, result=pdf_url)
+          image_urls = request.json.get('image_urls', [])
+          report_name = request.json.get('report_name', '')
+          date = request.json.get(
+              'date', datetime.date.today().strftime('%d.%m.%Y'))
+
+          def get_file_data_url(filename):
+              with open(f'{pathlib.Path(__file__).parent.absolute()}/{filename}', 'rb') as file:
+                  return f'''data:application/pdf;base64,{base64.b64encode(file.read()).decode('UTF-8')}'''
+
+          self.zerofox_logo_text_url = get_file_data_url(
+              'zerofox-logo-white.png')
+          self.foxy_url = get_file_data_url('foxy.png')
+          pdf_pages = self.get_pdf_pages(report_name, date, image_urls)
+          pdf_id = str(uuid.uuid4())
+          file_name = f'{pdf_id}.pdf'
+          self.write_pdf(pdf_pages, file_name)
+          try:
+            self.upload_to_s3(file_name)
+          except:
+              logger.error("Error at trying to upload report file to S3.")
+          pdf_url = ''
+          with open(f'/tmp/{file_name}', 'rb') as pdf_file:
+                pdf_url = f'''data:application/pdf;base64,{base64.b64encode(pdf_file.read()).decode('UTF-8')}'''
+
+          PDF_SUCCESS_COUNTER.inc()
+          return self.response(200, result=pdf_url)
+        except Exception as e:
+          PDF_FAILURE_COUNTER.inc()
+          return self.response(500, message=f'Error generating report: {e}')
 
     def get_pdf_pages(self, report_name, date, image_urls):
         pdf_pages = []
@@ -257,7 +263,7 @@ class DownloadRestApi(BaseSupersetApi):
           font-size: 12px;
           font-weight: 400;
           line-height: 16px;
-          letter-spacing: 0em;         
+          letter-spacing: 0em;
         }}
 
         .footer img {{

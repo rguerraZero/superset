@@ -21,6 +21,7 @@ import os
 from flask import Flask
 
 from superset.initialization import SupersetAppInitializer
+from prometheus_flask_exporter import PrometheusMetrics
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,8 @@ def create_app() -> Flask:
 
         app_initializer = app.config.get("APP_INITIALIZER", SupersetAppInitializer)(app)
         app_initializer.init_app()
+
+        PrometheusMetrics(app)
 
         return app
 
