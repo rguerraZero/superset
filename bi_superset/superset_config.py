@@ -110,7 +110,7 @@ FEATURE_FLAGS = {
     "EMBEDDED_SUPERSET": EMBEDDED_SUPERSET,
 }
 # enable Prometheus /metrics endpoint for monitoring
-DEBUG_METRICS=1
+DEBUG_METRICS = 1
 JINJA_CONTEXT_ADDONS = {
     "normalize_idna": normalize_idna,
 }
@@ -193,7 +193,7 @@ CLIENT_ID = get_env_variable("SSO_CLIENT_ID")
 CLIENT_SECRET = get_env_variable("SSO_CLIENT_SECRET")
 API_BASE_URL = get_env_variable("SSO_API_BASE_URL")
 
-THUMBNAIL_SELENIUM_USER = "gnegrete@zerofox.com"
+THUMBNAIL_SELENIUM_USER = "report@zerofox.com"
 WEBDRIVER_BASEURL = f"https://superset-{CURRENT_ENV}.zerofox.com"
 WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 SCREENSHOT_LOCATE_WAIT = 100

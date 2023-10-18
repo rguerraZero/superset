@@ -83,7 +83,7 @@ class UserService:
                 query = (
                     self.session()
                     .query(RolesPerJobTitle)
-                    .filter(RolesPerJobTitle.username == zf_user.email)
+                    .filter(RolesPerJobTitle.username.lower() == zf_user.email.lower())
                 )
 
                 user_role_job_title = query.one_or_none()
