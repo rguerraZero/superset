@@ -20,15 +20,16 @@ group "${cmd}" {
 
         network {
           mbits = 1
-          port  "https"{}
+          port "https" {}
         }
       }
 
       service {
         name = "${app}-superset"
         tags = [
+          "https",
+          "prometheus-https",
           "superset",
-          "no-scrape",
           "traefik.http.routers.${app}-superset.middlewares=redirect-to-https@file",
           "traefik.http.routers.${app}-superset.rule=(Host(`${hostname}.zerofox.com`))",
           "traefik.http.routers.${app}-superset.service=${app}-superset",

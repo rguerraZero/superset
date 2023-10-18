@@ -317,5 +317,6 @@ pillow==9.3.0
 selenium==3.141.0
 sqlparse==0.4.3
 sqlalchemy-redshift==0.8.14
-
+prometheus-client==0.17.1
+prometheus_flask_exporter==0.22.4
 weasyprint==59.0

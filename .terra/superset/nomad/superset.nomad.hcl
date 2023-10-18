@@ -20,15 +20,16 @@ group "${cmd}" {
 
         network {
           mbits = 1
-          port  "https"{}
+          port "https" {}
         }
       }
 
       service {
         name = "$${NOMAD_TASK_NAME}"
         tags = [
+          "https",
+          "prometheus-https",
           "superset",
-          "no-scrape",
           "https",
           "urlprefix-superset-${env}.zerofox.com/ proto=https",
           "cs=zerofox",

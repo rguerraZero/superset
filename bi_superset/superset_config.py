@@ -109,7 +109,8 @@ FEATURE_FLAGS = {
     "DASHBOARD_RBAC": DASHBOARD_RBAC,
     "EMBEDDED_SUPERSET": EMBEDDED_SUPERSET,
 }
-
+# enable Prometheus /metrics endpoint for monitoring
+DEBUG_METRICS=1
 JINJA_CONTEXT_ADDONS = {
     "normalize_idna": normalize_idna,
 }
