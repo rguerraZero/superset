@@ -56,8 +56,18 @@ steps:
       - cp -R zf_integration/ superset/zf_integration/
       - cp zf_utils/jwt.py superset/utils/jwt.py
       - pip install coverage
-      - pytest ./tests/unit_tests/
+      - pytest ./tests/unit_tests/ --cov-report xml:coverage.xml
 
+  - name: coverage-push
+    pull: if-not-exists
+    image: python:3.8
+    commands:
+      - curl -X POST -H "Content-Type:text/xml" -d @coverage.xml "devportal.zerofox.com/api/code-coverage/report?entity=system:default/superset&coverageType=cobertura"
+    when:
+      branch:
+        - master
+      event:
+        - push
 
 ---
 kind: pipeline

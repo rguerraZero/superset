@@ -115,3 +115,4 @@ secrets/
 secrets
 .secrets/
 .terraform
+coverage.xml
