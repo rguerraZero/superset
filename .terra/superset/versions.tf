@@ -4,10 +4,25 @@ terraform {
     region = "us-west-2"
   }
 
-  required_version = "0.12.31"
+  required_version = ">= 0.13"
 
   required_providers {
-    aws = ">=3.53.0"
-    null = "~> 3.1.1"
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">=3.53.0"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.1.1"
+    }
+    consul = {
+      source = "hashicorp/consul"
+    }
+    nomad = {
+      source = "hashicorp/nomad"
+    }
+    template = {
+      source = "hashicorp/template"
+    }
   }
 }
