@@ -1,8 +1,204 @@
 apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+    name: owner
+    description: Owners of superset
+    annotations:
+        zerofox.com/pillar: Data Science
+    namespace: superset
+spec:
+    lifecycle: production
+    type: team
+    profile:
+        displayName: superset-team
+    children: []
+    members: [default/gnegrete, default/rsanmartin, default/rguerra, default/okhan, default/tgunther]
+---
+apiVersion: backstage.io/v1alpha1
 kind: System
 metadata:
-  name: superset-external
-  annotations:
-      zerofox.com/pillar: Protection
+    name: superset
+    annotations:
+        backstage.io/code-coverage: enabled
+        backstage.io/techdocs-ref: dir:.
+        github.com/project-slug: riskive/superset-external
+        zerofox.com/pillar: Data Science
+    links:
+        - url: https://nomad-qa.zerofox.com/ui/jobs/superset
+          title: Nomad QA
+        - url: https://nomad-stag.zerofox.com/ui/jobs/superset
+          title: Nomad Stag
+        - url: https://nomad-prod.zerofox.com/ui/jobs/superset
+          title: Nomad Prod
 spec:
-  lifecycle: production
+    owner: superset/owner
+    lifecycle: production
+    children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+    name: superset
+    annotations:
+        zerofox.com/pillar: Data Science
+    namespace: superset
+    links:
+        - url: https://nomad-qa.zerofox.com/ui/jobs/superset/superset
+          title: Nomad QA
+        - url: https://nomad-stag.zerofox.com/ui/jobs/superset/superset
+          title: Nomad Stag
+        - url: https://nomad-prod.zerofox.com/ui/jobs/superset/superset
+          title: Nomad Prod
+spec:
+    owner: superset/owner
+    lifecycle: production
+    type: service
+    system: default/superset
+    children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+    name: celery-worker-group
+    annotations:
+        zerofox.com/pillar: Data Science
+    namespace: superset
+    links:
+        - url: https://nomad-qa.zerofox.com/ui/jobs/superset/celery-worker-group
+          title: Nomad QA
+        - url: https://nomad-stag.zerofox.com/ui/jobs/superset/celery-worker-group
+          title: Nomad Stag
+        - url: https://nomad-prod.zerofox.com/ui/jobs/superset/celery-worker-group
+          title: Nomad Prod
+spec:
+    owner: superset/owner
+    lifecycle: production
+    type: service
+    system: default/superset
+    children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+    name: celery-flower-group
+    annotations:
+        zerofox.com/pillar: Data Science
+    namespace: superset
+    links:
+        - url: https://nomad-qa.zerofox.com/ui/jobs/superset/celery-flower-group
+          title: Nomad QA
+        - url: https://nomad-stag.zerofox.com/ui/jobs/superset/celery-flower-group
+          title: Nomad Stag
+        - url: https://nomad-prod.zerofox.com/ui/jobs/superset/celery-flower-group
+          title: Nomad Prod
+spec:
+    owner: superset/owner
+    lifecycle: production
+    type: service
+    system: default/superset
+    children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+    name: celery-beat-group
+    annotations:
+        zerofox.com/pillar: Data Science
+    namespace: superset
+    links:
+        - url: https://nomad-qa.zerofox.com/ui/jobs/superset/celery-beat-group
+          title: Nomad QA
+        - url: https://nomad-stag.zerofox.com/ui/jobs/superset/celery-beat-group
+          title: Nomad Stag
+        - url: https://nomad-prod.zerofox.com/ui/jobs/superset/celery-beat-group
+          title: Nomad Prod
+spec:
+    owner: superset/owner
+    lifecycle: production
+    type: service
+    system: default/superset
+    children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+    name: insights-superset
+    annotations:
+        zerofox.com/pillar: Data Science
+    namespace: superset
+    links:
+        - url: https://nomad-qa.zerofox.com/ui/jobs/insights/insights
+          title: Nomad QA
+        - url: https://nomad-stag.zerofox.com/ui/jobs/insights/insights
+          title: Nomad Stag
+        - url: https://nomad-prod.zerofox.com/ui/jobs/insights/insights
+          title: Nomad Prod
+spec:
+    owner: superset/owner
+    lifecycle: production
+    type: service
+    system: default/superset
+    children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+    name: insights-celery-worker-group
+    annotations:
+        zerofox.com/pillar: Data Science
+    namespace: superset
+    links:
+        - url: https://nomad-qa.zerofox.com/ui/jobs/insights/celery-worker-group
+          title: Nomad QA
+        - url: https://nomad-stag.zerofox.com/ui/jobs/insights/celery-worker-group
+          title: Nomad Stag
+        - url: https://nomad-prod.zerofox.com/ui/jobs/insights/celery-worker-group
+          title: Nomad Prod
+spec:
+    owner: superset/owner
+    lifecycle: production
+    type: service
+    system: default/superset
+    children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+    name: insights-celery-flower-group
+    annotations:
+        zerofox.com/pillar: Data Science
+    namespace: superset
+    links:
+        - url: https://nomad-qa.zerofox.com/ui/jobs/insights/celery-flower-group
+          title: Nomad QA
+        - url: https://nomad-stag.zerofox.com/ui/jobs/insights/celery-flower-group
+          title: Nomad Stag
+        - url: https://nomad-prod.zerofox.com/ui/jobs/insights/celery-flower-group
+          title: Nomad Prod
+spec:
+    owner: superset/owner
+    lifecycle: production
+    type: service
+    system: default/superset
+    children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+    name: insights-celery-beat-group
+    annotations:
+        zerofox.com/pillar: Data Science
+    namespace: superset
+    links:
+        - url: https://nomad-qa.zerofox.com/ui/jobs/insights/celery-beat-group
+          title: Nomad QA
+        - url: https://nomad-stag.zerofox.com/ui/jobs/insights/celery-beat-group
+          title: Nomad Stag
+        - url: https://nomad-prod.zerofox.com/ui/jobs/insights/celery-beat-group
+          title: Nomad Prod
+spec:
+    owner: superset/owner
+    lifecycle: production
+    type: service
+    system: default/superset
+    children: []

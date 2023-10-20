@@ -1,0 +1,8 @@
+site_name: superset documentation
+repo_url: https://github.com/riskive/superset-external/
+nav:
+    - Home: README.md
+    - Release+Deploy: RELEASE+DEPLOY.md
+    - Testing: TESTING.md
+plugins:
+    - techdocs-core
