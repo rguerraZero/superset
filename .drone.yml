@@ -24,7 +24,7 @@ steps:
 
   - name: plan-superset
     pull: if-not-exists
-    image: hashicorp/terraform:0.12.31
+    image: hashicorp/terraform:0.13.7
     environment:
       AWS_REGION: us-west-2
       AWS_ACCESS_KEY_ID:
