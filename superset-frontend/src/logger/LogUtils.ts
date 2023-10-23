@@ -50,7 +50,7 @@ export const LOG_ACTIONS_CONFIRM_OVERWRITE_DASHBOARD_METADATA =
 export const LOG_ACTIONS_DASHBOARD_DOWNLOAD_AS_IMAGE =
   'dashboard_download_as_image';
 export const LOG_ACTIONS_DASHBOARD_DOWNLOAD_AS_PDF =
-  'dashboard_downdload_as_pdf';
+  'dashboard_download_as_pdf';
 export const LOG_ACTIONS_CHART_DOWNLOAD_AS_IMAGE = 'chart_download_as_image';
 export const LOG_ACTIONS_SQLLAB_WARN_LOCAL_STORAGE_USAGE =
   'sqllab_warn_local_storage_usage';

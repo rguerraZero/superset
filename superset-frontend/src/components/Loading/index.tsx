@@ -27,7 +27,8 @@ export type PositionOption =
   | 'floating'
   | 'inline'
   | 'inline-centered'
-  | 'normal';
+  | 'normal'
+  | 'absolute';
 export interface Props {
   position?: PositionOption;
   className?: string;
@@ -59,17 +60,16 @@ const LoaderImg = styled.img`
     transform: translate(-50%, -50%);
   }
   &.download-pdf {
-    display: block !important;
-    top: 35vh;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
     background: #f7f7f7;
-    padding-top: 48vh;
-    padding-bottom: 48vh;
-    padding-left: 48vw;
-    padding-right: 48vw;
-    margin: 15vh 0px 0px 0px;
-    width: 100%;
+    padding: 48vh 48vw;
+    width: 100vw;
     visibility: hidden;
     height: 100vh;
+    position: absolute;
+    margin: 0px;
   }
 `;
 

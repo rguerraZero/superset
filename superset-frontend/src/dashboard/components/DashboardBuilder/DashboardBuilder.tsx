@@ -581,7 +581,7 @@ const DashboardBuilder: FC<DashboardBuilderProps> = () => {
             <FilterBar orientation={FilterBarOrientation.HORIZONTAL} />
           )}
         {dropIndicatorProps && <div {...dropIndicatorProps} />}
-        <Loading extraClass="download-pdf" />
+        <Loading extraClass="download-pdf" position="absolute" />
         {!isReport && topLevelTabs && !uiConfig.hideNav && (
           <WithPopoverMenu
             shouldFocus={shouldFocusTabs}

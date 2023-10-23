@@ -99,7 +99,7 @@ const MENU_KEYS = {
   EDIT_PROPERTIES: 'edit-properties',
   EDIT_CSS: 'edit-css',
   DOWNLOAD_AS_IMAGE: 'download-as-image',
-  DOWNDLOAD_AS_PDF: 'download-as-pdf',
+  DOWNLOAD_AS_PDF: 'download-as-pdf',
   TOGGLE_FULLSCREEN: 'toggle-fullscreen',
   MANAGE_EMBEDDED: 'manage-embedded',
   MANAGE_EMAIL_REPORT: 'manage-email-report',
@@ -195,7 +195,7 @@ class HeaderActionsDropdown extends React.PureComponent {
         this.props.logEvent?.(LOG_ACTIONS_DASHBOARD_DOWNLOAD_AS_IMAGE);
         break;
       }
-      case MENU_KEYS.DOWNDLOAD_AS_PDF: {
+      case MENU_KEYS.DOWNLOAD_AS_PDF: {
         // menu closes with a delay, we need to hide it manually,
         // so that we don't capture it on the screenshot
         const menu = document.querySelector(
@@ -357,7 +357,7 @@ class HeaderActionsDropdown extends React.PureComponent {
         )}
         {!editMode && (
           <Menu.Item
-            key={MENU_KEYS.DOWNDLOAD_AS_PDF}
+            key={MENU_KEYS.DOWNLOAD_AS_PDF}
             onClick={this.handleMenuClick}
           >
             {t('Download as pdf')}

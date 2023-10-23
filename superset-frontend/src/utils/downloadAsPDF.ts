@@ -79,13 +79,13 @@ export default function downloadAsPDF(
           setTimeout(() => {
             tabsElements[index].click();
             resolve('done');
-          }, 2000 * index);
+          }, 5000 * index);
         });
         const waitToScreenshotPromise = new Promise(function (resolve) {
           setTimeout(() => {
             tabsElements[index].click();
             resolve('done');
-          }, 2000 * index + 1000);
+          }, 5000 * index + 1000);
         });
         promises.push(
           clickTabPromise
