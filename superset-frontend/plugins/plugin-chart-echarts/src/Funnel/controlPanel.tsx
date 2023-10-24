@@ -63,7 +63,26 @@ const config: ControlPanelConfig = {
               type: 'CheckboxControl',
               label: t('Sort by metric'),
               description: t(
-                'Whether to sort results by the selected metric in descending order.',
+                'Whether to sort results of the query by the selected metric in descending order. It affects the ORDER BY on the SQL query.',
+              ),
+            },
+          },
+        ],
+        [
+          {
+            name: 'sort_visually',
+            config: {
+              type: 'SelectControl',
+              label: t('Visualization Sort'),
+              default: 'descending',
+              renderTrigger: true,
+              choices: [
+                ['ascending', t('Ascending')],
+                ['descending', t('Descending')],
+                ['none', t('None')],
+              ],
+              description: t(
+                'The order in which the funnel order is displayed. Please note that this will only affect the visualization of the data, not the query that loads the data.',
               ),
             },
           },
