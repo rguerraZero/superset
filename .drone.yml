@@ -44,6 +44,7 @@ kind: pipeline
 type: docker
 name: backend
 
+steps:
   - name: unit-test
     pull: if-not-exists
     image: python:3.9
