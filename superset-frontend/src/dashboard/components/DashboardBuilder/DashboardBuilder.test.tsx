@@ -257,7 +257,7 @@ describe('DashboardBuilder', () => {
       dashboardState: { dashboardIsSaving: true },
     });
 
-    expect(await findAllByAltText('Loading...'))[0].toBeVisible();
+    expect(await findAllByAltText('Loading...')[0]).toBeVisible();
   });
 
   describe('when nativeFiltersEnabled', () => {
