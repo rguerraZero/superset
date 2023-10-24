@@ -249,7 +249,7 @@ describe('DashboardBuilder', () => {
   it('should not display a loading spinner when saving is not in progress', () => {
     const { queryByAltText } = setup();
 
-    expect(queryByAltText('Loading...')).not.toBeInTheDocument();
+    expect(queryByAltText('Loading...')).not.toBeVisible();
   });
 
   it('should display a loading spinner when saving is in progress', async () => {
@@ -257,7 +257,7 @@ describe('DashboardBuilder', () => {
       dashboardState: { dashboardIsSaving: true },
     });
 
-    expect(await findAllByAltText('Loading...')).toBeVisible();
+    expect(await findAllByAltText('Loading...'))[0].toBeVisible();
   });
 
   describe('when nativeFiltersEnabled', () => {
