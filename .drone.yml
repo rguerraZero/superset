@@ -39,6 +39,10 @@ steps:
       - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
       - make -C .terra/superset init
       - make -C .terra/superset validate
+---
+kind: pipeline
+type: docker
+name: backend
 
   - name: unit-test
     pull: if-not-exists
