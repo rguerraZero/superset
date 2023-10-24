@@ -253,11 +253,11 @@ describe('DashboardBuilder', () => {
   });
 
   it('should display a loading spinner when saving is in progress', async () => {
-    const { findByAltText } = setup({
+    const { findAllByAltText } = setup({
       dashboardState: { dashboardIsSaving: true },
     });
 
-    expect(await findByAltText('Loading...')).toBeVisible();
+    expect(await findAllByAltText('Loading...')).toBeVisible();
   });
 
   describe('when nativeFiltersEnabled', () => {
