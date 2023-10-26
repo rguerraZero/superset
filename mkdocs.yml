@@ -4,5 +4,6 @@ nav:
     - Home: README.md
     - Release+Deploy: RELEASE+DEPLOY.md
     - Testing: TESTING.md
+    - New Plugin: add-new-plugin.md
 plugins:
     - techdocs-core

@@ -32,6 +32,7 @@ export { default as EchartsRadarChartPlugin } from './Radar';
 export { default as EchartsFunnelChartPlugin } from './Funnel';
 export { default as EchartsTreeChartPlugin } from './Tree';
 export { default as EchartsTreemapChartPlugin } from './Treemap';
+export { default as EchartSampleChartPlugin } from './SampleChart';
 export { BigNumberChartPlugin, BigNumberTotalChartPlugin } from './BigNumber';
 export { default as EchartsSunburstChartPlugin } from './Sunburst';
 
