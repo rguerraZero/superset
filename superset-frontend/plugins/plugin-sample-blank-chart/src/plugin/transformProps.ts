@@ -57,7 +57,7 @@ export default function transformProps(chartProps: ChartProps) {
   return {
     width,
     height,
-    data,
+    // data, uncomment this line.
 
     // uncomment if chart is a timeseries one
     // data: data.map(item => ({
