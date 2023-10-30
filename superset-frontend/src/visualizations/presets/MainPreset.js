@@ -69,6 +69,7 @@ import {
   EchartsMixedTimeseriesChartPlugin,
   EchartsTreeChartPlugin,
   EchartsSunburstChartPlugin,
+  EchartSampleChartPlugin,
 } from '@superset-ui/plugin-chart-echarts';
 import {
   SelectFilterPlugin,
@@ -82,6 +83,7 @@ import { PivotTableChartPlugin as PivotTableChartPluginV2 } from '@superset-ui/p
 import { HandlebarsChartPlugin } from '@superset-ui/plugin-chart-handlebars';
 import FilterBoxChartPlugin from '../FilterBox/FilterBoxChartPlugin';
 import TimeTableChartPlugin from '../TimeTable';
+import { PluginSampleBlankChart } from '../../../plugins/plugin-sample-blank-chart/src';
 
 export default class MainPreset extends Preset {
   constructor() {
@@ -141,6 +143,12 @@ export default class MainPreset extends Preset {
         new WorldMapChartPlugin().configure({ key: 'world_map' }),
         new EchartsAreaChartPlugin().configure({
           key: 'echarts_area',
+        }),
+        new EchartSampleChartPlugin().configure({
+          key: 'echarts_sample',
+        }),
+        new PluginSampleBlankChart().configure({
+          key: 'sample_blank',
         }),
         new EchartsTimeseriesChartPlugin().configure({
           key: 'echarts_timeseries',

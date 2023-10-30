@@ -57,11 +57,10 @@ in case that you need to update this repo:
     2. Updating by a handmade fix
 2. Manually regenerate API changes:
     - At superset/initialization/__init__.py
-   ```
-   from superset.zf_integration.api import ZFIntegrationRestApi
-   ...
-   ...
-      appbuilder.add_api(ZFIntegrationRestApi)
+   ```python
+    from superset.zf_integration.api import ZFIntegrationRestApi
+
+    appbuilder.add_api(ZFIntegrationRestApi)
    ```
 3. Confirm that the folders address on the docker compose are still valid, to transfer our custom code into the superset project.
 
