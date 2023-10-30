@@ -661,6 +661,9 @@ SCREENSHOT_WAIT_FOR_ERROR_MODAL_VISIBLE = 5
 # Max time to wait for error message modal to close, in seconds
 SCREENSHOT_WAIT_FOR_ERROR_MODAL_INVISIBLE = 5
 
+#Max tries to upload pdf to S3.
+UPLOAD_PDF_TO_S3_TRIES = 3
+
 # ---------------------------------------------------
 # Image and file configuration
 # ---------------------------------------------------

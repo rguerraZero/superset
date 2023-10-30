@@ -228,16 +228,16 @@ resource "consul_keys" "superset-keys" {
 }
 
 module "pdfs_bucket" {
-  source = "git::ssh://git@github.com/riskive/devops-terraform-modules.git//s3-bucket?ref=fix-s3-bucket"
-
-  name   = "superset-internal-pdfs-${var.env}"
-  app    = var.app
-  env    = var.env
-  public = false
+  source     = "git::ssh://git@github.com/riskive/devops-terraform-modules.git//s3-bucket?ref=fix-s3-bucket"
+  name       = "superset-internal-pdfs-${var.env}"
+  app        = var.app
+  env        = var.env
+  public     = false
+  dr_enabled = false
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
-  count  = var.env == "prod" ? 1 : 0
+  count  = 1
   bucket = module.pdfs_bucket.bucket_name
   rule {
     id = "bucket-dr"
@@ -246,4 +246,42 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
     }
     status = "Enabled"
   }
+}
+
+# https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html
+# https://aws.amazon.com/blogs/security/iam-policies-and-bucket-policies-and-acls-oh-my-controlling-access-to-s3-resources/
+resource "aws_s3_bucket_policy" "private" {
+  count  = 1
+  bucket = module.pdfs_bucket.bucket_name
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": "${module.pdfs_bucket.bucket_arn}/*"
+    },
+    {
+      "Sid": "AllowSSLRequestsOnly",
+      "Action": "s3:*",
+      "Effect": "Deny",
+      "Resource": [
+        "${module.pdfs_bucket.bucket_arn}",
+        "${module.pdfs_bucket.bucket_arn}/*"
+      ],
+      "Condition": {
+        "Bool": {
+          "aws:SecureTransport": "false"
+        }
+      },
+      "Principal": "*"
+    }
+  ]
+}
+POLICY
 }

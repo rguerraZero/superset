@@ -2,11 +2,10 @@ import logging
 import datetime
 import pathlib
 import base64
-from typing import Any, Dict
-from flask import request, Response, jsonify, make_response
+from flask import current_app, request, Response
 from flask_appbuilder import expose
 from weasyprint import HTML, CSS
-from superset.views.base_api import BaseSupersetApi, statsd_metrics
+from superset.views.base_api import BaseSupersetApi
 from superset.zf_integration.prometheus import PDF_SUCCESS_COUNTER, PDF_FAILURE_COUNTER
 
 import boto3
@@ -17,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 env = os.environ.get('ENV')
 app = os.environ.get('SUPERSET_ACCESS_METHOD')
+
 
 class DownloadRestApi(BaseSupersetApi):
     resource_name = 'download'
@@ -68,35 +68,38 @@ class DownloadRestApi(BaseSupersetApi):
               $ref: '#/components/responses/500'
         '''
         try:
-          image_urls = request.json.get('image_urls', [])
-          report_name = request.json.get('report_name', '')
-          date = request.json.get(
-              'date', datetime.date.today().strftime('%d.%m.%Y'))
+            image_urls = request.json.get('image_urls', [])
+            report_name = request.json.get('report_name', '')
+            date = request.json.get(
+                'date', datetime.date.today().strftime('%d.%m.%Y'))
 
-          def get_file_data_url(filename):
-              with open(f'{pathlib.Path(__file__).parent.absolute()}/{filename}', 'rb') as file:
-                  return f'''data:application/pdf;base64,{base64.b64encode(file.read()).decode('UTF-8')}'''
+            def get_file_data_url(filename):
+                with open(f'{pathlib.Path(__file__).parent.absolute()}/{filename}', 'rb') as file:
+                    return f'''data:application/pdf;base64,{base64.b64encode(file.read()).decode('UTF-8')}'''
 
-          self.zerofox_logo_text_url = get_file_data_url(
-              'zerofox-logo-white.png')
-          self.foxy_url = get_file_data_url('foxy.png')
-          pdf_pages = self.get_pdf_pages(report_name, date, image_urls)
-          pdf_id = str(uuid.uuid4())
-          file_name = f'{pdf_id}.pdf'
-          self.write_pdf(pdf_pages, file_name)
-          try:
-            self.upload_to_s3(file_name)
-          except:
-              logger.error("Error at trying to upload report file to S3.")
-          pdf_url = ''
-          with open(f'/tmp/{file_name}', 'rb') as pdf_file:
-                pdf_url = f'''data:application/pdf;base64,{base64.b64encode(pdf_file.read()).decode('UTF-8')}'''
-
-          PDF_SUCCESS_COUNTER.inc()
-          return self.response(200, result=pdf_url)
+            self.zerofox_logo_text_url = get_file_data_url(
+                'zerofox-logo-white.png')
+            self.foxy_url = get_file_data_url('foxy.png')
+            pdf_pages = self.get_pdf_pages(report_name, date, image_urls)
+            pdf_id = str(uuid.uuid4())
+            file_name = f'{pdf_id}.pdf'
+            self.write_pdf(pdf_pages, file_name)
+            pdf_url = ""
+            for attempt in range(current_app.config["UPLOAD_PDF_TO_S3_TRIES"]):
+                try:
+                    pdf_url = self.upload_to_s3(file_name)
+                except:
+                    logger.error(
+                        "Error at trying to upload report file to S3.")
+                    continue
+                break
+            else:
+                raise Exception("Error at upload the pdf file to S3.")
+            PDF_SUCCESS_COUNTER.inc()
+            return self.response(200, result=pdf_url)
         except Exception as e:
-          PDF_FAILURE_COUNTER.inc()
-          return self.response(500, message=f'Error generating report: {e}')
+            PDF_FAILURE_COUNTER.inc()
+            return self.response(500, message=f'Error generating report: {e}')
 
     def get_pdf_pages(self, report_name, date, image_urls):
         pdf_pages = []
@@ -158,6 +161,12 @@ class DownloadRestApi(BaseSupersetApi):
         s3 = boto3.client('s3')
         with open(f'/tmp/{file_name}', 'rb') as f:
             s3.upload_fileobj(f, bucket_name, file_name)
+        bucket_location = s3.get_bucket_location(Bucket=bucket_name)
+        pdf_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(
+            bucket_location['LocationConstraint'],
+            bucket_name,
+            file_name)
+        return pdf_url
 
     def get_page_dimension(self, page_configuration):
         width = max([995, page_configuration['width']])
