@@ -1,6 +1,6 @@
 ---
-Service Owner: Guillermo Negrete (@zgnegrete)
-Secondaries:
+Service Owner: t-reporting
+Secondaries: Guillermo Negrete (@zgnegrete)
 ---
 # superset-external
 Superset Service
