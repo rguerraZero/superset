@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ChartProps } from '@superset-ui/core';
+import { ChartProps, supersetTheme } from '@superset-ui/core';
 import transformProps from '../../src/plugin/transformProps';
 
 describe('PluginSampleBlankChart transformProps', () => {
@@ -34,9 +34,12 @@ describe('PluginSampleBlankChart transformProps', () => {
     formData,
     width: 800,
     height: 600,
-    queriesData: [{
-      data: [{ name: 'Hulk', sum__num: 1 }],
-    }],
+    theme: supersetTheme,
+    queriesData: [
+      {
+        data: [{ name: 'Hulk', sum__num: 1 }],
+      },
+    ],
   });
 
   it('should transform chart props for viz', () => {
@@ -46,6 +49,7 @@ describe('PluginSampleBlankChart transformProps', () => {
       boldText: true,
       headerFontSize: 'xs',
       headerText: 'my text',
+      theme: supersetTheme,
       data: [{ name: 'Hulk', sum__num: 1 }],
     });
   });
