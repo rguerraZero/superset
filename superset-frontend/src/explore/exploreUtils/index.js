@@ -76,16 +76,18 @@ export function getAnnotationJsonUrl(slice_id, force) {
     .toString();
 }
 
-export function getURIDirectory(endpointType = 'base') {
+export function getURIDirectory(endpointType = 'base', embedded = false) {
   // Building the directory part of the URI
   if (
     ['full', 'json', 'csv', 'query', 'results', 'samples'].includes(
       endpointType,
     )
   ) {
-    return '/superset/explore_json/';
+    return embedded
+      ? '/spa_bff/superset/superset/explore_json/'
+      : '/superset/explore_json/';
   }
-  return '/explore/';
+  return embedded ? '/spa_bff/superset/explore/' : '/explore/';
 }
 
 export function mountExploreUrl(endpointType, extraSearch = {}, force = false) {
@@ -133,6 +135,7 @@ export function getExploreUrl({
   requestParams = {},
   allowDomainSharding = false,
   method = 'POST',
+  embedded = false,
 }) {
   if (!formData.datasource) {
     return null;
@@ -147,7 +150,7 @@ export function getExploreUrl({
     uri = URI(URI(curUrl).search());
   }
 
-  const directory = getURIDirectory(endpointType);
+  const directory = getURIDirectory(endpointType, embedded);
 
   // Building the querystring (search) part of the URI
   const search = uri.search(true);
@@ -243,16 +246,20 @@ export const exportChart = ({
 }) => {
   let url;
   let payload;
+  const embedded = SupersetClient.getGuestToken() !== undefined;
   if (shouldUseLegacyApi(formData)) {
     const endpointType = getLegacyEndpointType({ resultFormat, resultType });
     url = getExploreUrl({
       formData,
       endpointType,
       allowDomainSharding: false,
+      embedded,
     });
     payload = formData;
   } else {
-    url = '/api/v1/chart/data';
+    url = embedded
+      ? '/spa_bff/superset/api/v1/chart/data'
+      : '/api/v1/chart/data';
     payload = buildV1ChartDataPayload({
       formData,
       force,
