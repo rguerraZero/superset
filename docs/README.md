@@ -66,6 +66,14 @@ in case that you need to update this repo:
    ```
 3. Confirm that the folders address on the docker compose are still valid, to transfer our custom code into the superset project.
 
+### Test Download as PDF
+
+To test this functionality locally you can add the followings lines into superset/download/api.py file, around line 95. Instead of raise an exception due to not be able to upload the file to S3, the code will return the file as a data url.
+```
+with open(f'/tmp/{file_name}', 'rb') as pdf_file:
+  pdf_url = f'''data:application/pdf;base64,{base64.b64encode(pdf_file.read()).decode('UTF-8')}'''
+```
+
 ## Information
 
 - [Superset API](https://superset.apache.org/docs/rest-api)

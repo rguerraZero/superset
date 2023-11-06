@@ -76,9 +76,7 @@ class DownloadRestApi(BaseSupersetApi):
             def get_file_data_url(filename):
                 with open(f'{pathlib.Path(__file__).parent.absolute()}/{filename}', 'rb') as file:
                     return f'''data:application/pdf;base64,{base64.b64encode(file.read()).decode('UTF-8')}'''
-
-            self.zerofox_logo_text_url = get_file_data_url(
-                'zerofox-logo-white.png')
+            self.zerofox_logo_text_url = get_file_data_url('ZFlogo.png')
             self.foxy_url = get_file_data_url('foxy.png')
             pdf_pages = self.get_pdf_pages(report_name, date, image_urls)
             pdf_id = str(uuid.uuid4())
@@ -104,44 +102,49 @@ class DownloadRestApi(BaseSupersetApi):
     def get_pdf_pages(self, report_name, date, image_urls):
         pdf_pages = []
         pdf_pages.append(HTML(string=self.get_report_page(report_name, date)).render(
-            stylesheets=[CSS(string=self.get_report_css(995, 1728, 'linear-gradient(140deg, #253B4A, #367583)'))]))
+            stylesheets=[CSS(string=self.get_report_css(995, 1728, 'linear-gradient(300deg, #18325A 14.27%, #091F40 58.84%)'))]))
         for i, x in enumerate(image_urls):
             width, height = self.get_page_dimension(image_urls[x])
-            pdf_pages.append(HTML(string=self.get_tab_html(report_name, image_urls[x], page=i)).render(
-                stylesheets=[CSS(string=self.get_report_css(width, height, '#f7f7f7'))]))
+            pdf_pages.append(
+                HTML(
+                    string=self.get_tab_html(
+                        report_name, image_urls[x], page=i, year=datetime.date.today().year)
+                ).render(
+                    stylesheets=[CSS(string=self.get_report_css(width, height, '#f7f7f7'))]))
         return pdf_pages
 
     def get_report_page(self, report_name, date):
         return f'''
         <html>
           <article id='cover'>
-            <span>
-              <img src='{self.zerofox_logo_text_url}'></img>
-              <hr />
-              {report_name}
-              <br />
-              {date}
-            </span>
+            <div style="padding-bottom: 8px;">
+              <span class='cover-report-icon'>></span>
+              <span class='cover-report-text'> REPORT</span>
+            </div>
+            <div class='cover-report-box'>
+              <div class='cover-report-title'>{report_name}</div>
+            </div>
+            <div class='cover-report-date'>{date}</div>
+            <img src='{self.zerofox_logo_text_url}'></img>
           </article>
         </html>
       '''
 
-    def get_tab_html(self, report_name, image, page):
+    def get_tab_html(self, report_name, image, page, year):
         return f'''
         <html>
           <article >
             <div class='header'>
-              <img src='{self.zerofox_logo_text_url}'></img>
-              <hr />
               {report_name}
             </div>
             <div>
               <img src='{image['dataUrl']}'></img>
             </div>
             <div class='footer'>
-              <img src='{self.foxy_url}'></img>
-              <br /><br />
-              © ZeroFox 2023
+              <div class='footer-date'>
+                © ZeroFox {year}
+              </div>
+              <img class='footer-img' src='{self.foxy_url}'></img>
             </div>
             <div class='page-count'>Page {page + 1}</div>
           </article>
@@ -186,6 +189,45 @@ class DownloadRestApi(BaseSupersetApi):
           text-align: left;
         }}
 
+        .cover-report-icon{{
+          color: #89FCFE;
+          font-size: 16px;
+          font-family: Poppins;
+          font-weight: 600;
+        }}
+
+        .cover-report-text {{
+          color: white;
+          font-size: 16px;
+          font-family: Poppins;
+          font-weight: 600;
+        }}
+
+        .cover-report-box {{
+          padding: 8px;
+          background: white;
+          gap: 8px;
+          display: inline-flex;
+          max-width: 33%;
+        }}
+
+        .cover-report-title {{
+          color: #D63C37;
+          font-size: 16px;
+          font-family: Poppins;
+          font-weight: 600;
+          word-wrap: break-word;
+          max-width: 33%;
+        }}
+
+        .cover-report-date {{
+          padding-top: 8px;
+          color: white;
+          font-size: 14px;
+          font-family: Poppins;
+          font-weight: 400;
+        }}
+
         @page {{
           margin: 0;
           padding: 0;
@@ -205,49 +247,35 @@ class DownloadRestApi(BaseSupersetApi):
         }}
 
         #cover {{
-          text-align: center;
           color: #FFFFFF;
-        }}
-
-        #cover span {{
-          display: inline-block;
-          vertical-align: middle;
-          position: absolute;
-          top: 50%;
-          margin-top: -40px;
-          width: 100%;
+          padding-top:204px;
+          padding-left: 95px;
         }}
 
         #cover img {{
-          width: 33%;
-          object-fit: contain;
-        }}
-
-        #cover hr {{
-          width: 33%;
+          width: 200px;
+          height: 35px;
+          flex-shrink: 0;
+          position: absolute;
+          right: 24px;
+          bottom: 43px;
         }}
 
         .header {{
-          background-image: linear-gradient(140deg, #253B4A, #367583);
-          text-align: center;
-          color: #FFFFFF;
-          height: 105px;
-          font-family: Open Sans;
+          background: linear-gradient(300deg, #18325A 14.27%, #091F40 58.84%);
+          display: flex;
+          width: 100%;
+          height: 64px;
+          padding: 21px 0px 22px 0px;
+          justify-content: center;
+          align-items: center;
+          flex-shrink: 0;
+          color: #FFF;
+          font-family: Poppins;
           font-size: 14px;
+          font-style: normal;
           font-weight: 600;
-          line-height: 19px;
-          letter-spacing: 0em;
-        }}
-
-        .header img {{
-          padding-top: 17px;
-          padding-bottom: 0px;
-          width: 200px;
-          object-fit: contain;
-        }}
-
-        .header hr {{
-          width: 33%;
+          line-height: normal;
         }}
 
         .body {{
@@ -261,22 +289,39 @@ class DownloadRestApi(BaseSupersetApi):
         }}
 
         .footer {{
-          background: #253B4A;
-          text-align: center;
+          background: linear-gradient(300deg, #18325A 14.27%, #091F40 58.84%);
+          flex-shrink: 0;
           color: #FFFFFF;
-          height: 97px;
+          height: 64px;
           position: absolute;
           bottom: 0;
           width: 100%;
-          font-family: Open Sans;
-          font-size: 12px;
-          font-weight: 400;
-          line-height: 16px;
           letter-spacing: 0em;
+          color: #FFF;
+          font-family: Poppins;
+          font-size: 12px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: normal;
+          text-align: center;
+        }}
+
+        .footer-date {{
+          left: 32px;
+          top: 23px;
+          bottom: 23px;
+          letter-spacing: 0em;
+          color: #FFF;
+          font-family: Poppins;
+          font-size: 12px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: normal;
+          position: absolute;
         }}
 
         .footer img {{
-          padding-top: 19px;
+          padding-top: 15px;
           padding-bottom: 0px;
           width: 36px;
           object-fit: contain;
@@ -286,8 +331,8 @@ class DownloadRestApi(BaseSupersetApi):
           padding: 8px;
           border-radius: 8px;
           position: absolute;
-          bottom: 24px;
-          right: 24px;
+          bottom: 15px;
+          right: 33px;
           background: #4B626E;
           font-family: Open Sans;
           font-size: 14px;
