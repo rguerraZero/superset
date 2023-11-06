@@ -74,49 +74,47 @@ export default function downloadAsPDF(
     );
 
     const tabsDetails = {};
-    const promises: Promise<string | void>[] = [];
-
     const tabsElements =
       document.querySelectorAll<HTMLElement>('.ant-tabs-tab');
     const tabsLength = tabsElements.length;
+    updateProgress(LOADING_TABS_MIN_THRESHOLD);
+    let promise = Promise.resolve();
     if (tabsLength) {
       elementsToPrint.forEach((element, index) => {
-        updateProgress(LOADING_TABS_MIN_THRESHOLD);
-        const clickTabPromise = new Promise(function (resolve) {
-          setTimeout(() => {
+        promise = promise
+          .then(() => {
             tabsElements[index].click();
-            resolve('done');
-          }, 5000 * index);
-        });
-        const waitToScreenshotPromise = new Promise(function (resolve) {
-          setTimeout(() => {
-            tabsElements[index].click();
+            updateProgress(
+              LOADING_TABS_MIN_THRESHOLD +
+                ((index + 0.3) * LOADING_TABS_THRESHOLD) / tabsLength,
+            );
+          })
+          .then(() => new Promise(resolve => setTimeout(resolve, 5000)))
+          .then(() =>
+            updateProgress(
+              LOADING_TABS_MIN_THRESHOLD +
+                ((index + 0.6) * LOADING_TABS_THRESHOLD) / tabsLength,
+            ),
+          )
+          .then(() =>
+            domToImage.toJpeg(element, {
+              quality: 0.95,
+              bgcolor: supersetTheme.colors.grayscale.light4,
+              filter,
+            }),
+          )
+          .then(dataUrl => {
             updateProgress(
               LOADING_TABS_MIN_THRESHOLD +
                 ((index + 1) * LOADING_TABS_THRESHOLD) / tabsLength,
             );
-            resolve('done');
-          }, 5000 * index + 1000);
-        });
-        promises.push(
-          clickTabPromise
-            .then(() => waitToScreenshotPromise)
-            .then(() =>
-              domToImage.toJpeg(element, {
-                quality: 0.95,
-                bgcolor: supersetTheme.colors.grayscale.light4,
-                filter,
-              }),
-            )
-            .then(dataUrl => {
-              const elementSize = element.getBoundingClientRect();
-              tabsDetails[index] = {
-                dataUrl,
-                width: elementSize.width,
-                height: elementSize.height,
-              };
-            }),
-        );
+            const elementSize = element.getBoundingClientRect();
+            tabsDetails[index] = {
+              dataUrl,
+              width: elementSize.width,
+              height: elementSize.height,
+            };
+          });
       });
     } else {
       const elementToPrint = document.querySelector(onePage);
@@ -125,44 +123,45 @@ export default function downloadAsPDF(
           t('Image download failed, please refresh and try again.'),
         );
       }
-      promises.push(
-        domToImage
-          .toJpeg(elementToPrint, {
+      promise = promise
+        .then(() =>
+          domToImage.toJpeg(elementToPrint, {
             quality: 0.95,
             bgcolor: supersetTheme.colors.grayscale.light4,
             filter,
-          })
-          .then(dataUrl => {
-            const elementSize = elementToPrint.getBoundingClientRect();
-            tabsDetails[0] = {
-              dataUrl,
-              width: elementSize.width,
-              height: elementSize.height,
-            };
           }),
-      );
+        )
+        .then(dataUrl => {
+          const elementSize = elementToPrint.getBoundingClientRect();
+          tabsDetails[0] = {
+            dataUrl,
+            width: elementSize.width,
+            height: elementSize.height,
+          };
+        });
     }
     const json = {
       report_name: description,
       date: new Date().toLocaleDateString(),
       image_urls: tabsDetails,
     };
-    return Promise.all(promises)
-      .then(() => {
+    return promise
+      .then(() =>
         SupersetClient.post({
           endpoint: 'api/v1/download/download/',
           jsonPayload: json,
-        }).then(returnVal => {
-          if (tabsElements.length > 0) {
-            selectedTab?.click();
-          }
-          const link = document.createElement('a');
-          link.download = `${generateFileStem(description)}.pdf`;
-          link.href = returnVal.json.result;
-          updateProgress(1);
-          link.click();
-          cleanUp();
-        });
+        }),
+      )
+      .then(returnVal => {
+        if (tabsElements.length > 0) {
+          selectedTab?.click();
+        }
+        const link = document.createElement('a');
+        link.download = `${generateFileStem(description)}.pdf`;
+        link.href = returnVal.json.result;
+        updateProgress(1);
+        link.click();
+        cleanUp();
       })
       .then(() => {
         setTimeout(() => {}, 1000);
