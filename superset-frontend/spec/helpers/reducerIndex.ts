@@ -25,6 +25,7 @@ import nativeFilters from 'src/dashboard/reducers/nativeFilters';
 import datasources from 'src/dashboard/reducers/datasources';
 import sliceEntities from 'src/dashboard/reducers/sliceEntities';
 import dashboardLayout from 'src/dashboard/reducers/undoableDashboardLayout';
+import loading from 'src/components/Loading/reducers';
 import messageToasts from 'src/components/MessageToasts/reducers';
 import saveModal from 'src/explore/reducers/saveModalReducer';
 import explore from 'src/explore/reducers/exploreReducer';
@@ -54,6 +55,7 @@ export default {
   dashboardState,
   dashboardLayout,
   impressionId,
+  loading,
   messageToasts,
   sliceEntities,
   saveModal,
