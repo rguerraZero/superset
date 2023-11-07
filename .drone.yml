@@ -94,4 +94,5 @@ steps:
       - cp -R zf_integration/ superset/zf_integration/
       - cp zf_utils/jwt.py superset/utils/jwt.py
       - cd superset-frontend && npm ci
+      - npm run build
       - npm run test
