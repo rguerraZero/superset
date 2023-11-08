@@ -262,6 +262,7 @@ class Tab extends React.PureComponent {
       editMode,
       isFocused,
       isHighlighted,
+      canEdit,
     } = this.props;
 
     return (
@@ -290,7 +291,7 @@ class Tab extends React.PureComponent {
               showTooltip={false}
               editing={editMode && isFocused}
             />
-            {!editMode && (
+            {canEdit && !editMode && (
               <AnchorLink
                 id={component.id}
                 dashboardId={this.props.dashboardId}
