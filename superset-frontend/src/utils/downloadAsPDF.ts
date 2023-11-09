@@ -22,6 +22,9 @@ import kebabCase from 'lodash/kebabCase';
 import { t, supersetTheme, SupersetClient } from '@superset-ui/core';
 import { addWarningToast } from 'src/components/MessageToasts/actions';
 
+const LOADING_TABS_MIN_THRESHOLD = 0.1;
+const LOADING_TABS_THRESHOLD = 0.8;
+
 /**
  * generate a consistent file stem from a description and date
  *
@@ -43,6 +46,8 @@ export default function downloadAsPDF(
   selector: string,
   description: string,
   onePage: string,
+  updateProgress: (index: number) => void,
+  cleanUp: () => void,
 ) {
   return (event: SyntheticEvent) => {
     const elementsToPrint = document.querySelectorAll(`[id^="${selector}"]`);
@@ -73,8 +78,10 @@ export default function downloadAsPDF(
 
     const tabsElements =
       document.querySelectorAll<HTMLElement>('.ant-tabs-tab');
-    if (tabsElements.length > 0) {
+    const tabsLength = tabsElements.length;
+    if (tabsLength) {
       elementsToPrint.forEach((element, index) => {
+        updateProgress(LOADING_TABS_MIN_THRESHOLD);
         const clickTabPromise = new Promise(function (resolve) {
           setTimeout(() => {
             tabsElements[index].click();
@@ -84,6 +91,10 @@ export default function downloadAsPDF(
         const waitToScreenshotPromise = new Promise(function (resolve) {
           setTimeout(() => {
             tabsElements[index].click();
+            updateProgress(
+              LOADING_TABS_MIN_THRESHOLD +
+                ((index + 1) * LOADING_TABS_THRESHOLD) / tabsLength,
+            );
             resolve('done');
           }, 5000 * index + 1000);
         });
@@ -148,7 +159,9 @@ export default function downloadAsPDF(
           const link = document.createElement('a');
           link.download = `${generateFileStem(description)}.pdf`;
           link.href = returnVal.json.result;
+          updateProgress(1);
           link.click();
+          cleanUp();
         });
       })
       .then(() => {

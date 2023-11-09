@@ -452,6 +452,10 @@ const DashboardBuilder: FC<DashboardBuilderProps> = () => {
         : FilterBarOrientation.VERTICAL,
   );
 
+  const loadingPercentage = useSelector<RootState, number>(
+    state => state.loading.percentage,
+  );
+
   const handleChangeTab = useCallback(
     ({ pathToTabIndex }: { pathToTabIndex: string[] }) => {
       dispatch(setDirectPathToChild(pathToTabIndex));
@@ -581,7 +585,11 @@ const DashboardBuilder: FC<DashboardBuilderProps> = () => {
             <FilterBar orientation={FilterBarOrientation.HORIZONTAL} />
           )}
         {dropIndicatorProps && <div {...dropIndicatorProps} />}
-        <Loading extraClass="download-pdf" position="absolute" />
+        <Loading
+          extraClass="download-pdf"
+          position="absolute"
+          percentage={loadingPercentage}
+        />
         {!isReport && topLevelTabs && !uiConfig.hideNav && (
           <WithPopoverMenu
             shouldFocus={shouldFocusTabs}
@@ -618,6 +626,7 @@ const DashboardBuilder: FC<DashboardBuilderProps> = () => {
       isReport,
       topLevelTabs,
       uiConfig.hideNav,
+      loadingPercentage,
     ],
   );
 

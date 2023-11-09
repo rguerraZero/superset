@@ -94,6 +94,7 @@ const propTypes = {
   hasUnsavedChanges: PropTypes.bool.isRequired,
   maxUndoHistoryExceeded: PropTypes.bool.isRequired,
   lastModifiedTime: PropTypes.number.isRequired,
+  setLoadingPercentage: PropTypes.func.isRequired,
 
   // redux
   onRefresh: PropTypes.func.isRequired,
@@ -465,6 +466,7 @@ class Header extends React.PureComponent {
       lastModifiedTime,
       filterboxMigrationState,
       logEvent,
+      setLoadingPercentage,
     } = this.props;
 
     const userCanEdit =
@@ -685,6 +687,7 @@ class Header extends React.PureComponent {
               isDropdownVisible={this.state.isDropdownVisible}
               setIsDropdownVisible={this.setIsDropdownVisible}
               logEvent={logEvent}
+              setLoadingPercentage={setLoadingPercentage}
             />
           }
           showFaveStar={user?.userId && dashboardInfo?.id}

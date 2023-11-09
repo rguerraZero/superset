@@ -54,6 +54,7 @@ import {
   addDangerToast,
   addWarningToast,
 } from 'src/components/MessageToasts/actions';
+import { setLoadingPercentage } from 'src/components/Loading/actions';
 
 import { logEvent } from 'src/logger/actions';
 import { DASHBOARD_HEADER_ID } from 'src/dashboard/util/constants';
@@ -132,6 +133,7 @@ function mapDispatchToProps(dispatch) {
       dashboardTitleChanged,
       updateDataMask,
       fetchUISpecificReport,
+      setLoadingPercentage,
     },
     dispatch,
   );

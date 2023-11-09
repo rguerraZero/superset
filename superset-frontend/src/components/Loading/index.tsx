@@ -34,6 +34,7 @@ export interface Props {
   className?: string;
   image?: string;
   extraClass?: string;
+  percentage?: number;
 }
 
 const LoaderImg = styled.img`
@@ -73,21 +74,43 @@ const LoaderImg = styled.img`
   }
 `;
 
+const LoaderTitle = styled.h3`
+  z-index: 99;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  padding: 52vh 48vw;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  margin: 0px;
+  visibility: hidden;
+  text-align: center;
+`;
+
 export default function Loading({
   position = 'floating',
   image,
   className,
   extraClass,
+  percentage,
 }: Props) {
   return (
-    <LoaderImg
-      className={cls('loading', position, className, extraClass)}
-      alt="Loading..."
-      src={image || Loader}
-      role="status"
-      aria-live="polite"
-      aria-label="Loading"
-      data-test="loading-indicator"
-    />
+    <div>
+      <LoaderImg
+        className={cls('loading', position, className, extraClass)}
+        alt="Loading..."
+        src={image || Loader}
+        role="status"
+        aria-live="polite"
+        aria-label="Loading"
+        data-test="loading-indicator"
+      />
+      <LoaderTitle className="loading">
+        {percentage !== undefined
+          ? `Loading... ${Math.round(percentage * 100)}%`
+          : ''}
+      </LoaderTitle>
+    </div>
   );
 }

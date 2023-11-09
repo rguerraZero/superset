@@ -30,6 +30,7 @@ import componentTypes from 'src/dashboard/util/componentTypes';
 import { UrlParamEntries } from 'src/utils/urlUtils';
 
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+import { LoadingMeta } from 'src/components/Loading/actions';
 import { ChartState } from '../explore/types';
 
 export { Dashboard } from 'src/types/Dashboard';
@@ -138,6 +139,7 @@ export type RootState = {
   impressionId: string;
   nativeFilters: NativeFiltersState;
   user: UserWithPermissionsAndRoles;
+  loading: LoadingMeta;
 };
 
 /** State of dashboardLayout in redux */

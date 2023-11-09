@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -75,6 +76,7 @@ const propTypes = {
   refreshLimit: PropTypes.number,
   refreshWarning: PropTypes.string,
   lastModifiedTime: PropTypes.number.isRequired,
+  setLoadingPercentage: PropTypes.func.isRequired,
   filterboxMigrationState: PropTypes.oneOf(
     Object.keys(FILTER_BOX_MIGRATION_STATES).map(
       key => FILTER_BOX_MIGRATION_STATES[key],
@@ -125,7 +127,7 @@ class HeaderActionsDropdown extends React.PureComponent {
     this.changeRefreshInterval = this.changeRefreshInterval.bind(this);
     this.handleMenuClick = this.handleMenuClick.bind(this);
     this.setShowReportSubMenu = this.setShowReportSubMenu.bind(this);
-    this.loadingIcon = document.querySelector('.loading');
+    this.loadingElements = document.querySelectorAll('.loading');
   }
 
   UNSAFE_componentWillMount() {
@@ -202,19 +204,22 @@ class HeaderActionsDropdown extends React.PureComponent {
           '.ant-dropdown:not(.ant-dropdown-hidden)',
         );
         menu.style.visibility = 'hidden';
-        if (this.loadingIcon) {
-          this.loadingIcon.style.visibility = 'visible';
-        }
+        this.loadingElements.forEach(element => {
+          element.style.visibility = 'visible';
+        });
         downloadAsPDF(
           PDF_NODE_BASE_SELECTOR,
           this.props.dashboardTitle,
           SCREENSHOT_NODE_SELECTOR,
-        )(domEvent).then(() => {
-          menu.style.visibility = 'visible';
-          if (this.loadingIcon) {
-            this.loadingIcon.style.visibility = 'hidden';
-          }
-        });
+          value => this.props.setLoadingPercentage({ percentage: value }),
+          () => {
+            menu.style.visibility = 'visible';
+            this.loadingElements.forEach(element => {
+              element.style.visibility = 'hidden';
+            });
+            this.props.setLoadingPercentage({ percentage: 0 });
+          },
+        )(domEvent);
         this.props.logEvent?.(LOG_ACTIONS_DASHBOARD_DOWNLOAD_AS_PDF);
         break;
       }
