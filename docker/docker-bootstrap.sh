@@ -37,6 +37,7 @@ fi
 
 if [[ "${1}" == "worker" ]]; then
   echo "Starting Celery worker..."
+  export SUPERSET_CONFIG_PATH=/app/superset_config.py
   celery --app=superset.tasks.celery_app:app worker -O fair -l INFO
 elif [[ "${1}" == "beat" ]]; then
   echo "Starting Celery beat..."

@@ -225,6 +225,15 @@ resource "consul_keys" "superset-keys" {
     value = var.zf_api_host[var.env]
   }
 
+  key {
+    path  = "${var.app}/superset/env/global_async_queries"
+    value = "True"
+  }
+
+  key {
+    path  = "${var.app}/superset/env/global_async_queries_jwt_cookie_domain"
+    value = "superset-${var.env}.zerofox.com"
+  }
 }
 
 module "pdfs_bucket" {

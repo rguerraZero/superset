@@ -26,7 +26,7 @@ group "${cmd}" {
 
     resources {
       cpu    = 6144
-      memory = 12000
+      memory = 8000
 
       network {
         mbits = 1
@@ -106,6 +106,10 @@ SSO_API_BASE_URL="{{ .Data.SSO_API_BASE_URL }}"
 SSO_CLIENT_ID="{{ .Data.SSO_CLIENT_ID }}"
 SSO_CLIENT_SECRET="{{ .Data.SSO_CLIENT_SECRET }}"
 SUPERSET_SECRET_KEY="{{ .Data.SUPERSET_SECRET_KEY }}"
+{{ end }}
+
+{{ with secret "secret/superset/configuration" }}
+GLOBAL_ASYNC_QUERIES_JWT_SECRET="{{ .Data.GLOBAL_ASYNC_QUERIES_JWT_SECRET }}"
 {{ end }}
 
 

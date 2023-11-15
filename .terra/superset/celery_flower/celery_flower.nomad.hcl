@@ -88,6 +88,10 @@ SSO_CLIENT_SECRET="{{ .Data.SSO_CLIENT_SECRET }}"
 SUPERSET_SECRET_KEY="{{ .Data.SUPERSET_SECRET_KEY }}"
 {{ end }}
 
+{{ with secret "secret/superset/configuration" }}
+GLOBAL_ASYNC_QUERIES_JWT_SECRET="{{ .Data.GLOBAL_ASYNC_QUERIES_JWT_SECRET }}"
+{{ end }}
+
 
 # TODO: delete when values are set in vault
 GUEST_TOKEN_JWT_SECRET="SAMPLE"
