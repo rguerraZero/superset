@@ -99,18 +99,7 @@ class UserService:
             user.roles = [role]
 
         else:
-            # Check if role exists, `view_only enterprise_id``
-            default_role = self.sm.find_role("view_only")
-            role = self.sm.find_role(zf_user.superset_role_name(self._access_origin))
-            if role is None:
-                # If not copy from default role permissions
-                # Creates new roles
-                role = self.sm.add_role(
-                    zf_user.superset_role_name(self._access_origin),
-                    default_role.permissions,
-                )
-            # Assign it to current user
-            user.roles = [default_role, role]
+            user.roles = self._get_user_roles(zf_user)
         return user
 
     def get_all_data_sources(self):
@@ -170,3 +159,23 @@ class UserService:
         rls = query.one_or_none()
 
         return rls
+
+    def _get_user_roles(self, zf_user):
+        """
+        Get or Create `view_only_{enteprise id}` and `view_only_{user email}`
+        based on view_only role permissions
+        """
+        default_role = self.sm.find_role("view_only")
+        role = self.sm.find_role(zf_user.superset_role_name(self._access_origin))
+        user_role = self.sm.find_role(zf_user.superset_user_role_name())
+        if role is None:
+            role = self.sm.add_role(
+                zf_user.superset_role_name(self._access_origin),
+                default_role.permissions,
+            )
+        if user_role is None:
+            user_role = self.sm.add_role(
+                zf_user.superset_user_role_name(),
+                default_role.permissions
+            )
+        return [default_role, role, user_role]

@@ -31,9 +31,8 @@ from superset.models.dashboard import Dashboard
 from superset.models.embedded_dashboard import EmbeddedDashboard
 from bi_superset.bi_security_manager.models.access_origin import AccessOrigin
 from bi_superset.bi_security_manager.models.access_method import AccessMethod
-from bi_superset.bi_security_manager.models.user import User as ZFUser
+from bi_superset.bi_security_manager.models.user import User as ZFUser, BASE_VIEW_ROLE
 from bi_superset.bi_security_manager.services.user_service import UserService
-from bi_superset.bi_custom_security_manager import BICustomSecurityManager
 
 
 from sqlalchemy import and_
@@ -41,7 +40,6 @@ from flask_appbuilder.security.sqla.models import Role
 
 
 logger = logging.getLogger(__name__)
-BASE_ROLE_ENTERPRISE = "view_only_"
 
 
 class ZFIntegrationRestApi(BaseSupersetApi):
@@ -83,9 +81,9 @@ class ZFIntegrationRestApi(BaseSupersetApi):
             superset_user, token_user = self._get_superset_and_token_user(
                 request)
             default_dashboards = self.get_dashboards_details_by_roles(
-                [role.id for role in superset_user.roles if not BASE_ROLE_ENTERPRISE in role.name])
+                [role.id for role in superset_user.roles if not BASE_VIEW_ROLE in role.name])
             custom_dashboards = self.get_dashboards_details_by_roles(
-                [role.id for role in superset_user.roles if BASE_ROLE_ENTERPRISE in role.name]
+                [role.id for role in superset_user.roles if BASE_VIEW_ROLE in role.name]
             )
             guest_token = self.get_guest_token(
                 token_user, default_dashboards['uuids'], custom_dashboards['uuids'],
@@ -193,7 +191,6 @@ class ZFIntegrationRestApi(BaseSupersetApi):
         dashboards = self.appbuilder.sm.get_session.query(
             Dashboard.id,
             Dashboard.dashboard_title,
-            Role.name,
             EmbeddedDashboard.uuid
         ).join(
             Dashboard.roles

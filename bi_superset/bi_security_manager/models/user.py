@@ -3,6 +3,8 @@
 from bi_superset.bi_security_manager.models.access_method import AccessMethod
 from bi_superset.bi_security_manager.models.access_origin import AccessOrigin
 
+BASE_VIEW_ROLE = 'view_only_'
+
 
 class User:
     def __init__(
@@ -70,8 +72,11 @@ class User:
 
     def superset_role_name(self, access_origin) -> str:
         if AccessOrigin.is_from_zf_dashboard(access_origin):
-            return f"view_only_{self.enterprise_id}"
+            return f"{BASE_VIEW_ROLE}{self.enterprise_id}"
         return self.role_name
+
+    def superset_user_role_name(self) -> str:
+        return f"{BASE_VIEW_ROLE}{self.email}"
 
     @role_name.setter
     def role_name(self, role_name: str):
