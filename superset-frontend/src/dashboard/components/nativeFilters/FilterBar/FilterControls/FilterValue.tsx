@@ -170,6 +170,9 @@ const FilterValue: React.FC<FilterControlProps> = ({
       })
         .then(({ response, json }) => {
           if (isFeatureEnabled(FeatureFlag.GLOBAL_ASYNC_QUERIES)) {
+            if (!json) {
+              return;
+            }
             // deal with getChartDataRequest transforming the response data
             const result = 'result' in json ? json.result[0] : json;
 
@@ -194,7 +197,7 @@ const FilterValue: React.FC<FilterControlProps> = ({
               );
             }
           } else {
-            setState(json.result);
+            setState(json?.result);
             setError('');
             handleFilterLoadFinish();
           }

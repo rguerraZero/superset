@@ -37,6 +37,9 @@ import {
   UNSAVED_CHART_ID,
 } from 'src/explore/constants';
 import { DashboardStandaloneMode } from 'src/dashboard/util/constants';
+import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
+import { getChartDataRequest } from 'src/components/Chart/chartAction';
+import { waitForAsyncData } from 'src/middleware/asyncEvent';
 
 export function getChartKey(explore) {
   const { slice, form_data } = explore;
@@ -237,12 +240,72 @@ export const buildV1ChartDataPayload = ({
 export const getLegacyEndpointType = ({ resultType, resultFormat }) =>
   resultFormat === 'csv' ? resultFormat : resultType;
 
+const getCSVName = response => {
+  let name = 'export.csv';
+  try {
+    name = response.headers.get('Content-Disposition').split('filename=')[1];
+  } catch (e) {
+    console.error(`Unable to parse filename ${e}`);
+  }
+  return name;
+};
+
+const downloadCSVAsync = (response, csvData) => {
+  // Convert CSV data to Blob
+  const blob = new Blob([csvData], { type: 'text/csv' });
+
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.download = getCSVName(response);
+  document.body.appendChild(link);
+  link.click();
+
+  document.body.removeChild(link);
+};
+
+const handleAsyncCSVDownload = (formData, setMessage, setLoadingMessage) => {
+  setLoadingMessage('Generating CSV file');
+  getChartDataRequest({
+    formData,
+    force: false,
+    requestParams: { dashboardId: 0 },
+    resultFormat: 'csv',
+  })
+    .then(({ response, text }) => {
+      if (response.status === 200) {
+        setMessage('CSV generation complete', 3000);
+        downloadCSVAsync(response, text);
+      } else if (response.status === 202) {
+        const payload = JSON.parse(text);
+        waitForAsyncData(payload, true)
+          .then(data => {
+            setMessage('CSV generation complete', 3000);
+            downloadCSVAsync(data[0].response, data[0].text);
+          })
+          .catch(error => {
+            setMessage('Error generating CSV, please try again', 3000);
+            throw new Error(`Unable to get async csv data: ${error.error}`);
+          });
+      } else {
+        setMessage('Error generating CSV, please try again', 3000);
+        throw new Error(
+          `Received unexpected response status (${response.status}) while fetching chart data`,
+        );
+      }
+    })
+    .catch(error => {
+      throw new Error(`Unable to get csv data: ${error.error}`);
+    });
+};
+
 export const exportChart = ({
   formData,
   resultFormat = 'json',
   resultType = 'full',
   force = false,
   ownState = {},
+  setMessage = () => {},
+  setLoadingMessage = () => {},
 }) => {
   let url;
   let payload;
@@ -269,7 +332,11 @@ export const exportChart = ({
     });
   }
 
-  SupersetClient.postForm(url, { form_data: safeStringify(payload) });
+  if (isFeatureEnabled(FeatureFlag.GLOBAL_ASYNC_QUERIES_CSV)) {
+    handleAsyncCSVDownload(formData, setMessage, setLoadingMessage);
+  } else {
+    SupersetClient.postForm(url, { form_data: safeStringify(payload) });
+  }
 };
 
 export const exploreChart = (formData, requestParams) => {

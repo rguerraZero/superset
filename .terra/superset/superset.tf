@@ -42,6 +42,16 @@ variable "global_async_queries" {
   }
 }
 
+variable "global_async_queries_csv" {
+  type = map(string)
+
+  default = {
+    qa   = "False"
+    stag = "False"
+    prod = "False"
+  }
+}
+
 # ----------------------------------------
 # Providers
 # ----------------------------------------
@@ -238,6 +248,11 @@ resource "consul_keys" "superset-keys" {
   key {
     path  = "${var.app}/superset/env/global_async_queries"
     value = var.global_async_queries[var.env]
+  }
+
+  key {
+    path  = "${var.app}/superset/env/global_async_queries_csv"
+    value = var.global_async_queries_csv[var.env]
   }
 
   key {

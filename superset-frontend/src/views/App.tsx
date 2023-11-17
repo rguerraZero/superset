@@ -31,6 +31,7 @@ import Loading from 'src/components/Loading';
 import Menu from 'src/views/components/Menu';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import ToastContainer from 'src/components/MessageToasts/ToastContainer';
+import PriorityToastContainer from 'src/components/PriorityMessageToasts/PriorityMessageToastsContainer';
 import setupApp from 'src/setup/setupApp';
 import setupPlugins from 'src/setup/setupPlugins';
 import { routes, isFrontendRoute } from 'src/views/routes';
@@ -92,6 +93,7 @@ const App = () => (
           ))}
         </Switch>
         <ToastContainer />
+        <PriorityToastContainer />
       </RootContextProviders>
     </Router>
   </QueryProvider>

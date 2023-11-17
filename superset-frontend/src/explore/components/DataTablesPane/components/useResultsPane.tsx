@@ -77,6 +77,9 @@ export const useResultsPane = ({
         ownState,
       })
         .then(({ json }) => {
+          if (!json) {
+            return;
+          }
           setResultResp(ensureIsArray(json.result));
           setResponseError('');
           cache.set(queryFormData, json.result);

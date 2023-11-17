@@ -26,6 +26,7 @@ import {
 import thunk from 'redux-thunk';
 import messageToastReducer from 'src/components/MessageToasts/reducers';
 import loadingPercentageReducer from 'src/components/Loading/reducers';
+import priorityMessageToastReducer from 'src/components/PriorityMessageToasts/reducers';
 import { initEnhancer } from 'src/reduxUtils';
 import charts from 'src/components/Chart/chartReducer';
 import dataMask from 'src/dataMask/reducer';
@@ -107,6 +108,7 @@ const CombinedDatasourceReducers = (
 export const rootReducer = combineReducers({
   messageToasts: messageToastReducer,
   loading: loadingPercentageReducer,
+  priorityMessageToasts: priorityMessageToastReducer,
   common: noopReducer(bootstrapData.common),
   user: userReducer,
   impressionId: noopReducer(shortid.generate()),
