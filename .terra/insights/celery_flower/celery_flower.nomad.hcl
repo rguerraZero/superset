@@ -3,12 +3,17 @@ group "celery-flower-group" {
 
   meta {
     group = "$${NOMAD_GROUP_NAME}"
+    index_name  = "insights-$${NOMAD_GROUP_NAME}"
     lang  = "python"
   }
 
   task "celery-flower" {
     driver         = "docker"
     shutdown_delay = "10s"
+
+    meta {
+      node_filebeat = true
+    }
 
     config {
       image   = "${ecr_url}/zf/insights:${git_sha}"

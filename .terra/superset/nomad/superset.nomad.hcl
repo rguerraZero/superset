@@ -1,9 +1,19 @@
 group "${cmd}" {
   count = "${count}"
 
+  meta {
+    group = "${cmd}"
+    index_name  = "superset-${cmd}"
+    index_type  = "python"
+  }
+
   task "superset" {
     driver         = "docker"
     shutdown_delay = "10s"
+
+    meta {
+      node_filebeat = true
+    }
 
     config {
       image      = "${ecr_url}/zf/superset:${git_sha}"
