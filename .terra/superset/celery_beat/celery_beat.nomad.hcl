@@ -7,7 +7,7 @@ group "celery-beat-group" {
   }
 
   task "celery-beat" {
-    driver = "docker"
+    driver         = "docker"
     shutdown_delay = "10s"
 
     config {
@@ -35,10 +35,10 @@ group "celery-beat-group" {
       port = "https"
 
       check {
-        name     = "$${NOMAD_JOB_NAME}-$${NOMAD_GROUP_NAME} up check"
+        name    = "$${NOMAD_JOB_NAME}-$${NOMAD_GROUP_NAME} up check"
         type    = "script"
         command = "celery"
-        args    = [
+        args = [
           "-A",
           "superset.tasks.celery_app:app",
           "inspect",
@@ -48,8 +48,8 @@ group "celery-beat-group" {
         timeout  = "10s"
       }
     }
-template {
-     data = <<EOH
+    template {
+      data        = <<EOH
 {
   "type": "service_account",
   {{ with secret "secret/cshe/bq-service-acct" }}
@@ -64,12 +64,12 @@ template {
   "client_x509_cert_url": "{{ .Data.client_x509_cert_url }}"{{ end }}
 }
 EOH
-        destination = "secrets/service-acct.json"
-        change_mode="restart"
-      }
+      destination = "secrets/service-acct.json"
+      change_mode = "restart"
+    }
 
     template {
-      data = <<EOH
+      data        = <<EOH
 GOOGLE_APPLICATION_CREDENTIALS=/secrets/service-acct.json
 
 {{ with secret "secret/superset/database_url" }}

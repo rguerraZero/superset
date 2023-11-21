@@ -7,7 +7,7 @@ group "celery-flower-group" {
   }
 
   task "celery-flower" {
-    driver = "docker"
+    driver         = "docker"
     shutdown_delay = "10s"
 
     config {
@@ -19,8 +19,8 @@ group "celery-flower-group" {
       ]
       force_pull = true
       port_map = {
-          https = 5555
-        }
+        https = 5555
+      }
     }
 
     resources {
@@ -38,10 +38,10 @@ group "celery-flower-group" {
       port = "https"
 
       check {
-        name     = "$${NOMAD_JOB_NAME}-$${NOMAD_GROUP_NAME} up check"
-        type     = "script"
-        command  = "celery"
-        args     = [
+        name    = "$${NOMAD_JOB_NAME}-$${NOMAD_GROUP_NAME} up check"
+        type    = "script"
+        command = "celery"
+        args = [
           "-A",
           "superset.tasks.celery_app:app",
           "inspect",
@@ -51,8 +51,8 @@ group "celery-flower-group" {
         timeout  = "10s"
       }
     }
-  template {
-     data = <<EOH
+    template {
+      data        = <<EOH
 {
   "type": "service_account",
   {{ with secret "secret/superset/gcp_insights_sa" }}
@@ -67,12 +67,12 @@ group "celery-flower-group" {
   "client_x509_cert_url": "{{ .Data.client_x509_cert_url }}"{{ end }}
 }
 EOH
-        destination = "secrets/service-acct.json"
-        change_mode="restart"
-      }
+      destination = "secrets/service-acct.json"
+      change_mode = "restart"
+    }
 
     template {
-      data = <<EOH
+      data        = <<EOH
 GOOGLE_APPLICATION_CREDENTIALS=/secrets/service-acct.json
 
 {{ with secret "database/insights-superset-db/creds/admin" }}
