@@ -108,7 +108,7 @@ export default {
       { position: [-122.389625, 37.7806302], weight: 237 },
     ],
     mapboxApiKey:
-      'pk.eyJ1Ijoia3Jpc3R3IiwiYSI6ImNqbGg1N242NTFlczczdnBhazViMjgzZ2sifQ.lUneM-o3NucXN189EYyXxQ',
+      'pk.eyJ1Ijoid2VzbGV5LXJpc2tpdmUiLCJhIjoiY2xveW9paW52MDU1ejJsbzFybDdubXowdiJ9.6znk02p68KzRum2EvmLdDw',
     metricLabels: ['count'],
   },
 };
