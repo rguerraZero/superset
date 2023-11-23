@@ -359,10 +359,11 @@ const Select = forwardRef(
 
     useEffect(() => {
       // if all values are selected, add select all to value
+      // selectOptions.length > 1 to avoid "select all" when the search bar only return one option
       if (
         !isSingleMode &&
         ensureIsArray(value).length === selectAllEligible.length &&
-        selectOptions.length > 0
+        selectOptions.length > 1
       ) {
         setSelectValue(
           labelInValue
