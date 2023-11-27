@@ -233,7 +233,8 @@ OAUTH_PROVIDERS = [
         "token_key": "access_token",  # Name of the token in the response of access_token_url
         "icon": "fa-address-card",  # Icon for the provider
         "remote_app": {
-            "client_id": CLIENT_ID,  # Client Id (Identify Superset application)
+            # Client Id (Identify Superset application)
+            "client_id": CLIENT_ID,
             "client_secret": CLIENT_SECRET,
             "access_token_method": "POST",
             "api_base_url": API_BASE_URL,
@@ -254,24 +255,15 @@ CUSTOM_SECURITY_MANAGER = BICustomSecurityManager
 
 class CeleryConfig:  # pylint: disable=too-few-public-methods
     broker_url = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
-    imports = ("superset.sql_lab",)
+    imports = ("superset.sql_lab",
+               "superset.tasks.scheduler",)
     result_backend = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_RESULTS_DB}"
     worker_prefetch_multiplier = 1
     task_acks_late = False
     task_annotations = {
         "sql_lab.get_sql_results": {"rate_limit": "100/s"},
-        "email_reports.send": {
-            "rate_limit": "1/s",
-            "time_limit": int(timedelta(seconds=120).total_seconds()),
-            "soft_time_limit": int(timedelta(seconds=150).total_seconds()),
-            "ignore_result": True,
-        },
     }
     beat_schedule = {
-        "email_reports.schedule_hourly": {
-            "task": "email_reports.schedule_hourly",
-            "schedule": crontab(minute=1, hour="*"),
-        },
         "reports.scheduler": {
             "task": "reports.scheduler",
             "schedule": crontab(minute="*", hour="*"),
