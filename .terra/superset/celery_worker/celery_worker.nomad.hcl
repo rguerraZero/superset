@@ -21,6 +21,8 @@ group "celery-worker-group" {
       args = [
         "--app=superset.tasks.celery_app:app",
         "worker",
+        "-l",
+        "DEBUG"
       ]
       force_pull = true
     }
