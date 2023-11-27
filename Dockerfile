@@ -44,7 +44,7 @@ RUN npm ci
 COPY ./superset-frontend .
 
 # This seems to be the most expensive step
-RUN ASSET_BASE_URL=${ASSET_BASE_URL} npm run ${BUILD_CMD}
+RUN ASSET_BASE_URL=${ASSET_BASE_URL} npm run ${BUILD_CMD} --verbose
 
 ######################################################################
 # Final lean image...
@@ -74,6 +74,7 @@ RUN mkdir -p ${PYTHONPATH} \
     firefox-esr \
     wget \
     unzip \
+    telnet \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \

@@ -30,6 +30,32 @@ This repository  contains a copy of superset repo, to be compiled and used as a 
 **Current Superset Version Used: 2.1.1, Updated By Guillermo Negrete**
 
 
+## Celery debugging
+
+1. Add `from celery.contrib import rdb; rdb.set_trace()` in the lines you wish the debugger to break.
+2. Run `> docker compose up superset-worker-beat superset-worker` to start docker compose with the workers.
+3. Search for celery worker id using `> docker ps`.
+4. Run `> docker exec -it <celery_worker_id> /bin/bash` to enter the worker container.
+5. Wait for logs in docker compose to show `Remote Debugger:6900: Waiting for client...`.
+6. At this point you can attach to the debugger using `> telnet 127.0.0.1 6907`.
+
+### Troubleshooting
+
+#### Report Schedule is still working, refusing to re-compute.
+This means that previous report is still running,
+and it will not allow to run a new one until the previous one is finished.
+
+This could happen if previous task exited unexpectedly,
+and the celery worker did not have the chance to update the status of the task.
+
+If this happens, you can manually update the status in using the following steps:
+
+1. Connect to superset database.
+2. Search for the task id in the table `report_schedule`
+3. Filter out logs from `report_execution_log` and column `state`
+   to `Error` for any log that has the same `report_schedule_id` as the task id.
+   And its newer than timeout configured for the job.
+
 ## How to run
 
 To run it locally take in note that needs atleast 3gb on docker memory to run properly
@@ -46,7 +72,7 @@ npm install
 npm run build
 ```
 
-### Run debuger
+### Run debugger
 
 1. Add `breakpoint()` to the point you want to debug
 2. After having the service runing, in a new terminal run `docker attach $(docker ps -f name=superset_app --format '{{.ID}}')`
