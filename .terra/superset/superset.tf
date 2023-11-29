@@ -32,6 +32,16 @@ variable "zf_api_host" {
   }
 }
 
+variable "global_async_queries" {
+  type = map(string)
+
+  default = {
+    qa   = "False"
+    stag = "False"
+    prod = "False"
+  }
+}
+
 # ----------------------------------------
 # Providers
 # ----------------------------------------
@@ -227,7 +237,7 @@ resource "consul_keys" "superset-keys" {
 
   key {
     path  = "${var.app}/superset/env/global_async_queries"
-    value = "True"
+    value = var.global_async_queries[var.env]
   }
 
   key {

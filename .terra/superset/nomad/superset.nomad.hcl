@@ -26,7 +26,7 @@ group "${cmd}" {
 
     resources {
       cpu    = 6144
-      memory = 8000
+      memory = 12000
 
       network {
         mbits = 1
