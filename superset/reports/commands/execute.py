@@ -170,7 +170,8 @@ class BaseReportState:
             return get_url_path(
                 "ExploreView.root",
                 user_friendly=user_friendly,
-                form_data=json.dumps({"slice_id": self._report_schedule.chart_id}),
+                form_data=json.dumps(
+                    {"slice_id": self._report_schedule.chart_id}),
                 force=force,
                 **kwargs,
             )
@@ -197,6 +198,7 @@ class BaseReportState:
         Get chart or dashboard screenshots
         :raises: ReportScheduleScreenshotFailedError
         """
+
         url = self._get_url()
         _, username = get_executor(
             executor_types=app.config["ALERT_REPORTS_EXECUTE_AS"],
@@ -237,15 +239,18 @@ class BaseReportState:
             model=self._report_schedule,
         )
         user = security_manager.find_user(username)
-        auth_cookies = machine_auth_provider_factory.instance.get_auth_cookies(user)
+        auth_cookies = machine_auth_provider_factory.instance.get_auth_cookies(
+            user)
 
         if self._report_schedule.chart.query_context is None:
-            logger.warning("No query context found, taking a screenshot to generate it")
+            logger.warning(
+                "No query context found, taking a screenshot to generate it")
             self._update_query_context()
 
         try:
             logger.info("Getting chart from %s as user %s", url, user.username)
-            csv_data = get_chart_csv_data(chart_url=url, auth_cookies=auth_cookies)
+            csv_data = get_chart_csv_data(
+                chart_url=url, auth_cookies=auth_cookies)
         except SoftTimeLimitExceeded as ex:
             raise ReportScheduleCsvTimeout() from ex
         except Exception as ex:
@@ -266,10 +271,12 @@ class BaseReportState:
             model=self._report_schedule,
         )
         user = security_manager.find_user(username)
-        auth_cookies = machine_auth_provider_factory.instance.get_auth_cookies(user)
+        auth_cookies = machine_auth_provider_factory.instance.get_auth_cookies(
+            user)
 
         if self._report_schedule.chart.query_context is None:
-            logger.warning("No query context found, taking a screenshot to generate it")
+            logger.warning(
+                "No query context found, taking a screenshot to generate it")
             self._update_query_context()
 
         try:
@@ -427,9 +434,11 @@ class BaseReportState:
                 logger.warning(str(error))
 
             if any(error.level == ErrorLevel.ERROR for error in notification_errors):
-                raise ReportScheduleSystemErrorsException(errors=notification_errors)
+                raise ReportScheduleSystemErrorsException(
+                    errors=notification_errors)
             if any(error.level == ErrorLevel.WARNING for error in notification_errors):
-                raise ReportScheduleClientErrorsException(errors=notification_errors)
+                raise ReportScheduleClientErrorsException(
+                    errors=notification_errors)
 
     def send(self) -> None:
         """
@@ -545,7 +554,8 @@ class ReportNotTriggeredErrorState(BaseReportState):
         except (SupersetErrorsException, Exception) as first_ex:
             error_message = str(first_ex)
             if isinstance(first_ex, SupersetErrorsException):
-                error_message = ";".join([error.message for error in first_ex.errors])
+                error_message = ";".join(
+                    [error.message for error in first_ex.errors])
 
             self.update_report_schedule_and_log(
                 ReportState.ERROR, error_message=error_message
@@ -650,7 +660,8 @@ class ReportScheduleStateMachine:  # pylint: disable=too-few-public-methods
     Simple state machine for Alerts/Reports states
     """
 
-    states_cls = [ReportWorkingState, ReportNotTriggeredErrorState, ReportSuccessState]
+    states_cls = [ReportWorkingState,
+                  ReportNotTriggeredErrorState, ReportSuccessState]
 
     def __init__(
         self,
@@ -706,6 +717,7 @@ class AsyncExecuteReportScheduleCommand(BaseCommand):
                     model=self._model,
                 )
                 user = security_manager.find_user(username)
+
                 with override_user(user):
                     logger.info(
                         "Running report schedule %s as user %s",
@@ -730,7 +742,8 @@ class AsyncExecuteReportScheduleCommand(BaseCommand):
             self._execution_id,
         )
         self._model = (
-            session.query(ReportSchedule).filter_by(id=self._model_id).one_or_none()
+            session.query(ReportSchedule).filter_by(
+                id=self._model_id).one_or_none()
         )
         if not self._model:
             raise ReportScheduleNotFoundError()

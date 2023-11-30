@@ -62,7 +62,8 @@ def find_unexpected_errors(driver: WebDriver) -> List[str]:
     try:
         alert_divs = driver.find_elements(By.XPATH, "//div[@role = 'alert']")
         logger.debug(
-            "%i alert elements have been found in the screenshot", len(alert_divs)
+            "%i alert elements have been found in the screenshot", len(
+                alert_divs)
         )
 
         for alert_div in alert_divs:
@@ -94,7 +95,8 @@ def find_unexpected_errors(driver: WebDriver) -> List[str]:
             ).until(EC.invisibility_of_element(modal))
 
             # Use HTML so that error messages are shown in the same style (color)
-            error_as_html = err_msg_div.get_attribute("innerHTML").replace("'", "\\'")
+            error_as_html = err_msg_div.get_attribute(
+                "innerHTML").replace("'", "\\'")
 
             try:
                 # Even if some errors can't be updated in the screenshot,
@@ -120,21 +122,31 @@ class WebDriverProxy:
         self._screenshot_load_wait = current_app.config["SCREENSHOT_LOAD_WAIT"]
 
     def create(self) -> WebDriver:
-        pixel_density = current_app.config["WEBDRIVER_WINDOW"].get("pixel_density", 1)
+        pixel_density = current_app.config["WEBDRIVER_WINDOW"].get(
+            "pixel_density", 1)
+        logger.debug("Taking screenshot with driver %s", self._driver_type)
         if self._driver_type == "firefox":
             driver_class = firefox.webdriver.WebDriver
             options = firefox.options.Options()
             profile = FirefoxProfile()
-            profile.set_preference("layout.css.devPixelsPerPx", str(pixel_density))
-            kwargs: Dict[Any, Any] = dict(options=options, firefox_profile=profile)
+            profile.set_preference(
+                "layout.css.devPixelsPerPx", str(pixel_density))
+            kwargs: Dict[Any, Any] = dict(
+                options=options, firefox_profile=profile)
         elif self._driver_type == "chrome":
             driver_class = chrome.webdriver.WebDriver
             options = chrome.options.Options()
-            options.add_argument(f"--force-device-scale-factor={pixel_density}")
-            options.add_argument(f"--window-size={self._window[0]},{self._window[1]}")
+            options.add_argument(
+                f"--force-device-scale-factor={pixel_density}")
+            options.add_argument(
+                f"--window-size={self._window[0]},{self._window[1]}")
+            options.add_argument('--enable-logging')
+            options.add_argument('--v=1')  # Verbosity level
+            options.add_argument('--log-path=/tmp/chrome_driver.log')
             kwargs = dict(options=options)
         else:
-            raise Exception(f"Webdriver name ({self._driver_type}) not supported")
+            raise Exception(
+                f"Webdriver name ({self._driver_type}) not supported")
         # Prepare args for the webdriver init
 
         # Add additional configured options
@@ -144,7 +156,13 @@ class WebDriverProxy:
         kwargs.update(current_app.config["WEBDRIVER_CONFIGURATION"])
         logger.info("Init selenium driver")
 
-        return driver_class(**kwargs)
+        try:
+            driver = driver_class(**kwargs)
+            logger.info(f"Selenium driver initialized {str(driver)}")
+            return driver
+        except Exception as ex:
+            logger.error(ex, exc_info=True)
+            raise ex
 
     def auth(self, user: User) -> WebDriver:
         driver = self.create()
@@ -192,13 +210,15 @@ class WebDriverProxy:
 
             logger.debug("Wait for loading element of charts to be gone")
             WebDriverWait(driver, self._screenshot_load_wait).until_not(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, "loading"))
+                EC.presence_of_element_located(
+                    (By.CSS_SELECTOR, ".dashboard .loading"))
             )
 
             selenium_animation_wait = current_app.config[
                 "SCREENSHOT_SELENIUM_ANIMATION_WAIT"
             ]
-            logger.debug("Wait %i seconds for chart animation", selenium_animation_wait)
+            logger.debug("Wait %i seconds for chart animation",
+                         selenium_animation_wait)
             sleep(selenium_animation_wait)
             logger.info(
                 "Taking a PNG screenshot of url %s as user %s",
@@ -219,7 +239,8 @@ class WebDriverProxy:
             img = element.screenshot_as_png
 
         except TimeoutException:
-            logger.warning("Selenium timed out requesting url %s", url, exc_info=True)
+            logger.warning(
+                "Selenium timed out requesting url %s", url, exc_info=True)
         except StaleElementReferenceException:
             logger.error(
                 "Selenium got a stale element while requesting url %s",
@@ -229,5 +250,6 @@ class WebDriverProxy:
         except WebDriverException as ex:
             logger.error(ex, exc_info=True)
         finally:
-            self.destroy(driver, current_app.config["SCREENSHOT_SELENIUM_RETRIES"])
+            self.destroy(
+                driver, current_app.config["SCREENSHOT_SELENIUM_RETRIES"])
         return img

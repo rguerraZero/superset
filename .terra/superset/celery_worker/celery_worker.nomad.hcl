@@ -21,6 +21,8 @@ group "celery-worker-group" {
       args = [
         "--app=superset.tasks.celery_app:app",
         "worker",
+        "-l",
+        "DEBUG"
       ]
       force_pull = true
     }
@@ -83,6 +85,10 @@ SSO_API_BASE_URL="{{ .Data.SSO_API_BASE_URL }}"
 SSO_CLIENT_ID="{{ .Data.SSO_CLIENT_ID }}"
 SSO_CLIENT_SECRET="{{ .Data.SSO_CLIENT_SECRET }}"
 SUPERSET_SECRET_KEY="{{ .Data.SUPERSET_SECRET_KEY }}"
+{{ end }}
+
+{{ with secret "secret/superset/configuration" }}
+GLOBAL_ASYNC_QUERIES_JWT_SECRET="{{ .Data.GLOBAL_ASYNC_QUERIES_JWT_SECRET }}"
 {{ end }}
 
 

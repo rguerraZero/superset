@@ -99,6 +99,7 @@ if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
 
 ZF_API_HOST = os.getenv("ZF_API_HOST", "https://api-qa.zerofox.com")
 BQ_DATASET = os.getenv("BQ_DATASET", None)
+GLOBAL_ASYNC_QUERIES = os.getenv("GLOBAL_ASYNC_QUERIES", "False") == "True"
 FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_PROCESSING": True,
     "ESTIMATE_QUERY_COST": True,
@@ -108,6 +109,7 @@ FEATURE_FLAGS = {
     "ENABLE_TEMPLATE_REMOVE_FILTERS": True,
     "DASHBOARD_RBAC": DASHBOARD_RBAC,
     "EMBEDDED_SUPERSET": EMBEDDED_SUPERSET,
+    "GLOBAL_ASYNC_QUERIES": GLOBAL_ASYNC_QUERIES,
 }
 # enable Prometheus /metrics endpoint for monitoring
 DEBUG_METRICS = 1
@@ -167,6 +169,29 @@ RESULTS_BACKEND = RedisCache(
     host=REDIS_HOST, port=REDIS_PORT, key_prefix="superset_results"
 )
 
+if GLOBAL_ASYNC_QUERIES:
+    COOKIE_DOMAIN = os.getenv('GLOBAL_ASYNC_QUERIES_JWT_COOKIE_DOMAIN', None)
+    REDIS_ASYNC_DB = get_env_variable("REDIS_ASYNC_DB", "2")
+    GLOBAL_ASYNC_QUERIES_REDIS_CONFIG = {
+        "port": REDIS_PORT,
+        "host": REDIS_HOST,
+        "password": "",
+        "db": REDIS_ASYNC_DB,
+        "ssl": False,
+    }
+    GLOBAL_ASYNC_QUERIES_REDIS_STREAM_PREFIX = "async-events-"
+    GLOBAL_ASYNC_QUERIES_REDIS_STREAM_LIMIT = 1000
+    GLOBAL_ASYNC_QUERIES_REDIS_STREAM_LIMIT_FIREHOSE = 1000000
+    GLOBAL_ASYNC_QUERIES_JWT_COOKIE_NAME = "async-token"
+    GLOBAL_ASYNC_QUERIES_JWT_COOKIE_SECURE = True if COOKIE_DOMAIN is not None else False
+    GLOBAL_ASYNC_QUERIES_JWT_COOKIE_SAMESITE = "Strict"
+    GLOBAL_ASYNC_QUERIES_JWT_COOKIE_DOMAIN = COOKIE_DOMAIN
+    GLOBAL_ASYNC_QUERIES_JWT_SECRET = os.getenv('GLOBAL_ASYNC_QUERIES_JWT_SECRET')
+    GLOBAL_ASYNC_QUERIES_TRANSPORT = "polling"
+    GLOBAL_ASYNC_QUERIES_POLLING_DELAY = int(
+        timedelta(milliseconds=2000).total_seconds() * 1000
+    )
+
 SUPERSET_WEBSERVER_TIMEOUT = 300
 SUPERSET_WEBSERVER_PROTOCOL = "https"
 
@@ -208,7 +233,8 @@ OAUTH_PROVIDERS = [
         "token_key": "access_token",  # Name of the token in the response of access_token_url
         "icon": "fa-address-card",  # Icon for the provider
         "remote_app": {
-            "client_id": CLIENT_ID,  # Client Id (Identify Superset application)
+            # Client Id (Identify Superset application)
+            "client_id": CLIENT_ID,
             "client_secret": CLIENT_SECRET,
             "access_token_method": "POST",
             "api_base_url": API_BASE_URL,
@@ -229,24 +255,15 @@ CUSTOM_SECURITY_MANAGER = BICustomSecurityManager
 
 class CeleryConfig:  # pylint: disable=too-few-public-methods
     broker_url = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
-    imports = ("superset.sql_lab",)
+    imports = ("superset.sql_lab",
+               "superset.tasks.scheduler",)
     result_backend = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_RESULTS_DB}"
     worker_prefetch_multiplier = 1
     task_acks_late = False
     task_annotations = {
         "sql_lab.get_sql_results": {"rate_limit": "100/s"},
-        "email_reports.send": {
-            "rate_limit": "1/s",
-            "time_limit": int(timedelta(seconds=120).total_seconds()),
-            "soft_time_limit": int(timedelta(seconds=150).total_seconds()),
-            "ignore_result": True,
-        },
     }
     beat_schedule = {
-        "email_reports.schedule_hourly": {
-            "task": "email_reports.schedule_hourly",
-            "schedule": crontab(minute=1, hour="*"),
-        },
         "reports.scheduler": {
             "task": "reports.scheduler",
             "schedule": crontab(minute="*", hour="*"),

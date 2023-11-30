@@ -223,7 +223,7 @@ class ChartScreenshot(BaseScreenshot):
 
 class DashboardScreenshot(BaseScreenshot):
     thumbnail_type: str = "dashboard"
-    element: str = "standalone"
+    element: str = "dashboard"
 
     def __init__(
         self,
