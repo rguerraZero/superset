@@ -211,7 +211,7 @@ class WebDriverProxy:
             logger.debug("Wait for loading element of charts to be gone")
             WebDriverWait(driver, self._screenshot_load_wait).until_not(
                 EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, ".dashboard .loading"))
+                    (By.CSS_SELECTOR, f".{element_name} .loading"))
             )
 
             selenium_animation_wait = current_app.config[
