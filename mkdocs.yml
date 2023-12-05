@@ -5,5 +5,7 @@ nav:
     - Release+Deploy: RELEASE+DEPLOY.md
     - Testing: TESTING.md
     - New Plugin: add-new-plugin.md
+    - Contributing: CONTRIBUTING.md
+    - Upgrading Superset: UPGRADING_SUPERSET.md
 plugins:
     - techdocs-core

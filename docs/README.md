@@ -25,36 +25,9 @@ under the License.
 
 # Welcome to Superset External
 
-This repository  contains a copy of superset repo, to be compiled and used as a dependency for other projects.
+This repository contains a copy of superset repo, to be compiled and used as a dependency for other projects.
 
 **Current Superset Version Used: 2.1.1, Updated By Guillermo Negrete**
-
-
-## Celery debugging
-
-1. Add `from celery.contrib import rdb; rdb.set_trace()` in the lines you wish the debugger to break.
-2. Run `> docker compose up superset-worker-beat superset-worker` to start docker compose with the workers.
-3. Search for celery worker id using `> docker ps`.
-4. Run `> docker exec -it <celery_worker_id> /bin/bash` to enter the worker container.
-5. Wait for logs in docker compose to show `Remote Debugger:6900: Waiting for client...`.
-6. At this point you can attach to the debugger using `> telnet 127.0.0.1 6907`.
-
-### Troubleshooting
-
-#### Report Schedule is still working, refusing to re-compute.
-This means that previous report is still running,
-and it will not allow to run a new one until the previous one is finished.
-
-This could happen if previous task exited unexpectedly,
-and the celery worker did not have the chance to update the status of the task.
-
-If this happens, you can manually update the status in using the following steps:
-
-1. Connect to superset database.
-2. Search for the task id in the table `report_schedule`
-3. Filter out logs from `report_execution_log` and column `state`
-   to `Error` for any log that has the same `report_schedule_id` as the task id.
-   And its newer than timeout configured for the job.
 
 ## How to run
 
@@ -77,35 +50,6 @@ npm run build
 1. Add `breakpoint()` to the point you want to debug
 2. After having the service runing, in a new terminal run `docker attach $(docker ps -f name=superset_app --format '{{.ID}}')`
 
-## How to update this repo
-
-in case that you need to update this repo:
-1. Start updating the superset code in one of two ways:
-    1. Updating from the original repo
-    2. Updating by a handmade fix
-2. Manually regenerate API changes:
-    - At superset/initialization/__init__.py
-   ```python
-    from superset.zf_integration.api import ZFIntegrationRestApi
-
-    appbuilder.add_api(ZFIntegrationRestApi)
-   ```
-3. Confirm that the folders address on the docker compose are still valid, to transfer our custom code into the superset project.
-4. Migrate the following features/changes/improvements:
-    
-    1. Import as PDF:
-      - Add option to main menu
-      - Add API endpoint
-      - Add loading screen on Frontend
-    2. Chart menu displays reduced list of actions on Embedded dashboars
-      - The chart menu should only display "Export to .CSV" and "Download as Image" 
-    3. Main action menu displays reduced list of actions on Embedded dashboards
-      - the menu should only display refresh and download actions.
-    4. Superset notifications are not displays on Embedded dashboards
-    5. Title of the dashboards is not display on Embedded dashboards
-    6. Add loading progress feedback, on PDF import loading screen.
-    7. Add new funnel option: Order by category. ZFE-76991
-    8. Remove available actions on tabs.
 
 ### Test Download as PDF
 

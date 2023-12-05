@@ -16,11 +16,12 @@
 #
 -r development.in
 -r integration.in
+-c constraints.txt
 -e file:.[bigquery,hive,presto,trino]
 docker
 flask-testing
 freezegun
-openapi-spec-validator
+openapi-spec-validator==0.3.1
 parameterized
 pyfakefs
 pylint

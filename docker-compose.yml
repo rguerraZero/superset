@@ -37,6 +37,8 @@ x-superset-volumes: &superset-volumes
   - ./zf_integration:/app/superset/zf_integration
   - ./zf_utils/jwt.py:/app/superset/utils/jwt.py
   - ~/.aws:/root/.aws:ro
+  - ./requirements:/app/requirements
+  - ./setup.py:/app/setup.py
   
 version: "3.7"
 services:

@@ -75,6 +75,7 @@ RUN mkdir -p ${PYTHONPATH} \
     wget \
     unzip \
     telnet \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \

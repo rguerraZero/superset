@@ -16,4 +16,16 @@
 # specific language governing permissions and limitations
 # under the License.
 #
--e file:.
+-e file:.[elasticsearch,bigquery]
+-c constraints.txt
+
+# pyopenssl
+prometheus_flask_exporter==0.22.4
+prometheus-client==0.17.1
+authlib==0.15.5
+social-auth-core
+psycopg2
+sqlalchemy-redshift==0.8.14
+flower
+weasyprint==59.0
+marshmallow-enum

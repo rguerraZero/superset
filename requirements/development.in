@@ -17,6 +17,7 @@
 # under the License.
 #
 -r base.in
+-c constraints.txt
 -e .[cors,druid,hive,mysql,postgres,thumbnails]
 ipython
 progress>=1.5,<2

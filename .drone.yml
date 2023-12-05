@@ -61,7 +61,8 @@ steps:
       - cp -R zf_integration/ superset/zf_integration/
       - cp zf_utils/jwt.py superset/utils/jwt.py
       - pip install coverage
-      - pytest ./tests/unit_tests/ --cov-report xml:coverage.xml
+      - pip freeze
+      - pytest -v ./tests/unit_tests/ --cov-report xml:coverage.xml
 
   - name: coverage-push
     pull: if-not-exists
