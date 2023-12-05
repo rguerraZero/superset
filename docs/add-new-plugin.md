@@ -23,6 +23,7 @@ import { PluginName } from 'plugins/<plugin-name>/src';
 new PluginName().configure({ key: plugin-name }),
 ```
 
+
 Now to run the code you need to recompile the frontend with `ASSET_BASE_URL=http://localhost:8000/spa_bff/superset npm run build-dev`. The plugin should be available to be used on a new Chart
 
 ## Echart plugin

@@ -9,8 +9,9 @@ job "insights" {
   }
 
   update {
-    stagger      = "10s"
-    max_parallel = 1
+    max_parallel     = 1
+    min_healthy_time = "30s"
+    healthy_deadline = "2m"
   }
 
   ${superset}
