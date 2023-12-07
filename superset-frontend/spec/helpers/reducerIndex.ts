@@ -27,6 +27,7 @@ import sliceEntities from 'src/dashboard/reducers/sliceEntities';
 import dashboardLayout from 'src/dashboard/reducers/undoableDashboardLayout';
 import loading from 'src/components/Loading/reducers';
 import messageToasts from 'src/components/MessageToasts/reducers';
+import priorityMessageToasts from 'src/components/PriorityMessageToasts/reducers';
 import saveModal from 'src/explore/reducers/saveModalReducer';
 import explore from 'src/explore/reducers/exploreReducer';
 import sqlLab from 'src/SqlLab/reducers/sqlLab';
@@ -57,6 +58,7 @@ export default {
   impressionId,
   loading,
   messageToasts,
+  priorityMessageToasts,
   sliceEntities,
   saveModal,
   explore,

@@ -136,21 +136,29 @@ const legacyChartDataRequest = async (
     ...requestParams,
     url,
     postPayload: { form_data: formData },
-    parseMethod: 'json-bigint',
+    parseMethod: resultFormat === 'csv' ? 'text' : 'json-bigint',
   };
 
   const clientMethod =
     'GET' && isFeatureEnabled(FeatureFlag.CLIENT_CACHE)
       ? SupersetClient.get
       : SupersetClient.post;
-  return clientMethod(querySettings).then(({ json, response }) =>
+  return clientMethod(querySettings).then(data => {
+    if (resultFormat === 'csv') {
+      const { text, response } = data;
+      return {
+        response,
+        text,
+      };
+    }
     // Make the legacy endpoint return a payload that corresponds to the
     // V1 chart data endpoint response signature.
-    ({
+    const { json, response } = data;
+    return {
       response,
       json: { result: [json] },
-    }),
-  );
+    };
+  });
 };
 
 const v1ChartDataRequest = async (
@@ -194,7 +202,7 @@ const v1ChartDataRequest = async (
     url,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-    parseMethod: 'json-bigint',
+    parseMethod: resultFormat === 'csv' ? 'text' : 'json-bigint',
   };
 
   return SupersetClient.post(querySettings);

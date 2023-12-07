@@ -30,6 +30,7 @@ import Loading from 'src/components/Loading';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import ToastContainer from 'src/components/MessageToasts/ToastContainer';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+import PriorityToastContainer from 'src/components/PriorityMessageToasts/PriorityMessageToastsContainer';
 import { embeddedApi } from './api';
 
 const debugMode = process.env.WEBPACK_MODE === 'development';
@@ -55,6 +56,7 @@ const EmbeddedRoute = () => (
         <LazyDashboardPage idOrSlug={bootstrapData.embedded!.dashboard_id} />
       </ErrorBoundary>
       <ToastContainer position="top" />
+      <PriorityToastContainer />
     </RootContextProviders>
   </Suspense>
 );

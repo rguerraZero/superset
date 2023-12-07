@@ -98,6 +98,8 @@ const propTypes = {
   datasetsStatus: PropTypes.oneOf(['loading', 'error', 'complete']),
   isInView: PropTypes.bool,
   emitCrossFilters: PropTypes.bool,
+  setPriorityToast: PropTypes.func,
+  setPriorityLoadingToast: PropTypes.func,
 };
 
 const defaultProps = {
@@ -357,6 +359,12 @@ class Chart extends React.Component {
       resultFormat: 'csv',
       force: true,
       ownState: this.props.ownState,
+      setMessage: (message, duration = 0) => {
+        this.props.setPriorityToast({ message, duration });
+      },
+      setLoadingMessage: message => {
+        this.props.setPriorityLoadingToast({ message });
+      },
     });
   }
 

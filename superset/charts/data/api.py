@@ -161,6 +161,13 @@ class ChartDataRestApi(ChartRestApi):
         ):
             return self._run_async(json_body, command)
 
+        if (
+            is_feature_enabled("GLOBAL_ASYNC_QUERIES_CSV")
+            and query_context.result_format == ChartDataResultFormat.CSV
+            and query_context.result_type == ChartDataResultType.FULL
+        ):
+            return self._run_async(json_body, command)
+
         try:
             form_data = json.loads(chart.params)
         except (TypeError, json.decoder.JSONDecodeError):
@@ -247,6 +254,13 @@ class ChartDataRestApi(ChartRestApi):
         if (
             is_feature_enabled("GLOBAL_ASYNC_QUERIES")
             and query_context.result_format == ChartDataResultFormat.JSON
+            and query_context.result_type == ChartDataResultType.FULL
+        ):
+            return self._run_async(json_body, command)
+
+        if (
+            is_feature_enabled("GLOBAL_ASYNC_QUERIES_CSV")
+            and query_context.result_format == ChartDataResultFormat.CSV
             and query_context.result_type == ChartDataResultType.FULL
         ):
             return self._run_async(json_body, command)

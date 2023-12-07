@@ -599,6 +599,55 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
     if not is_feature_enabled("ENABLE_EXPLORE_JSON_CSRF_PROTECTION"):
         EXPLORE_JSON_METHODS.append("GET")
 
+    def get_chart_value_from_cache(
+        self,
+        form_data,
+        datasource_type,
+        datasource_id,
+        force,
+        response_type
+    ):
+        # First, look for the chart query results in the cache.
+        try:
+            viz_obj = get_viz(
+                datasource_type=cast(str, datasource_type),
+                datasource_id=datasource_id,
+                form_data=form_data,
+                force_cached=True,
+                force=force,
+            )
+            payload = viz_obj.get_payload()
+            # If the chart query has already been cached, return it immediately.
+            if payload is not None:
+                if response_type == ChartDataResultFormat.CSV:
+                    return CsvResponse(
+                        viz_obj.get_csv(), headers=generate_download_headers("csv")
+                    )
+                else:
+                    return self.send_data_payload_response(viz_obj, payload)
+        except CacheLoadError:
+            pass
+
+        # Otherwise, kick off a background job to run the chart query.
+        # Clients will either poll or be notified of query completion,
+        # at which point they will call the /explore_json/data/<cache_key>
+        # endpoint to retrieve the results.
+        try:
+
+            async_channel_id = async_query_manager.parse_jwt_from_request(
+                request
+            )["channel"]
+            job_metadata = async_query_manager.init_job(
+                async_channel_id, get_user_id()
+            )
+            load_explore_json_into_cache.delay(
+                job_metadata, form_data, response_type, force
+            )
+        except AsyncQueryTokenException:
+            return json_error_response("Not authorized", 401)
+
+        return json_success(json.dumps(job_metadata), status=202)
+
     @api
     @has_access_api
     @handle_api_exception
@@ -655,40 +704,13 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
                 is_feature_enabled("GLOBAL_ASYNC_QUERIES")
                 and response_type == ChartDataResultFormat.JSON
             ):
-                # First, look for the chart query results in the cache.
-                try:
-                    viz_obj = get_viz(
-                        datasource_type=cast(str, datasource_type),
-                        datasource_id=datasource_id,
-                        form_data=form_data,
-                        force_cached=True,
-                        force=force,
-                    )
-                    payload = viz_obj.get_payload()
-                    # If the chart query has already been cached, return it immediately.
-                    if payload is not None:
-                        return self.send_data_payload_response(viz_obj, payload)
-                except CacheLoadError:
-                    pass
+                return self.get_chart_value_from_cache(form_data, datasource_type, datasource_id, force, response_type)
 
-                # Otherwise, kick off a background job to run the chart query.
-                # Clients will either poll or be notified of query completion,
-                # at which point they will call the /explore_json/data/<cache_key>
-                # endpoint to retrieve the results.
-                try:
-                    async_channel_id = async_query_manager.parse_jwt_from_request(
-                        request
-                    )["channel"]
-                    job_metadata = async_query_manager.init_job(
-                        async_channel_id, get_user_id()
-                    )
-                    load_explore_json_into_cache.delay(
-                        job_metadata, form_data, response_type, force
-                    )
-                except AsyncQueryTokenException:
-                    return json_error_response("Not authorized", 401)
-
-                return json_success(json.dumps(job_metadata), status=202)
+            if (
+                is_feature_enabled("GLOBAL_ASYNC_QUERIES_CSV")
+                and (response_type == ChartDataResultFormat.CSV)
+            ):
+                return self.get_chart_value_from_cache(form_data, datasource_type, datasource_id, force, response_type)
 
             viz_obj = get_viz(
                 datasource_type=cast(str, datasource_type),

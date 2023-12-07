@@ -46,6 +46,28 @@ variable "zf_dashboard_host" {
   }
 }
 
+# DO NOT ENABLE UNTIL ZFE-82175 IS COMPLETED
+variable "global_async_queries" {
+  type = map(string)
+
+  default = {
+    qa   = "False"
+    stag = "False"
+    prod = "False"
+  }
+}
+
+# DO NOT ENABLE UNTIL ZFE-82175 IS COMPLETED
+variable "global_async_queries_csv" {
+  type = map(string)
+
+  default = {
+    qa   = "False"
+    stag = "False"
+    prod = "False"
+  }
+}
+
 # ----------------------------------------
 # Providers
 # ----------------------------------------
@@ -251,6 +273,16 @@ resource "consul_keys" "superset-keys" {
   key {
     path  = "${var.app}/superset/env/zf_dashboard_host"
     value = var.zf_dashboard_host[var.env]
+  }
+
+  key {
+    path  = "${var.app}/superset/env/global_async_queries"
+    value = var.global_async_queries[var.env]
+  }
+
+  key {
+    path  = "${var.app}/superset/env/global_async_queries_csv"
+    value = var.global_async_queries_csv[var.env]
   }
 }
 

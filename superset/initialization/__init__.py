@@ -660,7 +660,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
                 csrf.exempt(ex)
 
     def configure_async_queries(self) -> None:
-        if feature_flag_manager.is_feature_enabled("GLOBAL_ASYNC_QUERIES"):
+        if feature_flag_manager.is_feature_enabled("GLOBAL_ASYNC_QUERIES") or feature_flag_manager.is_feature_enabled("GLOBAL_ASYNC_QUERIES_CSV"):
             async_query_manager.init_app(self.superset_app)
 
     def register_blueprints(self) -> None:

@@ -79,14 +79,23 @@ const removeListener = (id: string) => {
 
 const fetchCachedData = async (
   asyncEvent: AsyncEvent,
+  csv = false,
 ): Promise<CachedDataResponse> => {
   let status = 'success';
   let data;
   try {
-    const { json } = await SupersetClient.get({
-      endpoint: String(asyncEvent.result_url),
-    });
-    data = 'result' in json ? json.result : json;
+    if (csv) {
+      const { text, response } = await SupersetClient.get({
+        endpoint: String(asyncEvent.result_url),
+        parseMethod: 'text',
+      });
+      data = { text, response };
+    } else {
+      const { json } = await SupersetClient.get({
+        endpoint: String(asyncEvent.result_url),
+      });
+      data = 'result' in json ? json.result : json;
+    }
   } catch (response) {
     status = 'error';
     data = await getClientErrorObject(response);
@@ -95,13 +104,16 @@ const fetchCachedData = async (
   return { status, data };
 };
 
-export const waitForAsyncData = async (asyncResponse: AsyncEvent) =>
+export const waitForAsyncData = async (
+  asyncResponse: AsyncEvent,
+  csv = false,
+) =>
   new Promise((resolve, reject) => {
     const jobId = asyncResponse.job_id;
     const listener = async (asyncEvent: AsyncEvent) => {
       switch (asyncEvent.status) {
         case JOB_STATUS.DONE: {
-          let { data, status } = await fetchCachedData(asyncEvent); // eslint-disable-line prefer-const
+          let { data, status } = await fetchCachedData(asyncEvent, csv); // eslint-disable-line prefer-const
           data = ensureIsArray(data);
           if (status === 'success') {
             resolve(data);
@@ -229,7 +241,11 @@ const wsConnect = (): void => {
 };
 
 export const init = (appConfig?: AppConfig) => {
-  if (!isFeatureEnabled(FeatureFlag.GLOBAL_ASYNC_QUERIES)) return;
+  if (
+    !isFeatureEnabled(FeatureFlag.GLOBAL_ASYNC_QUERIES) &&
+    !isFeatureEnabled(FeatureFlag.GLOBAL_ASYNC_QUERIES_CSV)
+  )
+    return;
   if (pollingTimeoutId) clearTimeout(pollingTimeoutId);
 
   listenersByJobId = {};

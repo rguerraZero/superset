@@ -29,6 +29,10 @@ import {
   addSuccessToast,
   addDangerToast,
 } from 'src/components/MessageToasts/actions';
+import {
+  setPriorityToast,
+  setPriorityLoadingToast,
+} from 'src/components/PriorityMessageToasts/actions';
 import { refreshChart } from 'src/components/Chart/chartAction';
 import { logEvent } from 'src/logger/actions';
 import {
@@ -118,6 +122,8 @@ function mapDispatchToProps(dispatch) {
       unsetFocusedFilterField,
       refreshChart,
       logEvent,
+      setPriorityToast,
+      setPriorityLoadingToast,
     },
     dispatch,
   );
