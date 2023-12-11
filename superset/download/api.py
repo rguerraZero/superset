@@ -17,6 +17,10 @@ logger = logging.getLogger(__name__)
 env = os.environ.get('ENV')
 app = os.environ.get('SUPERSET_ACCESS_METHOD')
 
+A4_PAGE_WIDTH = 793
+A4_PAGE_HEIGHT = 1122
+FOOTER_SIZE = 202
+
 
 class DownloadRestApi(BaseSupersetApi):
     resource_name = 'download'
@@ -102,7 +106,7 @@ class DownloadRestApi(BaseSupersetApi):
     def get_pdf_pages(self, report_name, date, image_urls):
         pdf_pages = []
         pdf_pages.append(HTML(string=self.get_report_page(report_name, date)).render(
-            stylesheets=[CSS(string=self.get_report_css(995, 1728, 'linear-gradient(300deg, #18325A 14.27%, #091F40 58.84%)'))]))
+            stylesheets=[CSS(string=self.get_report_css(A4_PAGE_WIDTH, A4_PAGE_HEIGHT, 'linear-gradient(300deg, #18325A 14.27%, #091F40 58.84%)'))]))
         for i, x in enumerate(image_urls):
             width, height = self.get_page_dimension(image_urls[x])
             pdf_pages.append(
@@ -172,8 +176,9 @@ class DownloadRestApi(BaseSupersetApi):
         return pdf_url
 
     def get_page_dimension(self, page_configuration):
-        width = max([995, page_configuration['width']])
-        height = max([1728, page_configuration['height']])
+        width = max([A4_PAGE_WIDTH, page_configuration['width']+FOOTER_SIZE])
+        height = max(
+            [A4_PAGE_HEIGHT, page_configuration['height']+FOOTER_SIZE])
         return width, height
 
     def get_report_css(self, width, height, background):
@@ -232,7 +237,7 @@ class DownloadRestApi(BaseSupersetApi):
           margin: 0;
           padding: 0;
           width: {width}px;
-          height: {height + 202}px;
+          height: {height}px;
         }}
 
         @page :first {{
