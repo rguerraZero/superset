@@ -28,7 +28,7 @@ variable "container_count" {
   default = {
     qa   = 1
     stag = 1
-    prod = 1
+    prod = 2
   }
 }
 
