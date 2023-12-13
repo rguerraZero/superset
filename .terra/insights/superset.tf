@@ -287,12 +287,33 @@ resource "consul_keys" "superset-keys" {
 }
 
 module "pdfs_bucket" {
-  source = "git::ssh://git@github.com/riskive/devops-terraform-modules.git//s3-bucket?ref=fix-s3-bucket"
-  name   = "superset-external-pdfs-${var.env}"
-  app    = var.app
-  env    = var.env
-  public = false
+  source     = "git::ssh://git@github.com/riskive/devops-terraform-modules.git//s3-bucket?ref=fix-s3-bucket"
+  name       = "superset-external-pdfs-${var.env}"
+  app        = var.app
+  env        = var.env
+  public     = false
   dr_enabled = false
+}
+
+resource "aws_s3_bucket" "bucket" {
+  bucket = "superset-zf-dash-pdfs-${var.env}"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  tags = {
+    Application = var.app
+    Environment = var.env
+  }
+
+  versioning {
+    enabled = var.env == "prod"
+  }
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
@@ -310,7 +331,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
 # https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html
 # https://aws.amazon.com/blogs/security/iam-policies-and-bucket-policies-and-acls-oh-my-controlling-access-to-s3-resources/
 resource "aws_s3_bucket_policy" "private" {
-  count = 1
+  count  = 1
   bucket = module.pdfs_bucket.bucket_name
   policy = <<POLICY
 {
