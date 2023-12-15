@@ -16,7 +16,10 @@ logger = logging.getLogger(__name__)
 
 env = os.environ.get('ENV')
 app = os.environ.get('SUPERSET_ACCESS_METHOD')
-
+bucket_app_name = {
+    'external': 'zf-dash',
+    'internal': 'internal'
+}
 A4_PAGE_WIDTH = 793
 A4_PAGE_HEIGHT = 1122
 FOOTER_SIZE = 202
@@ -164,7 +167,7 @@ class DownloadRestApi(BaseSupersetApi):
         document.copy(pages).write_pdf(f'/tmp/{file_name}')
 
     def upload_to_s3(self, file_name):
-        bucket_name = f'superset-{app}-pdfs-{env}'
+        bucket_name = self.get_bucket_name()
         s3 = boto3.client('s3')
         with open(f'/tmp/{file_name}', 'rb') as f:
             s3.upload_fileobj(f, bucket_name, file_name)
@@ -174,6 +177,9 @@ class DownloadRestApi(BaseSupersetApi):
             bucket_name,
             file_name)
         return pdf_url
+
+    def get_bucket_name(self):
+        return f'superset-{bucket_app_name[app]}-pdfs-{env}'
 
     def get_page_dimension(self, page_configuration):
         width = max([A4_PAGE_WIDTH, page_configuration['width']+FOOTER_SIZE])

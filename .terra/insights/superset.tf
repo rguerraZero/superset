@@ -318,7 +318,7 @@ resource "aws_s3_bucket" "bucket" {
 
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   count  = 1
-  bucket = module.pdfs_bucket.bucket_name
+  bucket = aws_s3_bucket.bucket.id
   rule {
     id = "bucket-dr"
     expiration {
@@ -332,7 +332,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
 # https://aws.amazon.com/blogs/security/iam-policies-and-bucket-policies-and-acls-oh-my-controlling-access-to-s3-resources/
 resource "aws_s3_bucket_policy" "private" {
   count  = 1
-  bucket = module.pdfs_bucket.bucket_name
+  bucket = aws_s3_bucket.bucket.id
   policy = <<POLICY
 {
   "Version": "2012-10-17",
@@ -344,15 +344,25 @@ resource "aws_s3_bucket_policy" "private" {
       "Action": [
         "s3:GetObject"
       ],
-      "Resource": "${module.pdfs_bucket.bucket_arn}/*"
+      "Resource": "${aws_s3_bucket.bucket.arn}/*"
+    },
+    {
+      "Sid": "AddPerm",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": [
+        "${aws_s3_bucket.bucket.arn}",
+        "${aws_s3_bucket.bucket.arn}/*"
+      ]
     },
     {
       "Sid": "AllowSSLRequestsOnly",
       "Action": "s3:*",
       "Effect": "Deny",
       "Resource": [
-        "${module.pdfs_bucket.bucket_arn}",
-        "${module.pdfs_bucket.bucket_arn}/*"
+        "${aws_s3_bucket.bucket.arn}",
+        "${aws_s3_bucket.bucket.arn}/*"
       ],
       "Condition": {
         "Bool": {
