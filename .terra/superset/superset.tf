@@ -270,6 +270,27 @@ module "pdfs_bucket" {
   dr_enabled = false
 }
 
+resource "aws_s3_bucket" "bucket" {
+  bucket = "superset-bi-pdfs-${var.env}"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  tags = {
+    Application = var.app
+    Environment = var.env
+  }
+
+  versioning {
+    enabled = var.env == "prod"
+  }
+}
+
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   count  = 1
   bucket = module.pdfs_bucket.bucket_name
