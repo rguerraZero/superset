@@ -18,7 +18,7 @@ env = os.environ.get('ENV')
 app = os.environ.get('SUPERSET_ACCESS_METHOD')
 bucket_app_name = {
     'external': 'zf-dash',
-    'internal': 'internal'
+    'internal': 'bi'
 }
 A4_PAGE_WIDTH = 793
 A4_PAGE_HEIGHT = 1122
