@@ -68,6 +68,9 @@ if not any(method.value == SUPERSET_ACCESS_METHOD for method in AccessMethod):
 DASHBOARD_RBAC = False
 EMBEDDED_SUPERSET = False
 
+if AccessMethod.is_internal(SUPERSET_ACCESS_METHOD):
+    DASHBOARD_RBAC = os.getenv("DASHBOARD_RBAC", None) == "1"
+
 if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
     # Update Flags values
     EMBEDDED_SUPERSET = True
