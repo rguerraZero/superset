@@ -634,7 +634,9 @@ export function addNewQueryEditor() {
         dbId: dbId || defaultDbId || firstDbId,
         schema: schema ?? null,
         autorun: autorun ?? false,
-        sql: `${warning}SELECT ...`,
+        sql: `${warning}SELECT ...
+FROM ...
+WHERE ...;`,
         queryLimit: queryLimit || common.conf.DEFAULT_SQLLAB_LIMIT,
         name,
       }),
