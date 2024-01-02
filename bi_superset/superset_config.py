@@ -26,7 +26,7 @@ import logging
 import os
 from typing import Optional
 from datetime import timedelta
-from flask_appbuilder.security.manager import AUTH_OAUTH
+from flask_appbuilder.security.manager import AUTH_OAUTH, AUTH_DB
 
 # Security Manager implementation has to be provided
 from bi_superset.bi_custom_security_manager import BICustomSecurityManager

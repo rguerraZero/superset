@@ -4,8 +4,9 @@ nav:
     - Home: README.md
     - Release+Deploy: RELEASE+DEPLOY.md
     - Testing: TESTING.md
-    - New Plugin: add-new-plugin.md
     - Contributing: CONTRIBUTING.md
-    - Upgrading Superset: UPGRADING_SUPERSET.md
+    - Playbook - New Plugin: add-new-plugin.md
+    - Playbook - Upgrading Superset: UPGRADING_SUPERSET.md
+    - Playbook - API access: API-ACCESS.md
 plugins:
     - techdocs-core

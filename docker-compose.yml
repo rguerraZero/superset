@@ -39,6 +39,7 @@ x-superset-volumes: &superset-volumes
   - ~/.aws:/root/.aws:ro
   - ./requirements:/app/requirements
   - ./setup.py:/app/setup.py
+  - ./bi_superset/superset_config.py:/app/superset_config.py
   
 version: "3.7"
 services:

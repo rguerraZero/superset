@@ -530,6 +530,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         feature_flag_manager.init_app(self.superset_app)
 
     def configure_fab(self) -> None:
+        
         if self.config["SILENCE_FAB"]:
             logging.getLogger("flask_appbuilder").setLevel(logging.ERROR)
 
