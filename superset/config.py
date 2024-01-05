@@ -69,6 +69,7 @@ from superset.utils.core import is_test, NO_TIME_RANGE, parse_boolean_string
 from superset.utils.encrypt import SQLAlchemyUtilsAdapter
 from superset.utils.log import DBEventLogger
 from superset.utils.logging_configurator import DefaultLoggingConfigurator
+from zf_utils.sql_annotate import annotate_query
 
 logger = logging.getLogger(__name__)
 
@@ -1198,7 +1199,9 @@ DB_CONNECTION_MUTATOR = None
 def SQL_QUERY_MUTATOR(  # pylint: disable=invalid-name,unused-argument
     sql: str, **kwargs: Any
 ) -> str:
-    return sql
+    username = kwargs.get("user_name")
+    context = kwargs.get("context")
+    return annotate_query(sql, context, username)
 
 
 # A variable that chooses whether to apply the SQL_QUERY_MUTATOR before or after splitting the input query

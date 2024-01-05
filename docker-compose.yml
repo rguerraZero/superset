@@ -36,10 +36,12 @@ x-superset-volumes: &superset-volumes
   - ./secrets/:/secrets/
   - ./zf_integration:/app/superset/zf_integration
   - ./zf_utils/jwt.py:/app/superset/utils/jwt.py
+  - ./zf_utils:/app/zf_utils
   - ~/.aws:/root/.aws:ro
   - ./requirements:/app/requirements
   - ./setup.py:/app/setup.py
   - ./bi_superset/superset_config.py:/app/superset_config.py
+  - ./superset/static/assets:/app/superset/static/assets
   
 version: "3.7"
 services:
@@ -69,7 +71,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        ASSET_BASE_URL: https://cloud-stag.zerofox.com/spa_bff/superset/spa_bff/superset
+        ASSET_BASE_URL: http://localhost:8088
     container_name: superset_app
     command: ["/app/docker/docker-bootstrap.sh", "app"]
     restart: unless-stopped
@@ -81,12 +83,16 @@ services:
     volumes: *superset-volumes
     environment:
       CYPRESS_CONFIG: "${CYPRESS_CONFIG}"
+      ASSET_BASE_URL: http://localhost:8088
+      QUERY_ANNOTATIONS: 1
 
   superset-init:
     image: superset-local
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        ASSET_BASE_URL: "http://localhost:8000/spa_bff/superset"
     container_name: superset_init
     command: ["/app/docker/docker-init.sh"]
     env_file: docker/.env

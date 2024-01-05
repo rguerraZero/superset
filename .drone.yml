@@ -60,6 +60,7 @@ steps:
       - cp bi_superset/bi_cli/bi_cli.py superset/cli/bi_cli.py
       - cp -R zf_integration/ superset/zf_integration/
       - cp zf_utils/jwt.py superset/utils/jwt.py
+      - cp -R zf_utils superset/zf_utils
       - pip install coverage
       - pip freeze
       - pytest -v ./tests/unit_tests/ --cov-report xml:coverage.xml

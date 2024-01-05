@@ -18,6 +18,35 @@ You will need to set 12GB of memory for docker to build the image.
 > make docker-build
 ```
 
+## Running superset
+
+1. Modify `bi_superset/superset_config.py` by changing
+this line `AUTH_TYPE = AUTH_OAUTH` to `AUTH_TYPE = AUTH_DB`
+2. User management:
+   * If running against local db:
+        ```sh
+        docker compose run superset flask create-user '<username>@zerofox.com' '<the-password>' '<firstname>' '<lastname>'
+        ```
+   * If running against QA then use the following credentials:
+   * Username: `test_qa@zerofox.com`
+   * Password: `test_qa`
+3. Run docker compose:
+    ```sh
+    > make docker-up
+    ```
+4. Browse `http://localhost:8088` and use credentials from above.
+
+### Troubleshooting
+
+#### Static resources not loading
+
+Make sure to configure NodeJs 16.
+
+```sh
+cs superset-frontend
+ASSET_BASE_URL=http://localhost:8088 npm run build --verbose
+```
+
 ## Celery debugging
 
 1. Add `from celery.contrib import rdb; rdb.set_trace()` in the lines you wish the debugger to break.

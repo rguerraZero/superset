@@ -120,6 +120,7 @@ COPY bi_superset/bi_cli/bi_cli.py /app/superset/cli/bi_cli.py
 # Copy ZF-Dashboard integration files
 COPY zf_integration/ /app/superset/zf_integration/
 COPY zf_utils/jwt.py /app/superset/utils/jwt.py
+COPY zf_utils /app/zf_utils
 
 HEALTHCHECK CMD curl -f "http://localhost:$SUPERSET_PORT/health"
 

@@ -134,6 +134,7 @@ from superset.utils.core import (
     QueryObjectFilterClause,
     remove_duplicates,
 )
+from zf_utils.sql_annotate import get_context_data_from_sqla
 
 config = app.config
 metadata = Model.metadata  # pylint: disable=no-member
@@ -874,6 +875,7 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
                 user_name=get_username(),
                 security_manager=security_manager,
                 database=self.database,
+                context=get_context_data_from_sqla(self),
             )
         return sql
 

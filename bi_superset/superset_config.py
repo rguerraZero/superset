@@ -281,3 +281,4 @@ class CeleryConfig:  # pylint: disable=too-few-public-methods
 
 
 CELERY_CONFIG = CeleryConfig  # pylint: disable=invalid-name
+QUERY_ANNOTATIONS = os.getenv("QUERY_ANNOTATIONS", None) == "1"
