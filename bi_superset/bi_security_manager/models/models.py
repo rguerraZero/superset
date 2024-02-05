@@ -23,7 +23,10 @@ class RolesPerJobTitle(Model):
         )
     
     def list_rbac_roles(self):
-        return self.rbac_roles.split(",") if self.rbac_roles else []
+        # lower and add 'rbac_'
+        data = self.rbac_roles.split(",") if self.rbac_roles else []
+        return [f"rbac_{role.lower()}" for role in data]
+    
 
     def to_dict(self) -> dict:
         return {

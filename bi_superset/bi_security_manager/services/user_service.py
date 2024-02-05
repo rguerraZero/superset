@@ -73,7 +73,7 @@ class UserService:
             self._access_origin
         ):
             if AccessMethod.is_external(self._access_method):
-                role = self.sm.find_role("Admin")
+                roles = [self.sm.find_role("Admin")]
             else:
                 # pylint: disable=import-outside-toplevel
                 from bi_superset.bi_security_manager.models.models import (
@@ -104,7 +104,7 @@ class UserService:
                     role = self.sm.find_role(rbac_role)
                     if role is not None:
                         roles.append(role)
-            user.roles = [roles]
+            user.roles = roles
 
         else:
             user.roles = self._get_user_roles(zf_user)
