@@ -191,6 +191,7 @@ class BICLISecurityManager(SupersetSecurityManager):
                 dtype={
                     "username": String(255),
                     "role_name": String(255),
+                    "rbac_roles": String(255),
                 },
                 index=False,
             )
@@ -301,4 +302,153 @@ class BICLISecurityManager(SupersetSecurityManager):
             # Update dashboard
             session.merge(dashboard)
         # Commit changes
+        session.commit()
+
+    def sync_rbac_role_list(self):
+        if not AccessMethod.is_internal(self._access_method):
+            logging.info("This method only works with internal access method")
+            return
+
+        from bi_superset.bi_security_manager.adapter.bigquery_sql import BigquerySQL
+        from bi_superset.bi_security_manager.services.dashboard_role_access_service import (
+            DashboardRoleAccessService,
+        )
+        from superset.utils.database import get_main_database
+        from sqlalchemy import inspect, String, Integer
+        from bi_superset.bi_security_manager.models.models import (
+                            RBACRoles,
+                        )
+        from flask_appbuilder.security.sqla.models import Role
+        
+        bq_client = BigquerySQL()
+        dashabord_role_access_service = DashboardRoleAccessService(bq_client)
+
+        roles_per_job_title_df = dashabord_role_access_service.get_rbac_roles()
+
+        tbl_name = "bi_rbac_roles"
+        database = get_main_database()
+        with database.get_sqla_engine_with_context() as engine:
+            schema = inspect(engine).default_schema_name
+
+            roles_per_job_title_df.to_sql(
+                tbl_name,
+                engine,
+                schema=schema,
+                if_exists="replace",
+                chunksize=500,
+                dtype={
+                    "id": Integer,
+                    "role_name": String(255),
+                },
+                index_label="id",
+            )
+        session = self.get_session()
+
+
+        logging.info("Gettint RBAC Roles from Role table")
+        query = (
+                    session
+                    .query(Role)
+                    .filter(Role.name.startswith("rbac_"))
+                )
+        roles = query.all()
+
+        logging.info("Getting RBAC Roles from RBAC Role Table")
+        query = (
+                    session
+                    .query(RBACRoles)
+                    .filter(RBACRoles.role_name.startswith("rbac_"))
+                )
+        rbac_roles = query.all()
+
+        # delete roles thar are not in rbac_roles
+        for role in roles:
+            # Search by role.name in rbac_roles.role_name
+            if role.name not in [rbac_role.role_name for rbac_role in rbac_roles]:
+                logging.info("Deleting role from superset %s", role.name)
+                session.delete(role)
+                session.commit()
+
+        # Skip existing RBAC Roles
+        for rbac_role in rbac_roles:
+            if rbac_role.role_name not in [role.name for role in roles]:
+                logging.info("Creating role from superset %s", rbac_role.role_name)
+                self.add_role(rbac_role.role_name)
+
+
+    def sync_dashboard_rbac_role_assignation(self):
+        if not AccessMethod.is_internal(self._access_method):
+            logging.info("This method only works with internal access method")
+            return
+
+        from bi_superset.bi_security_manager.adapter.bigquery_sql import BigquerySQL
+        from bi_superset.bi_security_manager.services.dashboard_role_access_service import (
+            DashboardRoleAccessService,
+        )
+        from superset.utils.database import get_main_database
+        from sqlalchemy import inspect, String, Integer
+
+
+
+        bq_client = BigquerySQL()
+        dashabord_role_access_service = DashboardRoleAccessService(bq_client)
+
+        roles_per_job_title_df = dashabord_role_access_service.get_dashboard_rbac_role_assignation()
+
+        tbl_name = "bi_dashboard_rbac_role_assignation"
+        database = get_main_database()
+        with database.get_sqla_engine_with_context() as engine:
+            schema = inspect(engine).default_schema_name
+
+            roles_per_job_title_df.to_sql(
+                tbl_name,
+                engine,
+                schema=schema,
+                if_exists="replace",
+                chunksize=500,
+                dtype={
+                    "id": Integer,
+                    "role_name": String(255),
+                    "dashboard_id": Integer,
+                },
+                index_label="id",
+            )
+
+        from superset.models.dashboard import Dashboard
+        session = self.get_session()
+        
+        # Get All Dashboards
+        query = session.query(Dashboard)
+
+        dashboards = query.all()
+
+
+
+        from bi_superset.bi_security_manager.models.models import (
+                            DashboardRBACRoleAssignation,
+                        )
+        import datetime
+        query = (
+                    session
+                    .query(DashboardRBACRoleAssignation)
+                    .filter(DashboardRBACRoleAssignation.role_name.startswith("rbac_"))
+                )
+        rbac_roles = query.all()
+
+        # Every Dashboard will remove role relationship
+        for dashboard in dashboards:
+            roles =  []
+            for rbac_role in rbac_roles:
+                if rbac_role.dashboard_id == dashboard.id:
+                    role = self.find_role(rbac_role.role_name)
+                    if role is None:
+                        raise Exception("Role not found")
+                    roles.append(role)
+                elif rbac_role.dashboard_id == -1 and dashboard.created_on <= datetime.datetime(2024,2,6):
+                    role = self.find_role(rbac_role.role_name)
+                    if role is None:
+                        raise Exception("Role not found")
+                    roles.append(role)
+            dashboard.roles = roles
+            session.merge(dashboard)
         session.commit()

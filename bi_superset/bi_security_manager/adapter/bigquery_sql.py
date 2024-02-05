@@ -21,6 +21,8 @@ class BigquerySQL(ASql):
             ]
         )
         gbq.context.credentials = credentials
+        # set project
+        gbq.context.project = "csdataanalysis"
 
     def get_df(self, query: str) -> pd.DataFrame:
         """
@@ -30,7 +32,7 @@ class BigquerySQL(ASql):
             raise ValueError("query is required")
 
         try:
-            df = gbq.read_gbq(query, project_id=BQ_DATASET)
+            df = gbq.read_gbq(query, project_id="csdataanalysis")
             return df
         except Exception as e:
             raise ValueError(f"Error getting dataframe from bigquery: {e}")
@@ -51,7 +53,7 @@ class BigquerySQL(ASql):
             WHERE 1 = 1
             AND table_name='{table_name}'
         """.format(
-            dataset=BQ_DATASET, schema=schema_name, table_name=table_name
+            dataset="csdataanalysis", schema=schema_name, table_name=table_name
         )
 
         try:

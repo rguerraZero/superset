@@ -20,7 +20,7 @@ class RolePerJobTitleService:
 
         """
 
-        query = ROLES_PER_JOB_TITLE.format(dataset=BQ_DATASET)
+        query = ROLES_PER_JOB_TITLE.format(dataset="csdataanalysis")
 
         df = self.sql.get_df(query)
 

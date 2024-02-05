@@ -65,16 +65,13 @@ if not any(method.value == SUPERSET_ACCESS_METHOD for method in AccessMethod):
     raise Exception("ENV SUPERSET_ACCESS_METHOD is not set")
 
 # Default Flags for internal env
-DASHBOARD_RBAC = False
+DASHBOARD_RBAC = True
 EMBEDDED_SUPERSET = False
 
-if AccessMethod.is_internal(SUPERSET_ACCESS_METHOD):
-    DASHBOARD_RBAC = os.getenv("DASHBOARD_RBAC", None) == "1"
 
 if AccessMethod.is_external(SUPERSET_ACCESS_METHOD):
     # Update Flags values
     EMBEDDED_SUPERSET = True
-    DASHBOARD_RBAC = True
     # Enable embedded Configuration
     ENABLE_PROXY_FIX = True
     DEFAULT_HTTP_HEADERS = {"X-Frame-Options": "ALLOWALL"}

@@ -27,7 +27,8 @@ WHERE {role_name} = true
 ROLES_PER_JOB_TITLE = """
 SELECT
     employee,
-    role_name
+    role_name,
+    rbac_roles
 FROM {dataset}.bi_superset_access.roles_per_job_title
 """
 
@@ -51,4 +52,25 @@ SELECT
     dashboard_id,
     role_name
 FROM {dataset}.bi_superset_access.dashboard_role_access_exterrnal
+"""
+
+##################################
+# DASHBOARD RBAC INTERNAL        #
+##################################
+
+RBAC_ROLES = """
+SELECT
+    concat('rbac_', role_name) as role_name
+FROM {dataset}.bi_superset_access.rbac_roles
+"""
+
+###################################
+# DASHBOARD RBAC ROLE ASSIGNATION #
+###################################
+
+DASHBOARD_RBAC_ROLE_ASSIGNATION = """
+SELECT
+    concat('rbac_', role_name) as role_name,
+    dashboard_id
+FROM {dataset}.bi_superset_access.dashboard_rbac_role_assignation
 """
