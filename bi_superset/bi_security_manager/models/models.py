@@ -19,13 +19,13 @@ class RolesPerJobTitle(Model):
         return cls(
             username=i_dict.get("employee"),
             role_name=i_dict.get("role_name").lower().replace(" ", "_"),
-            rbac_roles=i_dict.get("rbac_roles").lower().replace(" ", "") if i_dict.get("rbac_roles") else None,
+            rbac_roles=i_dict.get("rbac_roles").lower() if i_dict.get("rbac_roles") else None,
         )
     
     def list_rbac_roles(self):
         # lower and add 'rbac_'
         data = self.rbac_roles.split(",") if self.rbac_roles else []
-        return [f"rbac_{role.lower()}" for role in data]
+        return [f"rbac_{role.lower().strip().replace(' ', '_')}" for role in data]
     
 
     def to_dict(self) -> dict:
@@ -94,7 +94,7 @@ class RBACRoles(Model):
     @classmethod
     def from_dict(cls, row):
         return cls(
-            role_name=row["role_name"]
+            role_name=row["role_name"].strip().lower().replace(" ", "_")
         )
 
     def to_dict(self):
@@ -112,7 +112,7 @@ class DashboardRBACRoleAssignation(Model):
     @classmethod
     def from_dict(cls, row):
         return cls(
-            role_name=row["role_name"],
+            role_name=row["role_name"].strip().lower().replace(" ", "_"),
             dashboard_id=row["dashboard_id"],
         )
 

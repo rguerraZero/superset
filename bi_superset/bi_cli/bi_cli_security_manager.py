@@ -447,7 +447,7 @@ class BICLISecurityManager(SupersetSecurityManager):
                     if role is None:
                         raise Exception("Role not found")
                     roles.append(role)
-                elif rbac_role.dashboard_id == -1 and dashboard.created_on <= datetime.datetime(2024,2,6) and dashboard.id not in exclusion_dashboard_ids:
+                elif rbac_role.dashboard_id == -1 and dashboard.id not in exclusion_dashboard_ids:
                     role = self.find_role(rbac_role.role_name)
                     if role is None:
                         raise Exception("Role not found")
