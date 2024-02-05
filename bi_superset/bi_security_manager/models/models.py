@@ -21,6 +21,9 @@ class RolesPerJobTitle(Model):
             role_name=i_dict.get("role_name").lower().replace(" ", "_"),
             rbac_roles=i_dict.get("rbac_roles").lower().replace(" ", "") if i_dict.get("rbac_roles") else None,
         )
+    
+    def list_rbac_roles(self):
+        return self.rbac_roles.split(",") if self.rbac_roles else []
 
     def to_dict(self) -> dict:
         return {

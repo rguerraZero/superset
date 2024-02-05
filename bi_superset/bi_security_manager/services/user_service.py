@@ -92,11 +92,19 @@ class UserService:
                 search_role_name = user_role_job_title.role_name
                 if "admin" == search_role_name.lower():
                     search_role_name = search_role_name.capitalize()
+                roles = []
+
                 role = self.sm.find_role(search_role_name)
                 if role is None:
                     logger.info("Role Not found")
+                roles.append(role)
                 # role = self.sm.find_role("zerofox_internal")
-            user.roles = [role]
+                rbac_roles = user_role_job_title.list_rbac_roles()
+                for rbac_role in rbac_roles:
+                    role = self.sm.find_role(rbac_role)
+                    if role is not None:
+                        roles.append(role)
+            user.roles = [roles]
 
         else:
             user.roles = self._get_user_roles(zf_user)
