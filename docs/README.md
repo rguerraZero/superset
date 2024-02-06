@@ -46,7 +46,7 @@ add to the composer for each image the argument
       context: .
       dockerfile: Dockerfile
       args:
-        ASSET_BASE_URL: http://localhost:8088
+        ASSET_BASE_URL: "http://localhost:8000/spa_bff/superset"
 ```
 
 
@@ -54,7 +54,10 @@ Using NPM v16
 ```
 cs superset-frontend
 npm install
-ASSET_BASE_URL=http://localhost:8088 npm run build --verbose
+# For external
+ASSET_BASE_URL="http://localhost:8000/spa_bff/superset" npm run build-dev --verbose
+# For internal
+npm run build-dev --verbose
 ```
 
 ### Run debugger
