@@ -22,7 +22,7 @@ class DashboardRoleAccessService:
         Get dashboard role access for external users
         """
 
-        query = DASHBOARD_ROLE_ACCESS_EXTERNAL.format(dataset="csdataanalysis")
+        query = DASHBOARD_ROLE_ACCESS_EXTERNAL.format(dataset=BQ_DATASET)
 
         df = self.sql.get_df(query)
 
@@ -49,7 +49,7 @@ class DashboardRoleAccessService:
         Returns:
             pd.DataFrame: Return a Dataframe of the RBAC roles
         """
-        query = RBAC_ROLES.format(dataset="csdataanalysis")
+        query = RBAC_ROLES.format(dataset=BQ_DATASET)
         df = self.sql.get_df(query)
         if df.empty:
             raise ValueError("no rbac roles found")
@@ -69,7 +69,7 @@ class DashboardRoleAccessService:
         return df
     
     def get_dashboard_rbac_role_assignation(self):
-        query = DASHBOARD_RBAC_ROLE_ASSIGNATION.format(dataset="csdataanalysis")
+        query = DASHBOARD_RBAC_ROLE_ASSIGNATION.format(dataset=BQ_DATASET)
         df = self.sql.get_df(query)
         if df.empty:
             raise ValueError("no rbac role assignation found")

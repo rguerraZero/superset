@@ -30,7 +30,7 @@ class DataSourcePermissionService:
             raise ValueError("access_method is required")
 
         query = DATA_SOURCE_PERMISSIONS_QUERY.format(
-            dataset="csdataanalysis", role_name=role_name, access_method=access_method
+            dataset=BQ_DATASET, role_name=role_name, access_method=access_method
         )
 
         df = self.sql.get_df(query)
