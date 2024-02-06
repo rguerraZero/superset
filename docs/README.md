@@ -38,6 +38,16 @@ To run it locally take in note that needs atleast 3gb on docker memory to run pr
 3. `make run`: Runs local superset image
 
 Note: the local build will need you to compile the assets on the host machine:
+Note2: in case that access method to test is `external`
+add to the composer for each image the argument
+```
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ASSET_BASE_URL: http://localhost:8088
+```
+
 
 ```
 cd superset-frontend
