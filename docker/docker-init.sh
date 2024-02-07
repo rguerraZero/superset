@@ -62,6 +62,12 @@ echo_step "2" "Complete" "Setting up admin user"
 # Create default roles and permissions
 echo_step "3" "Starting" "Setting up roles and perms"
 superset init
+
+
+echo_step "4" "starting" "bi init"
+superset bi-init
+echo_step "4" "complete" "bi init"
+
 echo_step "3" "Complete" "Setting up roles and perms"
 
 if [ "$SUPERSET_LOAD_EXAMPLES" = "yes" ]; then

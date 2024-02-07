@@ -38,4 +38,9 @@ def bi_init() -> None:
     sec_manager.update_dashboard_default_access()
     logging.info("Updating Superset Dashboard default access Completed")
 
+    logging.info("Updating RBAC Roles")
+    sec_manager.sync_rbac_role_list()
+    sec_manager.sync_dashboard_rbac_role_assignation()
+    logging.info("Updating RBAC Roles Completed")
+
     logging.info("Sync Completed")

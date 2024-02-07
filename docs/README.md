@@ -33,16 +33,31 @@ This repository contains a copy of superset repo, to be compiled and used as a d
 
 To run it locally take in note that needs atleast 3gb on docker memory to run properly
 
-1. Duplicate /docker/.env.sample to /docker/.env
+1. Duplicate /docker/.env.sample to /docker/.env (CHECK THE ENVS FOR INTERNAL OR EXTERNAL)
+2. Create a `secrets` folder and paste the Google service account
 2. `make build`: Generates local superset image
 3. `make run`: Runs local superset image
 
 Note: the local build will need you to compile the assets on the host machine:
-
+Note2: in case that access method to test is `external`
+add to the composer for each image the argument
 ```
-cd superset-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ASSET_BASE_URL: "http://localhost:8000/spa_bff/superset"
+```
+
+
+Using NPM v16
+```
+cs superset-frontend
 npm install
-npm run build
+# For external
+ASSET_BASE_URL="http://localhost:8000/spa_bff/superset" npm run build-dev --verbose
+# For internal
+npm run build-dev --verbose
 ```
 
 ### Run debugger

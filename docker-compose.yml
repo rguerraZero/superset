@@ -24,8 +24,9 @@ x-superset-depends-on: &superset-depends-on
 x-celery-depends-on: &superset-celery-on
   - db
   - redis
-x-superset-volumes: &superset-volumes
+x-superset-volumes:
   # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
+  &superset-volumes
   - ./docker:/app/docker
   - ./superset:/app/superset
   - ./superset-frontend:/app/superset-frontend
@@ -42,7 +43,7 @@ x-superset-volumes: &superset-volumes
   - ./setup.py:/app/setup.py
   - ./bi_superset/superset_config.py:/app/superset_config.py
   - ./superset/static/assets:/app/superset/static/assets
-  
+
 version: "3.7"
 services:
   redis:
@@ -70,10 +71,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        ASSET_BASE_URL: http://localhost:8088
+
     container_name: superset_app
-    command: ["/app/docker/docker-bootstrap.sh", "app"]
+    command: [ "/app/docker/docker-bootstrap.sh", "app" ]
     restart: unless-stopped
     ports:
       - 8088:8088
@@ -83,7 +83,6 @@ services:
     volumes: *superset-volumes
     environment:
       CYPRESS_CONFIG: "${CYPRESS_CONFIG}"
-      ASSET_BASE_URL: http://localhost:8088
       QUERY_ANNOTATIONS: 1
 
   superset-init:
@@ -91,10 +90,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        ASSET_BASE_URL: "http://localhost:8000/spa_bff/superset"
+
     container_name: superset_init
-    command: ["/app/docker/docker-init.sh"]
+    command: [ "/app/docker/docker-init.sh" ]
     env_file: docker/.env
     depends_on: *superset-depends-on
     user: *superset-user
@@ -110,7 +108,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: superset_worker
-    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    command: [ "/app/docker/docker-bootstrap.sh", "worker" ]
     env_file: docker/.env
     restart: unless-stopped
     depends_on: *superset-celery-on
@@ -120,7 +118,11 @@ services:
     ports:
       - 6907:6907
     healthcheck:
-      test: ["CMD-SHELL", "celery inspect ping -A superset.tasks.celery_app:app -d celery@$$HOSTNAME"]
+      test:
+        [
+          "CMD-SHELL",
+          "celery inspect ping -A superset.tasks.celery_app:app -d celery@$$HOSTNAME"
+        ]
     # Bump memory limit if processing selenium / thumbnails on superset-worker
     mem_limit: 2038m
     mem_reservation: 128M
@@ -131,7 +133,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: superset_worker_beat
-    command: ["/app/docker/docker-bootstrap.sh", "beat"]
+    command: [ "/app/docker/docker-bootstrap.sh", "beat" ]
     env_file: docker/.env
     restart: unless-stopped
     depends_on: *superset-celery-on
