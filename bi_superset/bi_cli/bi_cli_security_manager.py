@@ -314,7 +314,7 @@ class BICLISecurityManager(SupersetSecurityManager):
             DashboardRoleAccessService,
         )
         from superset.utils.database import get_main_database
-        from sqlalchemy import inspect, String, Integer
+        from sqlalchemy import inspect, String, Integer, delete
         from bi_superset.bi_security_manager.models.models import (
                             RBACRoles,
                         )
@@ -369,8 +369,15 @@ class BICLISecurityManager(SupersetSecurityManager):
             if role.name not in [rbac_role.role_name for rbac_role in rbac_roles]:
                 logging.info("Deleting role from superset %s", role.name)
                 # need to search all role_id in `assoc_user_role` and delete
-                session.delete(assoc_user_role).where(assoc_user_role.c.role_id == role.id)
-                session.delete(DashboardRoles).where(DashboardRoles.c.role_id == role.id)
+                # Delete user role association
+                stmt = delete(assoc_user_role).where(assoc_user_role.c.role_id == role.id)
+                session.delete(stmt)
+                session.commit()
+                # Delete dashboard role association
+                stmt = delete(DashboardRoles).where(DashboardRoles.c.role_id == role.id)
+                session.delete(stmt)
+                session.commit()
+                # Delete Role
                 session.delete(role)
                 session.commit()
 
