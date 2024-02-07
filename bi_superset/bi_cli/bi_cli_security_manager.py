@@ -314,7 +314,7 @@ class BICLISecurityManager(SupersetSecurityManager):
             DashboardRoleAccessService,
         )
         from superset.utils.database import get_main_database
-        from sqlalchemy import inspect, String, Integer, delete
+        from sqlalchemy import inspect, String, Integer
         from bi_superset.bi_security_manager.models.models import (
                             RBACRoles,
                         )
