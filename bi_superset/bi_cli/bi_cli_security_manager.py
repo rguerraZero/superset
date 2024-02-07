@@ -370,12 +370,10 @@ class BICLISecurityManager(SupersetSecurityManager):
                 logging.info("Deleting role from superset %s", role.name)
                 # need to search all role_id in `assoc_user_role` and delete
                 # Delete user role association
-                stmt = delete(assoc_user_role).where(assoc_user_role.c.role_id == role.id)
-                session.delete(stmt)
+                session.query(assoc_user_role).filter(assoc_user_role.c.role_id == role.id).delete(synchronize_session=False)
                 session.commit()
                 # Delete dashboard role association
-                stmt = delete(DashboardRoles).where(DashboardRoles.c.role_id == role.id)
-                session.delete(stmt)
+                session.query(DashboardRoles).filter(DashboardRoles.c.role_id == role.id).delete(synchronize_session=False)
                 session.commit()
                 # Delete Role
                 session.delete(role)
