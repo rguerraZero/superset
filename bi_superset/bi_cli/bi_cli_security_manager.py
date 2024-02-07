@@ -369,8 +369,8 @@ class BICLISecurityManager(SupersetSecurityManager):
             if role.name not in [rbac_role.role_name for rbac_role in rbac_roles]:
                 logging.info("Deleting role from superset %s", role.name)
                 # need to search all role_id in `assoc_user_role` and delete
-                session.delete(assoc_user_role).where(assoc_user_role.role_id == role.id)
-                session.delete(DashboardRoles).where(DashboardRoles.role_id == role.id)
+                session.delete(assoc_user_role).where(assoc_user_role.c.role_id == role.id)
+                session.delete(DashboardRoles).where(DashboardRoles.c.role_id == role.id)
                 session.delete(role)
                 session.commit()
 
