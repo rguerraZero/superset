@@ -34,7 +34,6 @@ from bi_superset.bi_security_manager.models.access_method import AccessMethod
 from bi_superset.bi_security_manager.models.user import User as ZFUser, BASE_VIEW_ROLE
 from bi_superset.bi_security_manager.services.user_service import UserService
 
-
 from sqlalchemy import and_
 from flask_appbuilder.security.sqla.models import Role
 
